@@ -75,8 +75,8 @@ contains
                                     irowtab,batest_user,frmtres_min1,simul_ProSetup, &
                                     FileTyp,sDecimalPoint, UR_version_tag, UR_git_hash
         use UR_gtk_globals, only: clobj, dialogstr, ioption, consoleout_gtk, posx, posy, &
-                                    QuitProg, ntvs, tvnames, tv_colwidth_digits, winPL_shown, &
-                                    tvcolindex, tvcols, nbook2, UR_widgets
+                                  QuitProg, ntvs, tvnames, tv_colwidth_digits, winPL_shown, &
+                                  tvcolindex, tvcols, nbook2, UR_widgets
         use plplot_code_sub1,  only: windowPL,width_da,height_da,drawing,hl_gtk_drawing_area_resize
         use UR_Gleich_globals, only: Symbole,symbole_CP,symtyp,symtyp_CP,einheit,einheit_CP,bedeutung, &
                                     bedeutung_CP,Messwert,Messwert_CP,IVTL,ivtl_CP,SDFormel,SDFormel_CP, &
@@ -94,7 +94,7 @@ contains
                                     ixdanf,use_bipoi,ncovf,nparts,ksumEval,iavar,avar,maxlen_symb, &
                                     einheit,einheit_conv,Messwert,HBreite,SDWert,nab,StdUnc, &
                                     IAR,unit_conv_fact,fp_for_units,apply_units_dir,uconv,grossfail, &
-                                    ngrs_init,retain_triggers,nmodf,RSeite
+                                    ngrs_init,retain_triggers,nmodf,RSeite, nmumx
         use UR_Linft,         only: FitDecay,corrEGR,chisqr,ChisqrLfit,fitmeth,klincall,numd,ifit, &
                                     posdef,SumEval_fit,UcombLfit,UcombLinf_kqt1,uncEGr,valEGr,kfitp, &
                                     nhp_defined, ndatmax
@@ -104,7 +104,7 @@ contains
         use UR_DLIM,          only: detlim,decthresh,iteration_on,kalpha,kbeta,kbgrenzo,kbgrenzu,kbgrenzosh, &
                                     kbgrenzuSH,nit_decl,nit_detl,nwgmeth,UcombBayes,var_brutto_auto,W1minusG, &
                                     WertBayes,nit_detl_max
-        use UR_MCC,           only: nmumx,iopt_copygr,ncovmx
+        use UR_MCC,           only: iopt_copygr,ncovmx
         use top,              only: FindItemS,idpt,WrStatusbar,FieldUpdate,CharModA1,IntModA1, &
                                     RealModA1, LogModA1, InitVarsTV2_CP, InitVarsTV8, load_unit_conv, &
                                     InitVarsTV5, InitVarsTV5_CP
@@ -1344,8 +1344,8 @@ contains
                 ! would otherwise to be re-allocated: too much effort.
 
                 call MessageShow(T("The program will be terminated now."), &
-                                 GTK_BUTTONS_OK, "Batch:", resp,mtype=GTK_MESSAGE_INFO)
-                call gtk_widget_destroy(idpt('window1'))
+                                 GTK_BUTTONS_OK, "Batch:", resp, mtype=GTK_MESSAGE_INFO)
+                call gtk_widget_destroy(UR_widgets%window1)
                 call gtk_main_quit()
                 stop
 

@@ -59,7 +59,7 @@ contains
         !     Copyright (C) 2014-2024  Günter Kanisch
 
 
-        use, intrinsic :: iso_c_binding,      only: c_null_char,c_ptr,c_int,c_char,c_long
+        use, intrinsic :: iso_c_binding, only: c_null_char,c_ptr,c_int,c_char,c_long
         use UR_Gleich_globals,          only: Rseite,Symbole,Symbole_CP,formelt,varab,varmu,symtyp,ops,nopsfd, &
                                         RSsy,symtyp_cp,kbrutto_name,nRSsy,knetto_name,einheit,einheit_CP, &
                                         Messwert,nRssyanf,bedeutung,bedeutung_cp,SDFormel,ivtl,SDWert,  &
@@ -71,14 +71,14 @@ contains
                                         itm_binom,loadingpro,missingval,nglf,nparts,syntax_check,knetto,  &
                                         kbrutto,ivtl_cp,SDwert_cp,HBreite_cp,avar,kpointKB,ISymbA, &
                                         symlist_shorter,uncval_exists,knetto_CP,kbrutto_CP,nonPoissGrossCounts, &
-                                        apply_units,maxlen_symb,ngrs_init           !,unit_conv_fact
+                                        apply_units,maxlen_symb,ngrs_init, nmumx           !,unit_conv_fact
 
-        use UR_Linft,           only: FitCalCurve,FitDecay,nabmx,kalfit_arg_expr,kpoint_kalarg,nmumx,  &
+        use UR_Linft,           only: FitCalCurve,FitDecay,nabmx,kalfit_arg_expr,kpoint_kalarg,  &
                                       SumEval_fit
         use UR_Perror
 
         use fparser,            only: initf, parsef, EvalErrMsg
-        use ur_general_globals,       only: proStartNew, Gum_restricted, fd_found
+        use ur_general_globals, only: proStartNew, Gum_restricted, fd_found
         use UR_Gspk1Fit,        only: Gamspk1_Fit
 
         use gtk_hl_tree,        only: hl_gtk_listn_set_cell
@@ -94,12 +94,12 @@ contains
                                       ModVarsTV2,CharModA1,CharModStr,load_unit_conv, idpt
         use CHF,                only: FindLocT,ucase,IsNumberE,IndexArr,testSymbol
         use Num1,               only: Quick_sort2_i
-        use color_theme
+        use color_theme,        only: get_color_string, get_theme_name
         use translation_module, only: T => get_translation
 
         implicit none
 
-        integer   , parameter :: nfus = 17      ! number of primary mathematical functions
+        integer, parameter :: nfus = 17      ! number of primary mathematical functions
 
         integer                  :: i,i1,n,k,i2,nfx,j,ios,mfd,k2,jh
         integer                  :: resp,ngmax,nrsum,fkzahl,ix,j0,imax

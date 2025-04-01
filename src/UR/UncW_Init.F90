@@ -108,11 +108,16 @@ contains
                                     kbrutto,refdataMD,tback,tgross,ucontyp,uncval_exists,use_bipoi, &
                                     use_dependent_sdwert,use_dp,knetp3,nRnetp, &
                                     kbrutto_double,ndep,use_sdf_brutto, &
-                                    var_rbtot,FP_for_units,Formeltext_out,defined_RSY
+                                    var_rbtot,FP_for_units,Formeltext_out,defined_RSY, nmumx
 
         use UR_DLIM,          only: alpha,beta,decthresh,detlim,gamdistadd,kalpha,kbeta,limit_typ, &
                                     nit_detl_max,w1minusG,var_brutto_auto,k_autoform
-                                    use UR_Linft
+        use UR_Linft,         only: numd, ifit, kfitmeth, UcombLinf, UcombLinf_kqt1, &
+                                    KPearson, kPMLE, fitmeth, FitDecay, FitCalCurve, &
+                                    nchannels, export_r, SumEval_fit, export_case, use_WTLS, use_WTLS_kal, &
+                                    klincall, singlenuk, konstant_r0, use_otherMinv, test_cauchy, &
+                                    run_corrmat, kalfit_arg_expr, mfRBG_fit_PMLE, mac, nhp_defined, &
+                                    use_absTimeStart, compare_WTLS
         use UR_Gspk1fit
         use UR_MCC,           only: use_BCI,imc,MCsim_done,estLQ,estUQ,kcmx,kcrun
         use UR_Loadsel,       only: NBpreviousPage,NBcurrentPage
@@ -128,8 +133,8 @@ contains
                                     gtk_get_major_version,gtk_get_minor_version,gtk_get_micro_version, &
                                     gtk_entry_get_width_chars, gtk_window_set_icon
 
-        use g,                only: g_object_set_property,g_value_init,g_value_set_string, &
-                                    g_value_set_int,g_get_home_dir
+        use g,                only: g_object_set_property, g_value_init,g_value_set_string, &
+                                    g_value_set_int, g_get_home_dir
 
         use gdk,              only: gdk_atom_intern
 

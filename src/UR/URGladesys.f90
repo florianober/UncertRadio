@@ -43,23 +43,29 @@ subroutine URGladeSys()
     !
     !     Copyright (C) 2014-2025  Günter Kanisch
 
-    use UR_gtk_globals
     use, intrinsic :: iso_c_binding
+    use g, only: g_resources_lookup_data, g_input_stream_read_all
+    use gtk, only: G_RESOURCE_LOOKUP_FLAGS_NONE
+    use gtk_sup, only: convert_c_string
 
-    use CHF,               only: ucase, flfu
+    use UR_gtk_globals,     only: clobj, tvnames, prout_gldsys, storename, ncolmax, &
+                                  ncolsmx, Notebook_labelid, tvcols, nstores, &
+                                  tvmodel, lscolnums, lstype, ntvs, nclobj, &
+                                  tvcolindex, lsgtype, nstmax
+    use CHF,                only: flfu
 
-    use Top,               only: CharModA1
-    use UR_Gleich_globals,         only: ifehl
-    use file_io,           only: logger
-    use ur_general_globals,      only: work_path
-    use UR_params,         only: GLADEORG_FILE, nclmax
+    use Top,                only: CharModA1
+    use UR_Gleich_globals,  only: ifehl
+    use file_io,            only: logger
+    use ur_general_globals, only: work_path
+    use UR_params,          only: GLADEORG_FILE, nclmax
 
     implicit none
 
     character(len=120)  :: str
     character(len=230)  :: text, textSV, search, tarr(5), textin
     character(len=40)   :: CName,CIdd,csignal,modelname,submodel,Chandler
-    character(len=150)  :: CLabel,Messg
+    character(len=150)  :: CLabel, Messg
     integer             :: i1,ios,i,j,nlb,nlast,ntcols,jstore,jntcols,i2,i10
     integer             :: kk,kx,kkmax,k, nnn,iddparent, i0, jj,ipar,maxk
     integer             :: maxtvc, maxcrc
@@ -68,7 +74,13 @@ subroutine URGladeSys()
     character(len=40)   :: oclass(50), strid, strocl
 
     character(len=512)  :: log_str
+    character(len=10000), target  :: test_char
     logical             :: try_sub
+    type(c_ptr)         :: resource_data, buffer
+    type(c_ptr), target :: error
+    integer(c_int), target :: bytes, result
+
+
     !----------------------------------------------------------------------------
 !     if(prout_gldsys) write(66,*) 'Begin GladeSys:'
     if(prout_gldsys)  then
@@ -168,20 +180,29 @@ subroutine URGladeSys()
     Chandler = 'handler'
 
     open(18, file=flfu(work_path // GLADEORG_FILE), status='old', iostat=ios, iomsg=messg)
+    error = c_null_ptr
+    resource_data = g_resources_lookup_data('/org/UncertRadio/UR2_5.glade', &
+                                            G_RESOURCE_LOOKUP_FLAGS_NONE, c_loc(error))
 
-    if(ios /= 0) then
+    error = c_null_ptr
+    bytes = 1024_c_long
+    result = g_input_stream_read_all(resource_data, buffer, 1024_c_long, c_loc(bytes), c_null_ptr, error)
+
+    print *, result, c_associated(buffer)
+    call convert_c_string(buffer, test_char)
+    print *, trim(test_char)
+
+    if(.not. c_associated(resource_data)) then
         ifehl = 1
-        write(log_str, '(*(g0))') 'Error on opening the Glade file ', trim(work_path // GLADEORG_FILE), ' ios=',int(ios,2), ' ',trim(Messg)
+        write(log_str, '(*(g0))') 'Error on opening the Glade file '
         call logger(66, log_str)
         return
     end if
-
+    stop
     maxk = 0
     do i=1, 100000
         read(18,'(a)',iostat=ios) textin
         if(ios /= 0) then
-            close (19)
-            close (20)
             exit
         end if
         text = trim(textin)

@@ -21,7 +21,7 @@ module ur_general_globals
     use UR_types
     use UR_gtk_window,  only: charv
     !
-    !   Shared variables for any routine with 'use ur_variables'
+    !   global variables for any routine with 'use ur_general_globals'
     !
     implicit none
 
@@ -532,7 +532,6 @@ module UR_gtk_globals
                                    KSetting, charv
 
     use gtk_sup,             only: gtktreeiter, gvalue
-    use UR_Gleich_globals,   only: nmumx
 
     implicit none
 
@@ -691,7 +690,7 @@ end module UR_Loadsel
 
 module UR_Linft
 
-    USE UR_Gleich_globals,     ONLY: nabmx, nmumx, nformax,charv
+    USE UR_Gleich_globals,     ONLY: nabmx, nformax,charv
     use UR_params,     only: rn
 
     implicit none
@@ -965,7 +964,7 @@ module UR_MCC
 
     use UR_params,         only: rn
     use UR_Linft,          only: ndatmax
-    use UR_Gleich_globals,         only: ncovmx,nmumx
+    use UR_Gleich_globals, only: ncovmx
 
     implicit none
 
@@ -1117,10 +1116,9 @@ end module UR_eli
 module UR_MCSR
 
     use UR_params,     only: rn
-    use UR_Linft,      only: ma, ndatmax
-    use UR_Gleich_globals,     only: nmumx
+    use UR_Linft,      only: ma
 
-    integer   , parameter    :: nrx = 50    ! maximale number of MC runs
+    integer, parameter       :: nrx = 50    ! maximale number of MC runs
     integer                  :: kr,kmm,kmmt, nvarSV     ! loop variables
 
     real(rn),allocatable     :: xzmit(:),rxzmit(:), xzsdv(:),rxzsdv(:)
@@ -1169,18 +1167,18 @@ module UR_MCSR
     real(rn)                 :: mw_rbl,uqt,dratio,dmean,ddelta,afu,umw_rbl
     real(rn)                 :: uy0,  gda_SV, mueLN,sigmaLN,urel2,DTmultLN,std2,zratio
     real(rn)                 :: mwref(20)
-    real(rn),allocatable     :: MesswertORG(:),StduncORG(:)
+    real(rn), allocatable    :: MesswertORG(:),StduncORG(:)
     real(rn)                 :: RDlast,xmit1last,dxx,rtb,xx1,xx2,xxL,ff,ffL,swap,mcval(101)
     real(rn)                 :: help1,RDmin,RDmax,helpmin,sd_dt,xmit1_0,xxDT_0       ! ,MesswertVV(200)
     integer                  :: zt1(9),nc1m,nst,kfd,nminus,nplus
-    integer   ,allocatable   :: ivref(:)
+    integer, allocatable     :: ivref(:)
     logical                  :: wlognorm,DTbracketed,mcnonvary,valaccpt
     real(rn)                 :: meanmc(3),sdmc(3),hmean(2)
     real(rn)                 :: prob,qt
 
     real(rn)                 :: HBrt,rnnd,r1
-    real(rn)                 :: xmitq,MCWert
-    real(rn)                 :: help,minres,maxres
+    real(rn)                 :: xmitq, MCWert
+    real(rn)                 :: help, minres, maxres
 
 end module UR_MCSR
 

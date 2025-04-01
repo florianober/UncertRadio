@@ -165,12 +165,12 @@ program UncertRadio
     call logger(66, "This is free software, and you are welcome to redistribute it", stdout=.true.)
     call logger(66, "under certain conditions; see COPYING"// char(10), stdout=.true.)
 
-    call convert_c_string(g_get_home_dir(), tmp_str)
-    print *, trim(tmp_str)
-    call convert_c_string(g_get_user_config_dir(), tmp_str)
-    print *, trim(tmp_str)
-    call convert_c_string(g_get_user_data_dir(), tmp_str)
-    print *, trim(tmp_str)
+    ! call convert_c_string(g_get_home_dir(), tmp_str)
+    ! print *, trim(tmp_str)
+    ! call convert_c_string(g_get_user_config_dir(), tmp_str)
+    ! print *, trim(tmp_str)
+    ! call convert_c_string(g_get_user_data_dir(), tmp_str)
+    ! print *, trim(tmp_str)
 
     if (wpunix) then
         call logger(66, "Operating System: Linux")

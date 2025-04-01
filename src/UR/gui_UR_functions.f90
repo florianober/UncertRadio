@@ -87,14 +87,13 @@ contains
         !
         ! Significant parts are taken from GTK-Fortran.
 
-        use UR_params,            only: GLADEORG_FILE
         use UR_gtk_globals,       only: clobj, nclobj, &
                                         Notebook_labelid, Notebook_labeltext, nbook2,  &
                                         consoleout_gtk, &
                                         scrwidth_min, scrwidth_max, scrheight_min, scrheight_max, &
                                         gscreen, provider
 
-        use ur_general_globals,   only: SaveP, project_loadw, work_path
+        use ur_general_globals,   only: SaveP, project_loadw
         use g,                    only: g_object_unref
 
         use gtk,                  only: gtk_builder_new,gtk_builder_get_object, &
@@ -164,9 +163,7 @@ contains
 
             write(log_str, '(a,a)') "  c_associated(Error)=",c_associated(error)
             call logger(66, log_str)
-
-            write(log_str, '(*(g0))') "Could not load the glade file: ",trim(work_path // gladeorg_file)
-            call logger(66, log_str)
+            call logger(66, "Could not load the glade file")
         end if
 
         call cpu_time(start)
@@ -192,9 +189,6 @@ contains
         ! of the objects in the Glade file
 
         widgets%window1 = gtk_builder_get_object(builder, "window1"//c_null_char)
-
-        ! write(log_str, '(a,i11,i11)') "Win, the first; PTR=",Win%window1, idpt('window1')
-        ! call logger(66, log_str)
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder,c_funloc(connect_signals), c_loc(widgets))
@@ -284,7 +278,7 @@ contains
         call gtk_window_set_transient_for(idpt('dialog_infoFX'), widgets%window1)
 
         call gtk_widget_grab_focus(idpt('textview1'))
-        call gtk_widget_set_focus_on_click(idpt('window1'), 1_c_int)
+        call gtk_widget_set_focus_on_click(widgets%window1, 1_c_int)
 
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         nbook2 = c_null_ptr
@@ -470,7 +464,7 @@ contains
                        gtk_widget_set_focus_on_click, &
                        gtk_widget_destroy
 
-        use UR_gtk_globals,     only: item_setintern, dialog_on, &
+        use UR_gtk_globals,     only: UR_widgets, item_setintern, dialog_on, &
                                       clobj, ioption, dialogstr, quitprog
         use file_io,            only: logger
         use ur_general_globals, only: actual_grid
@@ -520,11 +514,11 @@ contains
         if(trim(parentstr) == 'GtkWindow' .or. trim(idstring) == 'window1'    &
             .or. trim(idstring) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
             call ProcMenu(ncitem)
-            if(.not.QuitProg) call gtk_widget_set_focus_on_click(idpt('window1'),1_c_int)
+            if(.not.QuitProg) call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
             if(QuitProg) then
                 ! if(c_associated(gdkcursor)) call g_object_unref(gdkcursor)
 
-                call gtk_widget_destroy(idpt('window1'))
+                call gtk_widget_destroy(UR_widgets%window1)
 
                 call gtk_main_quit()
             end if
