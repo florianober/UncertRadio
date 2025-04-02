@@ -29,10 +29,14 @@ module Rout
 
     use, intrinsic :: iso_c_binding,  only: c_int, c_null_char, &
                                             c_null_ptr,c_associated, &
-                                            c_f_pointer
+                                            c_f_pointer, c_ptr, c_char, &
+                                            c_double, c_loc, c_float
 
     use UR_params,          only: rn, EPS1MIN, win_title
-    use gtk_sup
+
+
+    use gtk,                only: TRUE
+    use gtk_sup,            only: convert_c_string, c_f_string, clear_gtktreeiter
     use top,                only: idpt, FindItemP, FindItemS
     use UR_gtk_globals,     only: clobj, item_setintern
 
@@ -94,7 +98,7 @@ contains
                                     gtk_menu_item_get_type,GTK_STATE_FLAG_NORMAL
         use gtk_hl,           only: hl_gtk_menu_item_set_label_markup
         use file_io,          only: logger
-        use UR_gtk_globals, only: clobj, item_setintern
+        use UR_gtk_globals,   only: clobj, item_setintern
         use color_theme
 
         implicit none
@@ -2391,7 +2395,7 @@ contains
         fpath = trim(adjustL(chrow)) // ':' // trim(adjustL(chcol))
         path = gtk_tree_path_new_from_string(trim(fpath)//c_null_char)
 
-        call gtk_tree_view_scroll_to_cell(trvw,path,focus_col,1_c_int,0.0_c_float, 0.5_c_float)
+        call gtk_tree_view_scroll_to_cell(trvw,path, focus_col,1_c_int, 0.0_c_float, 0.5_c_float)
 
         pvadj = gtk_scrollable_get_vadjustment(trvw)
         vadj = gtk_adjustment_get_value(pvadj)

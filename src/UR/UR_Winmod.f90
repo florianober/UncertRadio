@@ -41,8 +41,20 @@ module UR_gtk_window
         integer, allocatable      :: idparent(:)
     end type
 
-    type widgets_type
-        type(c_ptr) :: window1
+    type widget_type
+        type(charv)  :: classname
+        type(charv)  :: gladeid
+        type(charv)  :: label
+        type(c_ptr)  :: id_ptr
+        type(c_ptr)  :: label_ptr
+        type(charv)  :: signal
+        type(charv)  :: handler
+        integer      :: idparent
+    end type
+
+
+    type widgets_named
+        type(widget_type) :: window1
     end type
 
     type, bind(c)   :: GdkRGBA

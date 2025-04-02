@@ -136,7 +136,7 @@ subroutine DisplayHelp(ncitem, idstr)
     end if
 
     ! finally open the help file using the systems browser
-    resp = gtk_show_uri_on_window(UR_widgets%window1, &
+    resp = gtk_show_uri_on_window(UR_widgets%window1%id_ptr, &
                                   'file:///' // url // c_null_char, 0, c_null_ptr)
 
 end subroutine DisplayHelp

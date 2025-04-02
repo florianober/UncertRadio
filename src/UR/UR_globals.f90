@@ -528,7 +528,7 @@ module UR_gtk_globals
                                            c_bool, c_ptr
 
     use UR_types,            only: rn
-    use UR_gtk_window,       only: widgets_type, Wclobj, GdkRGBA, &
+    use UR_gtk_window,       only: widgets_named, Wclobj, GdkRGBA, &
                                    KSetting, charv
 
     use gtk_sup,             only: gtktreeiter, gvalue
@@ -543,7 +543,7 @@ module UR_gtk_globals
                             logval, &
                             stringv
 
-    type(widgets_type), target :: UR_widgets
+    type(widgets_named), target :: UR_widgets
     type(Wclobj), target     :: clobj
     integer                  :: nclobj       ! number of widgets
 
@@ -574,7 +574,7 @@ module UR_gtk_globals
     integer                  :: nstores         ! number of liststores
     type(charv),allocatable  :: storename(:)    ! names of liststores
     type(charv),allocatable  :: lsgtype(:,:)    ! e.g., gchararray
-    integer                  :: ncolsmx         ! max of 2nd argument of lsgtype
+
     type(charv),allocatable  :: tvnames(:)      ! GTKTreeView names
     type(charv),allocatable  :: tvmodel(:)      ! GTKTreeView models
 

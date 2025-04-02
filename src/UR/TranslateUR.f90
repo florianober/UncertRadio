@@ -34,7 +34,7 @@ subroutine ListstoreTranslate()
     !
     ! Copyright (C) 2014-2023  Günter Kanisch
 
-    use UR_Gleich_globals,        only: vdopt, &
+    use UR_Gleich_globals,only: vdopt, &
                                 ndopt, &
                                 absrel, &
                                 vcovcor, &
@@ -84,7 +84,6 @@ subroutine ListstoreTranslate()
 
     ! 13.5.2024:
     call WDListstoreFill_1('liststore_dist', ndopt, vdopt)
-
     if(.not.allocated(absrel)) allocate(absrel(2))
     absrel(1)%s = 'abs'
     absrel(2)%s = 'rel'
@@ -192,6 +191,7 @@ subroutine TranslateUR()
 
     call ListstoreTranslate()
 
+
     select case (ucase(get_language()))
         case ('DE')
             i = 1
@@ -202,7 +202,7 @@ subroutine TranslateUR()
     end select
 
     call WDSetComboboxAct('comboboxLangg', i)
-
+    print *, 'TRANS ++++++++++++++++++++++++++++ 2'
     widget = c_null_ptr
     do i=1,6
         select case (i)
@@ -225,10 +225,13 @@ subroutine TranslateUR()
             widget = idpt('NBEditor')
             Notebook_labeltext(i) = T('Text Editor')
         end select
-        call gtk_label_set_text(widget,trim(Notebook_labeltext(i))//c_null_char)
-    end do
 
+        call gtk_label_set_text(widget,trim(Notebook_labeltext(i))//c_null_char)
+
+    end do
+    print *, 'TRANS ++++++++++++++++++++++++++++ 3'
     call WDPutLabelString('CalcCountRates', T('Calculate count rates'))
+    print *, 'TRANS ++++++++++++++++++++++++++++ 3_1'
 
     call WDPutLabelString('BTOk', T('Apply'))
     call WDPutLabelString('MenuLoadProject', T('Load project'))
@@ -263,6 +266,7 @@ subroutine TranslateUR()
     call WDPutLabelString('CalcCountRates', T('Calculate count rates'))
     call WDPutLabelString('Exchange2Symbols', T('Exchange 2 symbols'))
     call WDPutLabelString('LBSymbExchg', T('Select two output quantity symbols to be exchanged:'))
+
     call WDPutTreeViewColumnLabel('treeview1', 2, T('Symbol'))
     call WDPutTreeViewColumnLabel('treeview1', 3, T('Type'))
     call WDPutTreeViewColumnLabel('treeview1', 4, T('Unit'))
@@ -285,7 +289,7 @@ subroutine TranslateUR()
     call WDPutTreeViewColumnLabel('treeview4', 6, T('StdUncValue'))
     call WDPutTreeViewColumnLabel('treeview4', 7, T('Sensit. coefficient'))
     call WDPutTreeViewColumnLabel('treeview4', 8, T('rel. contribution(%)'))
-
+    print *, 'TRANS ++++++++++++++++++++++++++++ 4'
 
     if(use_absTimeStart) then
         call WDPutTreeViewColumnLabel('treeview5', 2, T('Start date')//char(13)//T('(gross)'))

@@ -69,7 +69,7 @@ contains
 
 
 
-    subroutine create_window(widgets, ifehl)
+    subroutine create_window(UR_widgets, ifehl)
 
         ! this routine uses a gtk_builder to build the window from the Glade file
         ! (glade_file_name) the Window, makes available the icons (partly self-prepared).
@@ -94,6 +94,7 @@ contains
                                         gscreen, provider
 
         use ur_general_globals,   only: SaveP, project_loadw
+        use UR_params,            only: widget_ids_array
         use g,                    only: g_object_unref
 
         use gtk,                  only: gtk_builder_new,gtk_builder_get_object, &
@@ -105,7 +106,7 @@ contains
                                         TRUE,FALSE,gtk_notebook_set_current_page, &
                                         gtk_style_context_add_provider_for_screen, &
                                         gtk_css_provider_get_default, &
-                                        gtk_builder_add_from_resource
+                                        gtk_builder_add_from_resource, gtk_widget_get_name
 
         use gtk_sup,              only: gvalue, Gerror, c_f_string
         use Top,                  only: WrStatusbar, idpt
@@ -123,15 +124,15 @@ contains
         use common_sub1,          only: drawboxpackedMC, drawboxpackedELI, &
                                         drawboxpackedBS,drawboxpackedCP, &
                                         draw_baseELI, drawing, width_da, height_da
-        use UR_gtk_window,        only: widgets_type
+        use UR_gtk_window,        only: widgets_named
         use handlers_sub1,        only: quit_cb
 
         implicit none
 
-        type(widgets_type), target, intent(out) :: widgets
+        type(widgets_named), target, intent(out) :: UR_widgets
         integer, intent(out)        :: ifehl
 
-        type(c_ptr)                 :: builder,qbut
+        type(c_ptr)                 :: builder, qbut, test
         type(c_ptr), target         :: error
         integer(c_int)              :: guint
         type(c_ptr)                 :: cptr
@@ -151,7 +152,8 @@ contains
         call cpu_time(start)
 
         error = c_null_ptr        ! necessary
-        guint = gtk_builder_add_from_resource(builder, "/org/UncertRadio/UR2_5.glade" // c_null_char, c_loc(error))
+        guint = gtk_builder_add_from_resource(builder, "/org/UncertRadio/UR2_5.glade" // c_null_char, &
+                                              c_loc(error))
 
         call cpu_time(finish)
         write(log_str, '(a,f8.3,a,i0)') 'Builder_add_from_string: cpu-time= ', sngl(finish-start),'  guint=',guint
@@ -168,35 +170,66 @@ contains
 
         call cpu_time(start)
 
-        call URGladesys()
+        !call URGladesys(builder, ifehl)
 
         call cpu_time(finish)
 
-        write(log_str, '(*(g0))') 'URGladesys done: cpu-time= ',sngl(finish-start)
+        write(log_str, '(*(g0))') 'URGladesys done: cpu-time= ', sngl(finish-start)
         call logger(66, log_str)
-
         call cpu_time(start)
-        do i=1,nclobj
-            clobj%id_ptr(i) = gtk_builder_get_object(builder,clobj%idd(i)%s//c_null_char)
-            if(len_trim(clobj%label(i)%s) > 0) then
-                clobj%label_ptr(i) = gtk_builder_get_object(builder,clobj%label(i)%s//c_null_char)
+        nclobj = size(widget_ids_array)
+
+        if(.not.allocated(clobj%name)) allocate(clobj%name(nclobj))
+        if(.not.allocated(clobj%idd)) allocate(clobj%idd(nclobj))
+        if(.not.allocated(clobj%label)) allocate(clobj%label(nclobj))
+        if(.not.allocated(clobj%id_ptr)) allocate(clobj%id_ptr(nclobj))
+        if(.not.allocated(clobj%label_ptr)) allocate(clobj%label_ptr(nclobj))
+        if(.not.allocated(clobj%signal)) allocate(clobj%signal(nclobj))
+        if(.not.allocated(clobj%idparent)) allocate(clobj%idparent(nclobj))
+        if(.not.allocated(clobj%handler)) allocate(clobj%handler(nclobj))
+
+
+        clobj%id_ptr(:) = c_null_ptr
+        clobj%label_ptr(:) = c_null_ptr
+        clobj%idparent(:) = 0
+
+
+        do i=1, nclobj
+            clobj%idd(i)%s = trim(widget_ids_array(i))
+            clobj%id_ptr(i) = gtk_builder_get_object(builder, clobj%idd(i)%s//c_null_char)
+            if (c_associated(clobj%id_ptr(i))) then
+                print *, clobj%idd(i)%s
+                test = gtk_widget_get_name(clobj%id_ptr(i))
+                if (c_associated(test)) then
+                    call c_f_string(test, log_str)
+                    clobj%name(i)%s = trim(log_str)
+                end if
             end if
+                ! if(len_trim(clobj%label(i)%s) > 0) then
+            !     clobj%label_ptr(i) = gtk_builder_get_object(builder,clobj%label(i)%s//c_null_char)
+            ! end if
         end do
+
         call cpu_time(finish)
 
         ! get references to GUI elements
         ! The name passed to the gtk_builder_get_object function has to match the name
         ! of the objects in the Glade file
 
-        widgets%window1 = gtk_builder_get_object(builder, "window1"//c_null_char)
+        UR_widgets%window1%id_ptr = gtk_builder_get_object(builder, "window1"//c_null_char)
+        ! test = gtk_widget_get_name(UR_widgets%window1%id_ptr)
+        ! call c_f_string(test, log_str)
+        ! print *, log_str
+        ! stop
 
         ! connect signal handlers
-        call gtk_builder_connect_signals_full(builder,c_funloc(connect_signals), c_loc(widgets))
+        call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_loc(UR_widgets))
 
         ! free memory
-        call g_object_unref(builder)
+        !call g_object_unref(builder)
 
         call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 0_c_int)
+
         call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('KalFit'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('ExportToR'), 0_c_int)
@@ -217,10 +250,13 @@ contains
         !----
         drawboxpackedBS = .false.
         drawboxpackedCP = .false.
+
         call Uncw_Init()
 
         call cpu_time(start)
+        print *, '->>>>>>>>> Flo-1'
         call TranslateUR()
+        print *, '->>>>>>>>> Flo-0'
         call cpu_time(finish)
 
         write(log_str, '(*(g0))') 'TranslateUR: cpu-time= ', sngl(finish-start)
@@ -256,29 +292,31 @@ contains
             call logger(66, log_str)
         end if
 
-        call gtk_window_set_transient_for(idpt('dialogDecayModel'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialogColB'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialogELI'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_LoadPro'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_decayvals'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_fontbutton'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_gspk1'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_kalfit'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_numegr'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_options'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_symbExchg'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_symbchg'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_symbchg'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialogMeanData'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialogSerEval'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_BinPoi'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_distributions'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_Batest'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialogBatEval'), widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_infoFX'), widgets%window1)
+        call gtk_window_set_transient_for(idpt('dialogDecayModel'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialogColB'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialogELI'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_LoadPro'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_decayvals'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_fontbutton'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_gspk1'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_kalfit'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_numegr'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_options'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_symbExchg'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_symbchg'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_symbchg'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialogMeanData'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialogSerEval'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_BinPoi'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_distributions'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_Batest'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialogBatEval'), UR_widgets%window1%id_ptr)
+        call gtk_window_set_transient_for(idpt('dialog_infoFX'), UR_widgets%window1%id_ptr)
 
         call gtk_widget_grab_focus(idpt('textview1'))
-        call gtk_widget_set_focus_on_click(widgets%window1, 1_c_int)
+        print *, '->>>>>>>>> Flo1'
+
+        call gtk_widget_set_focus_on_click(UR_widgets%window1%id_ptr, 1_c_int)
 
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         nbook2 = c_null_ptr
@@ -293,6 +331,7 @@ contains
         height_da(1) = int( height_da(1) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         drawing(1) = hl_gtk_drawing_area_new(size=(/width_da(1),height_da(1)/), has_alpha=FALSE)
         pno = hl_gtk_notebook_add_page(nbook2, drawing(1), label="MC"//c_null_char)
+        print *, '->>>>>>>>> Flo2'
 
         !width_da(2) = 580
         !height_da(2) = 710
@@ -339,14 +378,14 @@ contains
         use gtk,                only: gtk_widget_show, &
                                       gtk_window_set_gravity, &
                                       GDK_gravity_NORTH_WEST
-        use UR_gtk_window,      only: widgets_type
+        use UR_gtk_window,      only: widgets_named
 
         implicit none
 
-        type(widgets_type), intent(in) :: widgets
+        type(widgets_named), intent(in) :: widgets
 
-        call gtk_window_set_gravity(widgets%window1, GDK_gravity_NORTH_WEST)
-        call gtk_widget_show(widgets%window1)
+        call gtk_window_set_gravity(widgets%window1%id_ptr, GDK_gravity_NORTH_WEST)
+        call gtk_widget_show(widgets%window1%id_ptr)
 
     end subroutine show_window
 
@@ -468,7 +507,7 @@ contains
                                       clobj, ioption, dialogstr, quitprog
         use file_io,            only: logger
         use ur_general_globals, only: actual_grid
-        use top,                only: idpt, finditemp
+        use top,                only: finditemp
 
 
         implicit none
@@ -514,11 +553,11 @@ contains
         if(trim(parentstr) == 'GtkWindow' .or. trim(idstring) == 'window1'    &
             .or. trim(idstring) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
             call ProcMenu(ncitem)
-            if(.not.QuitProg) call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
+            if(.not.QuitProg) call gtk_widget_set_focus_on_click(UR_widgets%window1%id_ptr, 1_c_int)
             if(QuitProg) then
                 ! if(c_associated(gdkcursor)) call g_object_unref(gdkcursor)
 
-                call gtk_widget_destroy(UR_widgets%window1)
+                call gtk_widget_destroy(UR_widgets%window1%id_ptr)
 
                 call gtk_main_quit()
             end if
@@ -591,7 +630,7 @@ contains
                                       gtk_tree_view_get_cursor
         use gtk_hl,             only: hl_gtk_listn_get_selections, hl_gtk_listn_get_cell
         use g,                  only: g_object_get_data
-        use UR_gtk_window
+        !use UR_gtk_window
         use UR_gtk_globals,     only: clobj
         use Rout,               only: WTreeViewSetCursorCell
         use top,                only: idpt, FindItemP

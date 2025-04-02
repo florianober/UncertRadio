@@ -1345,7 +1345,7 @@ contains
 
                 call MessageShow(T("The program will be terminated now."), &
                                  GTK_BUTTONS_OK, "Batch:", resp, mtype=GTK_MESSAGE_INFO)
-                call gtk_widget_destroy(UR_widgets%window1)
+                call gtk_widget_destroy(UR_widgets%window1%id_ptr)
                 call gtk_main_quit()
                 stop
 
@@ -1630,7 +1630,7 @@ contains
                     website=url_str, &
                     version=trim(UR_version_tag)// CR // trim(UR_git_hash) // c_null_char, &
                     logo=logo,      &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_Glade')
                 logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/glade.png" // c_null_char, &
@@ -1644,7 +1644,7 @@ contains
                     website_label='Homepage'//c_null_char, &
                     version='3.40.0'//c_null_char, &
                     logo=logo, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_LAPACK')
 
@@ -1661,7 +1661,7 @@ contains
                     website_label='Homepage'//c_null_char, &
                     version='3.12.0'//c_null_char, &
                     logo=logo, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_FParser')
                 call hl_gtk_about_dialog_show(    &
@@ -1672,7 +1672,7 @@ contains
                     website='https://fparser.sourceforge.net/'//c_null_char, &
                     website_label='Homepage'//c_null_char, &
                     version='1.0'//c_null_char, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_PLPLOT')
                 call hl_gtk_about_dialog_show(    &
@@ -1682,7 +1682,7 @@ contains
                     website_label='Homepage'//c_null_char, &
                     website='http://plplot.sourceforge.net/'//c_null_char, &
                     version='5.15.0'//c_null_char, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_GTK_Fortran')
                 call hl_gtk_about_dialog_gtk_fortran()
@@ -1707,7 +1707,7 @@ contains
                     website_label='Homepage'//c_null_char, &
                     version=trim(versgtk)//c_null_char, &
                     logo=logo, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('About_MSYS2')
                 logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/msys2logo.png" // c_null_char, &
@@ -1725,7 +1725,7 @@ contains
                     website='https://www.msys2.org/wiki/Home/'//c_null_char, &
                     website_label='Homepage'//c_null_char, &
                     logo=logo, &
-                    parent=UR_widgets%window1)
+                    parent=UR_widgets%window1%id_ptr)
 
               case ('Help_UR')
                 call DisplayHelp(ncitem)

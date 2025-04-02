@@ -15,7 +15,7 @@
 !    along with UncertRadio. If not, see <http://www.gnu.org/licenses/>.
 !
 !-------------------------------------------------------------------------------------------------!
-subroutine URGladeSys()
+subroutine URGladeSys(builder, ifehl)
 
     ! this routine prepares a structure clobj which contains arrays of idd_names,
     ! labels, signals and so on for each widget contained in the Glade
@@ -36,49 +36,44 @@ subroutine URGladeSys()
     ! gui_functions to obtain  with gtk_builder_get_object the associated C-pointers,
     ! which are still missing here.
     !
-    ! This routine calls the routine PrintGladeSys for printing the clobj System;
-    ! printing cane be invoked by the statement
-    !     ! prout_gldsys = .true.           ! output von URGladeSys?
-    ! by de-commenting this line.
     !
     !     Copyright (C) 2014-2025  Günter Kanisch
 
     use, intrinsic :: iso_c_binding
-    use g, only: g_resources_lookup_data, g_input_stream_read_all
-    use gtk, only: G_RESOURCE_LOOKUP_FLAGS_NONE
+
+
     use gtk_sup, only: convert_c_string
 
     use UR_gtk_globals,     only: clobj, tvnames, prout_gldsys, storename, ncolmax, &
-                                  ncolsmx, Notebook_labelid, tvcols, nstores, &
+                                  Notebook_labelid, tvcols, nstores, &
                                   tvmodel, lscolnums, lstype, ntvs, nclobj, &
                                   tvcolindex, lsgtype, nstmax
     use CHF,                only: flfu
 
     use Top,                only: CharModA1
-    use UR_Gleich_globals,  only: ifehl
+
     use file_io,            only: logger
     use ur_general_globals, only: work_path
     use UR_params,          only: GLADEORG_FILE, nclmax
 
     implicit none
 
+    integer, intent(in)     :: ifehl
+    type(c_ptr), intent(in) :: builder
+
     character(len=120)  :: str
-    character(len=230)  :: text, textSV, search, tarr(5), textin
+    character(len=230)  :: text, textSV, search, textin
     character(len=40)   :: CName,CIdd,csignal,modelname,submodel,Chandler
     character(len=150)  :: CLabel, Messg
     integer             :: i1,ios,i,j,nlb,nlast,ntcols,jstore,jntcols,i2,i10
-    integer             :: kk,kx,kkmax,k, nnn,iddparent, i0, jj,ipar,maxk
+    integer             :: kk,kx,k, nnn,iddparent, i0, jj
     integer             :: maxtvc, maxcrc
-    integer             :: name_max,idd_max,label_max,signal_max,handler_max
 
     character(len=40)   :: oclass(50), strid, strocl
 
     character(len=512)  :: log_str
-    character(len=10000), target  :: test_char
+
     logical             :: try_sub
-    type(c_ptr)         :: resource_data, buffer
-    type(c_ptr), target :: error
-    integer(c_int), target :: bytes, result
 
 
     !----------------------------------------------------------------------------
@@ -97,15 +92,14 @@ subroutine URGladeSys()
     if(.not.allocated(clobj%idparent)) allocate(clobj%idparent(nclmax))
     if(.not.allocated(clobj%handler)) allocate(clobj%handler(nclmax))
 
-    clobj%id_ptr = c_null_ptr
-    clobj%label_ptr = c_null_ptr
-    clobj%idparent = 0
+    clobj%id_ptr(:) = c_null_ptr
+    clobj%label_ptr(:) = c_null_ptr
+    clobj%idparent(:) = 0
 
     allocate(storename(1))
     allocate(tvmodel(1))
     allocate(tvnames(1))
     allocate(lsgtype(nstmax,ncolmax))
-    ncolsmx = ncolmax    ! must be used for the 2nd index in CharmodA2 !
 
     Notebook_labelid(1) = 'NBProcedure'
     Notebook_labelid(2) = 'NBEquations'
@@ -114,10 +108,11 @@ subroutine URGladeSys()
     Notebook_labelid(5) = 'NBResults'
     Notebook_labelid(6) = 'NBEditor'
 
-    kkmax = 46                 ! 21.5.2024 GK
-    do kk=1, kkmax
-        oclass(kk) = ''
-    end do
+    ! kkmax = 46                 ! 21.5.2024 GK
+    ! do kk=1, kkmax
+    !     oclass(kk) = ''
+    ! end do
+    oclass(:) = ' '
 
     jstore = 0
     jntcols = 0
@@ -170,6 +165,7 @@ subroutine URGladeSys()
     oclass(45) = 'GtkFileChooserButton'
     oclass(46) = 'GtkLinkButton'
 
+
     maxtvc = 0
     maxcrc = 0
 
@@ -180,114 +176,6 @@ subroutine URGladeSys()
     Chandler = 'handler'
 
     open(18, file=flfu(work_path // GLADEORG_FILE), status='old', iostat=ios, iomsg=messg)
-    error = c_null_ptr
-    resource_data = g_resources_lookup_data('/org/UncertRadio/UR2_5.glade', &
-                                            G_RESOURCE_LOOKUP_FLAGS_NONE, c_loc(error))
-
-    error = c_null_ptr
-    bytes = 1024_c_long
-    result = g_input_stream_read_all(resource_data, buffer, 1024_c_long, c_loc(bytes), c_null_ptr, error)
-
-    print *, result, c_associated(buffer)
-    call convert_c_string(buffer, test_char)
-    print *, trim(test_char)
-
-    if(.not. c_associated(resource_data)) then
-        ifehl = 1
-        write(log_str, '(*(g0))') 'Error on opening the Glade file '
-        call logger(66, log_str)
-        return
-    end if
-    stop
-    maxk = 0
-    do i=1, 100000
-        read(18,'(a)',iostat=ios) textin
-        if(ios /= 0) then
-            exit
-        end if
-        text = trim(textin)
-        if(i > 3) then
-            tarr(1) = tarr(2)
-            tarr(2) = tarr(3)
-            tarr(3) = text
-        end if
-
-        if(prout_gldsys) then
-!             if(index(text,'"box2"') > 0) write(65,*) '  box2:'
-            if(index(text,'"box2"') > 0)  then
-                write(log_str, '(*(g0))') '  box2:'
-                call logger(65, log_str)
-            end if
-!             if(index(text,'"box3"') > 0) write(65,*) '  box3:'
-            if(index(text,'"box3"') > 0)  then
-                write(log_str, '(*(g0))') '  box3:'
-                call logger(65, log_str)
-            end if
-!             if(index(text,'"box4"') > 0) write(65,*) '  box4:'
-            if(index(text,'"box4"') > 0)  then
-                write(log_str, '(*(g0))') '  box4:'
-                call logger(65, log_str)
-            end if
-!             if(index(text,'"box5"') > 0) write(65,*) '  box5:'
-            if(index(text,'"box5"') > 0)  then
-                write(log_str, '(*(g0))') '  box5:'
-                call logger(65, log_str)
-            end if
-!             if(index(text,'"grid5"') > 0) write(65,*) '  grid5:'
-            if(index(text,'"grid5"') > 0)  then
-                write(log_str, '(*(g0))') '  grid5:'
-                call logger(65, log_str)
-            end if
-!             if(index(text,'"grid10"') > 0) write(65,*) '  grid10:'
-            if(index(text,'"grid10"') > 0)  then
-                write(log_str, '(*(g0))') '  grid10:'
-                call logger(65, log_str)
-            end if
-        end if
-
-        if(index(text,'"height_request"') == 0) then
-            ! if(i <= 3000) write(65,*)'height-fail: ',trim(text)
-            cycle
-        end if
-
-        i1 = index(text,'>')
-        if(i1 > 0) then
-            text = text(i1+1:)
-        end if
-        i1 = index(text,'<')
-        if(i1 > 0) then
-            read(text(1:i1-1),*,iostat=ios) k
-            if(ios == 0 .and. k > 60) then
-                do j=1,3
-                    ! write(65,'(a,i4,a,i4,a,a)') 'Zeile=',i,' height value=',k,' : ',trim(adjustl(textorg))
-!                     if(prout_gldsys) write(65,*) trim(adjustl(tarr(j)))
-                    if(prout_gldsys)  then
-                        write(log_str, '(*(g0))') trim(adjustl(tarr(j)))
-                        call logger(65, log_str)
-                    end if
-                end do
-!                 if(prout_gldsys) write(65,'(a,i4,a,i4,a,a)') 'Zeile=',i,' height value=',k
-                if(prout_gldsys)  then
-                    write(log_str, '(a,i4,a,i4,a,a)') 'Zeile=',i,' height value=',k
-                    call logger(65, log_str)
-                end if
-!                 if(prout_gldsys) write(65,*)
-                if(prout_gldsys)  then
-                    write(log_str, '(*(g0))')
-                    call logger(65, log_str)
-                end if
-                maxk = max(k, maxk)
-            end if
-        end if
-    end do
-    if(prout_gldsys) then
-!         write(65,*) '------------------ max.Wert = ',maxk
-        write(log_str, '(*(g0))') '------------------ max.Wert = ',maxk
-        call logger(65, log_str)
-!         write(65,*)
-        call logger(65, ' ')
-    end if
-    rewind 18
 
     nstores = 0
     nclobj = 0
@@ -329,7 +217,7 @@ subroutine URGladeSys()
             clobj%id_ptr(nclobj) = c_null_ptr
             clobj%signal(nclobj)%s = ' '
             clobj%handler(nclobj)%s = ' '
-            !write(65,'(10x,i4,10(2x,a))') j,clobj%name(j),clobj%idd(j)
+
 
             if(i10 == 3 .and. trim(clobj%idd(nclobj)%s) /= 'window1' ) then
                 iddparent = nclobj
@@ -423,42 +311,17 @@ subroutine URGladeSys()
         end if
     end do
 
-    if(prout_gldsys) then
-!         write(65,'(5x,a,2x,a,2x,a,2x,a)') CName,Cidd,Clabel,Csignal
-        write(log_str, '(5x,a,2x,a,2x,a,2x,a)') CName,Cidd,Clabel,Csignal
-        call logger(65, log_str)
-!         write(65,'(5x,125a1)') ('-',i=1,125)
-        write(log_str, '(5x,125a1)') ('-',i=1,125)
-        call logger(65, log_str)
-        do i=1,nclobj
-!             write(65,'(i4,2x,a,T28,2x,a,2x,T50,a,2x,T70,a,3x,a)') i,clobj%name(i)%s,clobj%idd(i)%s,  &
-!                 clobj%label(i)%s,clobj%signal(i)%s,clobj%handler(i)%s
-            write(log_str, '(i4,2x,a,T28,2x,a,2x,T50,a,2x,T70,a,3x,a)') i,clobj%name(i)%s,clobj%idd(i)%s,  &
-                clobj%label(i)%s,clobj%signal(i)%s,clobj%handler(i)%s
-            call logger(65, log_str)
-        end do
-!         write(65,*)
-        call logger(65, ' ')
-    end if
     nlast = nclobj
     !--------------------------------
-    if(prout_gldsys) then
-!         write(65,*)
-        call logger(65, ' ')
-!         write(65,*) 'Begin of part 2:'
-        call logger(65, 'Begin of part 2:')
-!         write(65,*)
-        call logger(65, ' ')
-    end if
-    ! nstores = 0
+
     ntcols = 0
     modelname = ''
     submodel = ''
     try_sub = .false.
     kx = 0
-    rewind (18)
     nlb = 0
     iddparent = 0
+    rewind (18)
     do i=1,100000
         read(18,'(a)',iostat=ios) textin
         if(ios /= 0) then
@@ -497,7 +360,7 @@ subroutine URGladeSys()
 
         k = 0
         kx = 0
-        do kk=1,kkmax
+        do kk=1, size(oclass)
             search = '<object class="' // trim(oclass(kk)) // '" id="'
             i0 = index(text,trim(search))
             if(i0 > 0) then
@@ -568,10 +431,6 @@ subroutine URGladeSys()
                     if(tvnames(ntvs)%s(1:8) /= 'treeview') then
                         ntcols = ntcols + 1
                         read(clobj%idd(nclobj)%s(17:),*) tvcolindex(ntvs,ntcols)
-!                         if(prout_gldsys) write(65,'(a,a,T35,a,a,T70,a,i2,2x,a,i2,a,i3,a,a)') 'TVCol: TV=',trim(tvnames(ntvs)%s), &
-!                             '  column: ',clobj%idd(nclobj)%s,  &
-!                             '  ntvs=',ntvs,'  ntcols=',ntcols,'  colnum=',tvcolindex(ntvs,ntcols), &
-!                             '  model=',trim(tvmodel(ntvs)%s)
                         if(prout_gldsys)  then
                             write(log_str, '(a,a,T35,a,a,T70,a,i2,2x,a,i2,a,i3,a,a)') 'TVCol: TV=',trim(tvnames(ntvs)%s), &
                             '  column: ',clobj%idd(nclobj)%s,  &
@@ -688,63 +547,21 @@ subroutine URGladeSys()
     end do        ! do i=1,100000
     close (18)
 
-    if(prout_gldsys) then
-!         write(65,*)
-        call logger(65, ' ')
-!         write(65,*) ' Repeating with existing signal'
-        call logger(65, ' Repeating with existing signal')
-
-        do i=nlast+1,nclobj
-            ipar = clobj%idparent(i)
-!             if(ipar == 0) write(65,*) 'ipar=0:  i=',i,' idd(i)=',clobj%idd(i)%s
-            if(ipar == 0)  then
-                write(log_str, '(*(g0))') 'ipar=0:  i=',i,' idd(i)=',clobj%idd(i)%s
-                call logger(65, log_str)
-            end if
-            if(ipar > 0) then
-                str = clobj%name(ipar)%s
-!                 write(65,'(i4,5(3x,a),2x,i4)') i,str(1:20),trim(clobj%name(i)%s),clobj%idd(i)%s, &
-!                     clobj%label(i)%s,clobj%signal(i)%s,clobj%idparent(i)
-                write(log_str, '(i4,5(3x,a),2x,i4)') i,str(1:20),trim(clobj%name(i)%s),clobj%idd(i)%s, &
-                    clobj%label(i)%s,clobj%signal(i)%s,clobj%idparent(i)
-                call logger(65, log_str)
-            end if
-        end do
-    end if
-
-    name_max = 0
-    idd_max = 0
-    label_max = 0
-    signal_max = 0
-    handler_max = 0
-
     do i=1,nclobj
-        name_max = max(name_max,len_trim(clobj%name(i)%s))
-        idd_max = max(idd_max,len_trim(clobj%idd(i)%s))
-        label_max = max(label_max,len_trim(clobj%label(i)%s))
-        signal_max = max(signal_max,len_trim(clobj%signal(i)%s))
-        handler_max = max(handler_max,len_trim(clobj%handler(i)%s))
-    end do
 
-    if(prout_gldsys) then
-!         write(65,*) 'maximum lenght values:'
-        call logger(65, 'maximum lenght values:')
-!         write(65,'(a,i0)') 'name:    ',name_max
-        write(log_str, '(a,i0)') 'name:    ',name_max
-        call logger(65, log_str)
-!         write(65,'(a,i0)') 'idd:     ',idd_max
-        write(log_str, '(a,i0)') 'idd:     ',idd_max
-        call logger(65, log_str)
-!         write(65,'(a,i0)') 'label:   ',label_max
-        write(log_str, '(a,i0)') 'label:   ',label_max
-        call logger(65, log_str)
-!         write(65,'(a,i0)') 'signal:  ',signal_max
-        write(log_str, '(a,i0)') 'signal:  ',signal_max
-        call logger(65, log_str)
-!         write(65,'(a,i0)') 'handler: ',handler_max
-        write(log_str, '(a,i0)') 'handler: ',handler_max
-        call logger(65, log_str)
-    end if
+        if ((clobj%idd(i)%s == 'window1').or. (clobj%signal(i)%s == 'switch-page')) then
+
+
+            print *, i, new_line('A'), &
+                    "name:    ", clobj%name(i)%s, new_line('A'), &
+                    "idd:     ", clobj%idd(i)%s, new_line('A'), &
+                    "handler: ", clobj%handler(i)%s, new_line('A'), &
+                    "signal:  ", clobj%signal(i)%s, new_line('A'), &
+                    "label:   ", clobj%label(i)%s, new_line('A'), &
+                    "parentid:", clobj%idparent(i)
+        end if
+    end do
+    ! stop
 
     write(log_str, '(*(g0))') 'max treeviewcol=',int(maxtvc,2),'  max cellrenderer=',int(maxcrc,2)
     call logger(66, log_str)

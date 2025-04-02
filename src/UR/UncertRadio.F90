@@ -402,7 +402,7 @@ program UncertRadio
         mposy = scrheight_min + 50
         write(log_str, '(a,2I5)') '***  Main window: first Show:  upper-left pos: mposx,mposy=',mposx,mposy
         call logger(66, log_str)
-        call gtk_window_move(UR_widgets%window1, mposx, mposy)
+        call gtk_window_move(UR_widgets%window1%id_ptr, mposx, mposy)
 
         monitor_at_point = gdk_screen_get_monitor_at_point(gscreen,mposx+10_c_int,mposy+10_c_int)+1_c_int
         write(log_str, '(a,I5)') '***  Main window: Monitor# at mposx+10,mposy+10= ',monitor_at_point
@@ -501,9 +501,9 @@ subroutine quit_uncertradio(error_code)
     use, intrinsic :: iso_c_binding, only : c_null_char
 
     use ur_general_globals,             only: work_path, actpath, runauto
-    use UR_params,                only: LOCKFILENAME
+    use UR_params,                      only: LOCKFILENAME
 
-    use UR_Gleich_globals,                only: ifehl
+    use UR_Gleich_globals,              only: ifehl
 
     use file_io,                  only: logger
     use g,                        only: g_chdir
