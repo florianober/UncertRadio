@@ -4,10 +4,11 @@ UncertRadio
 
 build/
 [fF]ort*
-Glade.dat
 myddls.txt
 *tar.gz
-UR2_5/
+UR2_6/
+src/UR/widgets-auto.in
+
 gmon.out
 
 *.mod

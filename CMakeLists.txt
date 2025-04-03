@@ -52,6 +52,7 @@ pkg_check_modules(GTK3 REQUIRED IMPORTED_TARGET gtk+-3.0)
 pkg_check_modules(PLPLOT REQUIRED IMPORTED_TARGET plplot)
 pkg_check_modules(PLPLOT-FORTRAN REQUIRED IMPORTED_TARGET plplot-fortran)
 pkg_check_modules(LAPACK REQUIRED IMPORTED_TARGET lapack)
+pkg_check_modules(PYTHON REQUIRED python3)
 
 # Include the ExternalProject module
 include(ExternalProject)
@@ -74,6 +75,17 @@ add_custom_command(
          ${CMAKE_SOURCE_DIR}/UncertRadio.gresources.xml
     DEPENDS ${CMAKE_SOURCE_DIR}/UncertRadio.gresources.xml ${CMAKE_SOURCE_DIR}/UR2_5.glade
 )
+
+# Custom command to generate the Fortran include file if the Glade file has changed
+add_custom_command(
+    OUTPUT ${CMAKE_SOURCE_DIR}/src/UR/widgets-auto.in
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    COMMAND python ${CMAKE_SOURCE_DIR}/gen_widget_ids.py
+    DEPENDS ${CMAKE_SOURCE_DIR}/UR2_5.glade
+    COMMENT "Generating Fortran include file from Glade file"
+    VERBATIM
+)
+
 
 # set output dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
@@ -172,6 +184,9 @@ target_sources(UncertRadio PRIVATE
 
     # gresource binary
     ${CMAKE_BINARY_DIR}/UncertRadio.gresources.c
+
+    # include widgets based on the glade file
+    src/UR/widgets-auto.in
     )
 
 # Link libraries
@@ -226,20 +241,14 @@ endif()
 option(BUILD_DOCS "Build documentation" OFF)
 if(BUILD_DOCS)
     message(STATUS "Building documentation")
-    # Find Python executable
-    find_program(PYTHON_EXECUTABLE python3)
 
-    if(NOT PYTHON_EXECUTABLE)
-        message(WARNING "Python3 not found. Documentation will not be built.")
-    else()
-        # Add a custom target to build the documentation
-        add_custom_target(build_docs
-            COMMAND ${PYTHON_EXECUTABLE} make_docs.py
-            WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/docs
-            COMMENT "Building documentation"
-            )
+    # Add a custom target to build the documentation
+    add_custom_target(build_docs
+        COMMAND ${PYTHON_EXECUTABLE} make_docs.py
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/docs
+        COMMENT "Building documentation"
+        )
 
-        # Add the build_docs target as a dependency of the main build
-        add_dependencies(UncertRadio build_docs)
-    endif()
+    # Add the build_docs target as a dependency of the main build
+    add_dependencies(UncertRadio build_docs)
 endif()
