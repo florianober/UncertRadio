@@ -202,7 +202,7 @@ subroutine TranslateUR()
     end select
 
     call WDSetComboboxAct('comboboxLangg', i)
-    print *, 'TRANS ++++++++++++++++++++++++++++ 2'
+
     widget = c_null_ptr
     do i=1,6
         select case (i)
@@ -229,9 +229,7 @@ subroutine TranslateUR()
         call gtk_label_set_text(widget,trim(Notebook_labeltext(i))//c_null_char)
 
     end do
-    print *, 'TRANS ++++++++++++++++++++++++++++ 3'
     call WDPutLabelString('CalcCountRates', T('Calculate count rates'))
-    print *, 'TRANS ++++++++++++++++++++++++++++ 3_1'
 
     call WDPutLabelString('BTOk', T('Apply'))
     call WDPutLabelString('MenuLoadProject', T('Load project'))
@@ -289,7 +287,6 @@ subroutine TranslateUR()
     call WDPutTreeViewColumnLabel('treeview4', 6, T('StdUncValue'))
     call WDPutTreeViewColumnLabel('treeview4', 7, T('Sensit. coefficient'))
     call WDPutTreeViewColumnLabel('treeview4', 8, T('rel. contribution(%)'))
-    print *, 'TRANS ++++++++++++++++++++++++++++ 4'
 
     if(use_absTimeStart) then
         call WDPutTreeViewColumnLabel('treeview5', 2, T('Start date')//char(13)//T('(gross)'))
@@ -661,7 +658,7 @@ subroutine TranslateUR()
     call SetTooltipText('TRentryMCanzM', '<= 2 E06')
     call SetTooltipText('TRentryMCanzR', '<= 50')
 
-    call SetTooltipText('dialog-vbox20', T('at present, colors cannot be adapted'))
+    call SetTooltipText('dialog_vbox20', T('at present, colors cannot be adapted'))
     call SetTooltipText('TBmeansMD', T('Dialog for variable-averages'))
 
     call SetTooltipText('combobox_MDtyp', T('(Type1 1): sx^2 = (m-1)/(m-3)*s0x^2/m') // char(13) //   &

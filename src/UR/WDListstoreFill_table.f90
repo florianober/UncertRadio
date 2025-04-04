@@ -59,11 +59,11 @@ contains
         use UR_Gspk1Fit
         use gtk_hl,             only: hl_gtk_listn_set_cell,hl_gtk_listn_get_n_rows
 
-        use Rout,               only: pending_events, clobj
+        use Rout,               only: pending_events
         use top,                only: idpt, finditems
         use UR_params,          only: EPS1MIN
         use ur_general_globals, only: progstart_on
-        use color_theme
+        use color_theme,        only: get_color_string
 
         implicit none
 
@@ -74,7 +74,6 @@ contains
 
         type(c_ptr)                  :: liststore_widget_ptr, renderer, tree
         integer                      :: nmax,ibc, nmaxk,k,ngrsx,kk,kkx,ncolorcols,itv
-        integer                      :: ncitem
         integer(c_long)              :: i, ival
         integer(c_int)               :: kcol
         character(len=50)            :: vstr,frmtk
@@ -89,15 +88,11 @@ contains
 
         !---------------------------------------------
         if(consoleout_gtk) call pending_events()
-
-        call finditems(listname, ncitem)
-        liststore_widget_ptr = clobj%id_ptr(ncitem)
+        liststore_widget_ptr = idpt(listname)
 
         call gtk_list_store_clear(liststore_widget_ptr)
         call clear_gtktreeiter(iter)
         if(consoleout_gtk) write(0,*) 'ListstoreFill: mode=',mode,' listname=',trim(listname)
-        ! if(consoleout_gtk) write(0,*) 'clear iter: iter%intv=',iter%intv, &
-        !     'p0=',iter%p0  ! ,'p1=',iter%p1
 
         select case (mode)
 
@@ -231,12 +226,12 @@ contains
                     if(consoleout_gtk) write(0,*) 'Column 7 ready'
 
                     kkx = ubound(SDWert,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 8, SDWert(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 8, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, SDWert(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, missingval, lmiss)
 
                     kkx = ubound(HBreite,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 9, HBreite(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 9, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 9, HBreite(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 9, missingval, lmiss)
 
                     ! write(0,*) 'i=',int(i,2),' ngrs=',int(ngrs,2)
                     if(i <= ngrs) vstr = absrel(max(1,IAR(i)))%s
@@ -247,8 +242,8 @@ contains
                     if(consoleout_gtk) write(0,*) 'Column 10 ready'
 
                     kkx = ubound(StdUnc,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 11, StdUnc(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 11, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 11, StdUnc(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 11, missingval, lmiss)
                     if(consoleout_gtk) write(0,*) 'Column 11 ready'
 
                 end if
@@ -259,26 +254,26 @@ contains
 
                     ! uncertainty budget:
                     kkx = ubound(Messwert,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 5, Messwert(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 5, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 5, Messwert(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 5, missingval, lmiss)
                     if(consoleout_gtk) write(0,*) 'Spalte 6 fertig'
 
                     kkx = ubound(StdUnc,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 6, StdUnc(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 6, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 6, StdUnc(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 6, missingval, lmiss)
 
                     kkx = ubound(Sensi,dim=1)
-                    if(i <= kkx) call StoreStrDouble(ncitem, 7, Sensi(i), lmiss)
-                    if(i > kkx) call StoreStrDouble(ncitem, 7, missingval, lmiss)
+                    if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 7, Sensi(i), lmiss)
+                    if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 7, missingval, lmiss)
 
                     if(Ucontyp == 1) then
                         kkx = ubound(Perc,dim=1)
-                        if(i <= kkx) call StoreStrDouble(ncitem, 8, Perc(i), lmiss)
-                        if(i > kkx) call StoreStrDouble(ncitem, 8, missingval, lmiss)
+                        if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, Perc(i), lmiss)
+                        if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, missingval, lmiss)
                     elseif(Ucontyp == 2) then
                         kkx = ubound(Ucontrib,dim=1)
-                        if(i <= kkx) call StoreStrDouble(ncitem, 8, Ucontrib(i), lmiss)
-                        if(i > kkx) call StoreStrDouble(ncitem, 8, missingval, lmiss)
+                        if(i <= kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, Ucontrib(i), lmiss)
+                        if(i > kkx) call StoreStrDouble(liststore_widget_ptr, listname, 8, missingval, lmiss)
                     end if
                     if(consoleout_gtk) write(0,*) 'Spalte 9 fertig'
                 end if
@@ -359,9 +354,9 @@ contains
                 call gtk_list_store_set_value(liststore_widget_ptr, c_loc(iter), 4_c_int, pstring)
 
                 if(i <= ncov) then
-                    call StoreStrDouble(ncitem, 6, CovarVal(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 6, CovarVal(i), lmiss)
                 else
-                    call StoreStrDouble(ncitem, 6, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 6, missingval, lmiss)
                 end if
 
                 ncolorcols = 6
@@ -409,27 +404,27 @@ contains
                 call gtk_list_store_set_value(liststore_widget_ptr, c_loc(iter), 1_c_int, pstring)
 
                 if(i <= numd) then
-                    call StoreStrDouble(ncitem, 3, dmesszeit(i), lmiss)
-                    call StoreStrDouble(ncitem, 4, dbimpulse(i), lmiss)
-                    call StoreStrDouble(ncitem, 5, dbzrate(i), lmiss)
-                    call StoreStrDouble(ncitem, 6, sdbzrate(i), lmiss)
-                    call StoreStrDouble(ncitem, 7, d0messzeit(i), lmiss)
-                    call StoreStrDouble(ncitem, 8, d0impulse(i), lmiss)
-                    call StoreStrDouble(ncitem, 9, d0zrate(i), lmiss)
-                    call StoreStrDouble(ncitem, 10, sd0zrate(i), lmiss)
-                    call StoreStrDouble(ncitem, 11, dnetrate(i), lmiss)
-                    call StoreStrDouble(ncitem, 12, sdnetrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 3, dmesszeit(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 4, dbimpulse(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 5, dbzrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 6, sdbzrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 7, d0messzeit(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 8, d0impulse(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 9, d0zrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 10, sd0zrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 11, dnetrate(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 12, sdnetrate(i), lmiss)
                 else
-                    call StoreStrDouble(ncitem, 3, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 4, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 5, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 6, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 7, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 8, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 9, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 10, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 11, missingval, lmiss)
-                    call StoreStrDouble(ncitem, 12, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 3, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 4, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 5, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 6, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 7, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 8, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 9, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 10, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 11, missingval, lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 12, missingval, lmiss)
                 end if
 
                 ncolorcols = 12
@@ -496,34 +491,34 @@ contains
                     tv_colwidth_digits(itv,3) = max(tv_colwidth_digits(itv,3), len_trim(vstr))
                 end if
                 if(.true.) then
-                    if(.not.lmiss) call StoreStrDouble(ncitem, 3, erg(i), lmiss)
-                    if(lmiss) call StoreStrDouble(ncitem, 3, missingval, lmiss)
+                    if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 3, erg(i), lmiss)
+                    if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 3, missingval, lmiss)
                 end if
 
-                if(.not.lmiss) call StoreStrDouble(ncitem, 4, GnetRate(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 4, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 5, RateCB(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 5, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 6, RateBG(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 6,missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 7, SDRateBG(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 7, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 8, effi(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 8, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 9, SDeffi(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 9, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 10, pgamm(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 10, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 11, SDpgamm(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 11, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 12, fatt(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 12, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 13, SDfatt(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 13, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 14, fcoinsu(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 14, missingval, lmiss)
-                if(.not.lmiss) call StoreStrDouble(ncitem, 15, SDfcoinsu(i), lmiss)
-                if(lmiss) call StoreStrDouble(ncitem, 15, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 4, GnetRate(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 4, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 5, RateCB(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 5, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 6, RateBG(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 6,missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 7, SDRateBG(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 7, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 8, effi(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 8, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 9, SDeffi(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 9, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 10, pgamm(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 10, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 11, SDpgamm(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 11, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 12, fatt(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 12, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 13, SDfatt(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 13, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 14, fcoinsu(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 14, missingval, lmiss)
+                if(.not.lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 15, SDfcoinsu(i), lmiss)
+                if(lmiss) call StoreStrDouble(liststore_widget_ptr, listname, 15, missingval, lmiss)
 
                 ncolorcols = 15
                 if(progstart_on) then
@@ -559,10 +554,10 @@ contains
                 call g_value_set_long(dintval, i)
                 call gtk_list_store_set_value(liststore_widget_ptr, c_loc(iter), 0_c_int, dintval)
                 if(i <= nkalpts) then
-                    call StoreStrDouble(ncitem, 2, xkalib(i), lmiss)
-                    call StoreStrDouble(ncitem, 3, uxkalib(i), lmiss)
-                    call StoreStrDouble(ncitem, 4, ykalib(i), lmiss)
-                    call StoreStrDouble(ncitem, 5, uykalib(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 2, xkalib(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 3, uxkalib(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 4, ykalib(i), lmiss)
+                    call StoreStrDouble(liststore_widget_ptr, listname, 5, uykalib(i), lmiss)
                 end if
                 ncolorcols = 7
                 if(progstart_on) then
@@ -623,7 +618,7 @@ contains
 
 !######################################################################################
 
-    subroutine StoreStrDouble(ncitem, fcol, dvalue, lmiss)
+    subroutine StoreStrDouble(liststore_ptr, listname, fcol, dvalue, lmiss)
 
         ! writes real(rn) values dvalue with a specific format into the column
         ! number fcol of the liststore with name Listname and treview number itv.
@@ -633,35 +628,32 @@ contains
 
         use, intrinsic :: iso_c_binding, only: c_ptr, c_int, c_null_char, c_loc
         use UR_gtk_globals,     only: iter, pstring
-        use g,                  only: g_value_init, g_value_set_string
+        use g,                  only: g_value_set_string
         use UR_Gleich_globals,  only: missingval
         use gtk,                only: gtk_list_store_set_value
         use ur_general_globals, only: frmt, frmt_min1, frmtc, sDecimalPoint
 
-        use Rout,               only: clobj
 
         use UR_params,          only: EPS1MIN
         use CHF,                only: FormatNumStr
 
         implicit none
-
-        integer, intent(in)           :: ncitem
-
-        integer   ,intent(in)         :: fcol
+        type(c_ptr), intent(in)       :: liststore_ptr
+        character(*), intent(in)      :: listname
+        integer,intent(in)            :: fcol
         real(rn),intent(in)           :: dvalue
         logical, intent(in)           :: lmiss
+
 
         integer(c_int)                :: icol
         character(len=30)             :: vstr
         character(len=15)             :: frmt_w
-        character(len=:), allocatable :: Listname
-        type(c_ptr)                   :: Liststore
+
+
         !-----------------------------------------------------
         icol = fcol - 1
-        listname = clobj%name(ncitem)%s
-        Liststore = clobj%id_ptr(ncitem)
 
-        if(.not.lmiss) then
+        if(.not. lmiss) then
             frmt_w = trim(frmt)
             if(dvalue < 0.10_rn) frmt_w = trim(frmt_min1)
             if(Listname == 'liststore_gspk1' .and. fcol == 2) frmt_w = '(f7.2)'
@@ -674,7 +666,7 @@ contains
         end if
 
         call g_value_set_string(pstring, trim(vstr)//'  '//c_null_char)
-        call gtk_list_store_set_value(Liststore, c_loc(iter), icol, pstring)
+        call gtk_list_store_set_value(liststore_ptr, c_loc(iter), icol, pstring)
 
     end subroutine StoreStrDouble
 

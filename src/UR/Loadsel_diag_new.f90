@@ -133,7 +133,7 @@ contains
                                         WinMC_resized,dialog_on,ntvs,tvcolindex, &
                                         tvnames,pixel_per_char,tvcols, pstring
 
-        use UR_gtk_window,      only:   GdkRGBA
+        use UR_gtk_window_types,      only:   GdkRGBA
 
         use top,                only:   idpt,WrStatusbar,FieldUpdate,MDcalc,FindItemS, &
                                         PixelPerString,RealModA1,CharModa1,IntModA1,InitVarsTV5,InitVarsTV5_CP, &

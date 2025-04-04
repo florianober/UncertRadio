@@ -30,7 +30,7 @@ subroutine EvalGerror(errhint, error)
     use g,             only: g_file_error_from_errno,g_error_get_type,g_quark_to_string
 
     use file_io,       only: logger
-    use UR_gtk_window, only: GerrorF
+    use UR_gtk_window_types, only: GerrorF
 
     implicit none
 

@@ -32,13 +32,12 @@ module Rout
                                             c_f_pointer, c_ptr, c_char, &
                                             c_double, c_loc, c_float
 
-    use UR_params,          only: rn, EPS1MIN, win_title
+    use UR_params,          only: rn, EPS1MIN
 
 
     use gtk,                only: TRUE
     use gtk_sup,            only: convert_c_string, c_f_string, clear_gtktreeiter
-    use top,                only: idpt, FindItemP, FindItemS
-    use UR_gtk_globals,     only: clobj, item_setintern
+    use top,                only: idpt!, FindItemP, FindItemS
 
     ! logical item_setintern: if set .true. in a routine xxx:
     ! helps to prevent from reacting to the signal just emitted by xxx
@@ -95,49 +94,47 @@ contains
 
         use gtk,              only: gtk_label_set_text, gtk_label_set_markup, gtk_label_set_label, &
                                     gtk_label_get_text, gtk_button_set_label, gtk_menu_item_set_label, &
-                                    gtk_menu_item_get_type,GTK_STATE_FLAG_NORMAL
-        use gtk_hl,           only: hl_gtk_menu_item_set_label_markup
+                                    gtk_menu_item_get_type, GTK_STATE_FLAG_NORMAL, gtk_widget_get_name
+
         use file_io,          only: logger
-        use UR_gtk_globals,   only: clobj, item_setintern
-        use color_theme
+!
+        use color_theme,      only: get_color_string
 
         implicit none
 
         character(len=*), intent(in)        :: wstr               ! widget-string
         character(len=*), intent(in)        :: string             ! Ausgabetext
 
-        type(c_ptr)                         :: widget
+        type(c_ptr)                         :: widget, name_ptr
         integer                             :: ncitem
         character(len=len_trim(string)+20)  :: str
+        character(32)                       :: tmp_name_widget
         !------------------------------------------------------------
 
-        item_setintern = .false.
-        call FindItemS(wstr, ncitem)
-        widget = clobj%id_ptr(ncitem)
-        if(ncitem == 0) then
-            call logger(66, 'warning: widget="' // wstr //'" is not connected!')
-            return
+        widget = idpt(wstr)
+        str = string
+        name_ptr = gtk_widget_get_name(widget)
+        if ( c_associated(name_ptr) ) then
+            call c_f_string(name_ptr, tmp_name_widget)
+        else
+            print *, 'Error finding the widget_class'
         end if
 
-        str = string
-
-        if(trim(clobj%name(ncitem)%s) == 'GtkButton' .or.   &
-            trim(clobj%name(ncitem)%s) == 'GtkCheckButton'  .or.  &
-            trim(clobj%name(ncitem)%s) == 'GtkRadioButton'   ) then
+        if(trim(tmp_name_widget) == 'GtkButton' .or.   &
+            trim(tmp_name_widget) == 'GtkCheckButton'  .or.  &
+            trim(tmp_name_widget) == 'GtkRadioButton'   ) then
 
             call gtk_button_set_label(widget, trim(str) // c_null_char)
-            if(trim(clobj%name(ncitem)%s) == 'GtkCheckButton') &
+            if(trim(tmp_name_widget) == 'GtkCheckButton') &
             call WDPutLabelColorF(wstr, GTK_STATE_FLAG_NORMAL, get_color_string('label_fg'))
 
-        elseif(trim(clobj%name(ncitem)%s) == 'GtkRadioMenuItem' .or. trim(clobj%name(ncitem)%s) == 'GtkMenuItem' .or. &
-            trim(clobj%name(ncitem)%s) == 'GtkCheckMenuItem' .or. trim(clobj%name(ncitem)%s) == 'GtkImageMenuItem'  ) then
+        elseif(trim(tmp_name_widget) == 'GtkRadioMenuItem' .or. trim(tmp_name_widget) == 'GtkMenuItem' .or. &
+            trim(tmp_name_widget) == 'GtkCheckMenuItem' .or. trim(tmp_name_widget) == 'GtkImageMenuItem'  ) then
             call gtk_menu_item_set_label(widget, trim(str) // c_null_char)
         else
             call gtk_label_set_text(widget, trim(str) // c_null_char)
             call WDPutLabelColorF(wstr, GTK_STATE_FLAG_NORMAL, get_color_string('label_fg'))
         end if
-
-        item_setintern = .false.
 
     end subroutine WDPutLabelString
 
@@ -158,20 +155,21 @@ contains
 
         !------------------------------------------------------------
 
-        call FindItemS(wstr, ncitem)
-        widget = clobj%id_ptr(ncitem)
-        if(trim(clobj%name(ncitem)%s) == 'GtkButton' .or.   &
-            trim(clobj%name(ncitem)%s) == 'GtkCheckButton'  .or.  &
-            trim(clobj%name(ncitem)%s) == 'GtkRadioButton'   ) then
+        !call FindItemS(wstr, ncitem)
 
-            cptxt = gtk_button_get_label(widget)
+        widget = idpt(wstr)
+        ! if(trim(tmp_name_widget) == 'GtkButton' .or.   &
+        !     trim(tmp_name_widget) == 'GtkCheckButton'  .or.  &
+        !     trim(tmp_name_widget) == 'GtkRadioButton'   ) then
 
-        elseif(trim(clobj%name(ncitem)%s) == 'GtkRadioMenuItem' .or. trim(clobj%name(ncitem)%s) == 'GtkMenuItem' .or. &
-            trim(clobj%name(ncitem)%s) == 'GtkCheckMenuItem'  ) then
-            cptxt = gtk_menu_item_get_label(widget)
-        else
-            cptxt = gtk_label_get_text(widget)
-        end if
+        !     cptxt = gtk_button_get_label(widget)
+
+        ! elseif(trim(tmp_name_widget) == 'GtkRadioMenuItem' .or. trim(tmp_name_widget) == 'GtkMenuItem' .or. &
+        !     trim(tmp_name_widget) == 'GtkCheckMenuItem'  ) then
+        !     cptxt = gtk_menu_item_get_label(widget)
+        ! else
+        cptxt = gtk_label_get_text(widget)
+        ! end if
 
         string = ' '
         if(c_associated(cptxt)) then
@@ -192,10 +190,8 @@ contains
         character(len=*),intent(in)         :: string  ! Ausgabetext
 
         ! ---------------------------------------------------------
-        item_setintern = .true.
 
         call gtk_entry_set_text(idpt(wstr), trim(string)//c_null_char)
-        item_setintern = .false.
 
     end subroutine WDPutEntryString
 
@@ -237,8 +233,6 @@ contains
         character(len=50)                    :: string
 
         !------------------------------------------------------------
-        item_setintern = .true.
-
         ! convert value into  string:
         if(present(dform)) then
             write(string,dform) real(value,8)
@@ -249,8 +243,6 @@ contains
         string = FormatNumStr(trim(string), sDecimalPoint)
 
         call gtk_entry_set_text(idpt(wstr), trim(string)//c_null_char)
-
-        item_setintern = .false.
 
     end subroutine WDPutEntryDouble
 
@@ -298,7 +290,7 @@ contains
         !------------------------------------------------------------------------------------------
         character(len=25) :: string
         !------------------------------------------------------------------------------------------
-        item_setintern = .true.
+
         if(present(dform)) then
             write(string,dform) ivalue
         else
@@ -313,7 +305,7 @@ contains
         ! otherwise they loose the ability that their content strings can
         ! be highlighted/marked.
         ! 20.9.2024  GK
-        item_setintern = .false.
+
         !------------------------------------------------------------------------------------------
     end subroutine WDPutEntryInt
 
@@ -355,13 +347,12 @@ contains
 
         type(c_ptr)                :: group
         integer(c_int)             :: indx
-!------------------------------------------------------------
-        item_setintern = .true.
+        !------------------------------------------------------------
+
         indx = k - 1
         group = gtk_radio_button_get_group(idpt(wstr))
         call hl_gtk_radio_group_set_select(group, indx)
 
-        item_setintern = .false.
 
     end subroutine WDPutSelRadio
 
@@ -402,18 +393,18 @@ contains
 
         type(c_ptr)                :: group
         integer(c_int)             :: indx
-!------------------------------------------------------------
-        item_setintern = .true.
-        indx = k
-        group = gtk_radio_menu_item_get_group(idpt(wstr))
+        !------------------------------------------------------------
 
-        call hl_gtk_radio_menu_group_set_select(group, indx)
+                indx = k
+                group = gtk_radio_menu_item_get_group(idpt(wstr))
 
-        item_setintern = .false.
+                call hl_gtk_radio_menu_group_set_select(group, indx)
 
-    end subroutine WDPutSelRadioMenu
 
-!-----------------------------------------------------------------------------------------
+
+            end subroutine WDPutSelRadioMenu
+
+        !-------------------------------------------------------------
 
     subroutine WDGetSelRadioMenu(wstr, k)
 
@@ -427,15 +418,12 @@ contains
 
         type(c_ptr)                :: group
         integer(c_int)             :: index
-!------------------------------------------------------------
-        item_setintern = .true.
+        !------------------------------------------------------------
 
         group = gtk_radio_menu_item_get_group(idpt(wstr))
 
         index = hl_gtk_radio_menu_group_get_select(group)
         k = index
-
-        item_setintern = .false.
 
     end subroutine WDGetSelRadioMenu
 
@@ -454,12 +442,12 @@ contains
         type(c_ptr)                :: cbox
         integer(c_int)             :: indx
 !--------------------------------------------------------------------
-        item_setintern = .true.
+
         cbox = idpt(wstr)
         indx = kopt - 1
         call gtk_combo_box_set_active(cbox, indx)
 
-        item_setintern = .false.
+
 
     end subroutine WDSetComboboxAct
 
@@ -507,7 +495,7 @@ contains
         logical                          :: prout
 
         !------------------------------------------------------------
-        item_setintern = .true.
+
         prout = .false.
         widget = idpt(wstr)
         ! nrec = size(carray)
@@ -516,7 +504,7 @@ contains
 
         if(nrec == 0 .or. .not.allocated(carray)) then
             call hl_gtk_text_view_delete(widget, line=0_c_int, column=0_c_int, n_lines=200)
-            item_setintern = .false.
+
             return
         end if
 
@@ -557,7 +545,7 @@ contains
             call logger(66, ' ')
         end if
 
-        item_setintern = .false.
+
         call gtk_text_view_set_cursor_visible(widget,1_c_int)
 
 !         if(prout) write(66,*) 'End WDPutTextviewString'
@@ -572,15 +560,15 @@ contains
 
     subroutine WDGetTextviewString(wstr, carray)
 
-        use UR_gtk_globals,   only: item_setintern
-        use top,                only: CharModA1
-        use file_io,           only: logger
-        use UR_Gleich_globals,          only: charv
+        use UR_gtk_globals, only: item_setintern
+        use top,            only: CharModA1
+        use file_io,        only: logger
+        use UR_types,       only: charv
 
         implicit none
 
         character(len=*),intent(in)   :: wstr               ! widget-string
-        type(charv),intent(out),allocatable  :: carray(:)            ! array of output text lines
+        type(charv),intent(out),allocatable  :: carray(:)   ! array of output text lines
 
         type(c_ptr)                       :: widget
         integer                           :: i,j,ic
@@ -588,7 +576,7 @@ contains
         character(len=512)                :: log_str
         logical                           :: prout
         !------------------------------------------------------------
-        item_setintern = .true.
+
         ! crlf = char(13) // char(10)
         prout = .false.
         ! prout = .true.
@@ -646,7 +634,7 @@ contains
             call logger(66, log_str)
         end if
 
-        item_setintern = .false.
+
 
     end subroutine WDGetTextviewString
 
@@ -664,11 +652,11 @@ contains
         type(c_ptr)                :: cbut
         integer(c_int)             :: indx
         !--------------------------------------------------------------------
-        item_setintern = .true.
+
         cbut = idpt(wstr)
         indx = kopt
         call gtk_toggle_button_set_active(cbut, indx)
-        item_setintern = .false.
+
 
     end subroutine WDSetCheckButton
 
@@ -715,13 +703,13 @@ contains
         type(c_ptr)                :: cbut
         integer(c_int)             :: indx
     !--------------------------------------------------------------------
-        item_setintern = .true.
+
         cbut = idpt(wstr)
         indx = kopt
         ! write(66,*) '  WDSetCheckMenuItem:  ',wstr,'  kopt=',kopt,'    cbut=',cbut
         call gtk_check_menu_item_set_active(cbut, indx)
         ! write(66,*) '  WDSetCheckMenuItem:  ',wstr,'  kopt=',kopt,'    cbut=',cbut   ! ,' indx after readout:' ,indx
-        item_setintern = .false.
+
 
     end subroutine WDSetCheckMenuItem
 
@@ -797,7 +785,7 @@ contains
         character(len=60)               :: refnameold
 
     !---------------------------------------------------
-        item_setintern = .true.
+
         list_filling_on = .true.
 
         if(consoleout_gtk) write(0,*) 'LSTFill_1  lststr=',trim(liststr)
@@ -901,7 +889,7 @@ contains
         end if
         deallocate(str1)
         list_filling_on = .false.
-        item_setintern = .false.
+
 
     end subroutine WDListstoreFill_1
 
@@ -949,7 +937,7 @@ contains
         integer                              :: i,itv
         character(:),allocatable  :: str,xstr
         !---------------------------------------------------
-        item_setintern = .true.
+
         ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -973,7 +961,7 @@ contains
         end do
         deallocate(str,xstr)
 
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutStrArray
 
@@ -1070,7 +1058,7 @@ contains
         integer              :: i
 !---------------------------------------------------
 
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1078,7 +1066,7 @@ contains
             irow1 = i - 1
             call hl_gtk_listn_set_cell(tree, row=irow1, col=icol1,  ivalue=iarray(i))
         end do
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutIntArray
 
@@ -1133,7 +1121,7 @@ contains
         character(len=50)            :: string
         character(len=50)            :: frmtv
 !---------------------------------------------------
-        item_setintern = .true.
+
 
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
@@ -1173,7 +1161,7 @@ contains
             end if
 
         end do
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutDoubleArray
 
@@ -1266,7 +1254,7 @@ contains
         real(rn),allocatable         :: rdummy(:)
         character(:),allocatable     :: str2
 !---------------------------------------------------
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1297,7 +1285,7 @@ contains
         if(allocated(str2)) deallocate(str2)
         if(allocated(rdummy)) deallocate(rdummy)
 
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutDoubleCell
 
@@ -1355,7 +1343,7 @@ contains
         integer                             :: i,itv
         character(len=len_trim(string)+20)  :: str, xstr
 !---------------------------------------------------
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1369,7 +1357,7 @@ contains
 
         xstr = max(' ',trim(str))
         call hl_gtk_listn_set_cell(list=tree, row=irow1, col=icol1,  svalue=xstr)
-        item_setintern = .false.
+
         if(itv > 0) then
             tv_colwidth_digits(itv,ncol) = max(tv_colwidth_digits(itv,ncol), len_trim(xstr))
         end if
@@ -1395,7 +1383,7 @@ contains
         integer                     :: i,itv
         character(len=:),allocatable :: str1
 !---------------------------------------------------
-        item_setintern = .true.
+
 
 ! allocate(character(len=200) :: string,str1)
         allocate(character(len=2000) :: string,str1)         ! 12.8.2023
@@ -1420,7 +1408,7 @@ contains
         if(itv > 0) then
             tv_colwidth_digits(itv,ncol) = max(tv_colwidth_digits(itv,ncol), len_trim(string))
         end if
-        item_setintern = .false.
+
 
     end subroutine WTreeViewGetStrCell
 
@@ -1443,7 +1431,7 @@ contains
         integer                 :: i, ixx
         character(len=40)       :: string
 !---------------------------------------------------
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1487,7 +1475,7 @@ contains
             call hl_gtk_listn_set_cell(tree, row=irow1, col=icol1,  svalue=trim(string))
 
         end do
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutComboArray
 
@@ -1576,7 +1564,7 @@ contains
         integer(c_int)        :: irow1,icol1
         character(len=40)     :: string
 !---------------------------------------------------
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1599,7 +1587,7 @@ contains
           case default
         end select
         call hl_gtk_listn_set_cell(tree, row=irow1, col=icol1,  svalue=trim(string))
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutComboCell
 
@@ -1622,7 +1610,7 @@ contains
         integer               :: k
         character(len=40)     :: string
         !---------------------------------------------------
-        item_setintern = .true.
+
         ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
         icol1 = ncol - 1
@@ -1653,7 +1641,7 @@ contains
             end if
           case default
         end select
-        item_setintern = .false.
+
 
     end subroutine WTreeViewGetComboCell
 
@@ -1683,7 +1671,7 @@ contains
         logical               :: bcheck
 
 !---------------------------------------------------
-        item_setintern = .true.
+
 ! get c_ptr tree from treename:
         tree = idpt(trim(treename))
 
@@ -1710,7 +1698,7 @@ contains
               case default
             end select
         end do
-        item_setintern = .false.
+
 
     end subroutine WTreeViewPutCheckArray
 
@@ -1785,7 +1773,7 @@ contains
         character(len=10)            :: fpath
         character(len=3)             :: chcol,chrow
 
-        item_setintern = .true.
+
         tree = idpt(trim(treename))
         icol1 = ncol - 1
         irow1 = nrow - 1
@@ -1817,11 +1805,11 @@ contains
         focus_cell = idpt('cellrenderertext'//trim(adjustl(chcol)))
         if(trim(treename) == 'treeview8') focus_cell = idpt('cellrenderertext88')
 
-        item_setintern = .false.
+
 
         call gtk_tree_view_set_cursor_on_cell(tree, path, focus_column, focus_cell, openfield)
 
-        item_setintern = .false.
+
 
     end subroutine WTreeViewSetCursorCell
 
@@ -2247,7 +2235,7 @@ contains
         integer(c_int)             :: curp
         integer                    :: ncp
 
-        item_setintern = .true.
+
         NBsoftSwitch = .true.
 
         if(trim(nbstring) == 'notebook1') ncp = NBcurrentPage
@@ -2267,7 +2255,7 @@ contains
         end if
 
         if(trim(nbstring) == 'notebook1') NBsoftSwitch = .false.
-        item_setintern = .false.
+
 
     end subroutine WDNotebookSetCurrPage
 
@@ -2275,19 +2263,17 @@ contains
 
     subroutine WDNotebookGetCurrPage(nbstring, ipage)
 
-        use UR_gtk_globals,      only: clobj
         use UR_Loadsel,            only: NBcurrentPage, NBpreviousPage
-        use gtk,                   only: gtk_notebook_get_current_page,gtk_notebook_get_nth_page
+        use gtk,                   only: gtk_notebook_get_current_page
 
         implicit none
 
         character(len=*),intent(in)    :: nbstring       ! NAme des Notebooks
         integer   ,intent(out)         :: ipage
 
-        type(c_ptr)                :: nbk,cptr
+        type(c_ptr)                :: nbk
         integer(c_int)             :: curp
-        integer                    :: ncp,nci
-        character(len=50)          :: childname
+        integer                    :: ncp
 
         ! There exists only notebook1 !
         ! if(trim(nbstring) == 'notebook1') then
@@ -2301,9 +2287,7 @@ contains
         curp = gtk_notebook_get_current_page(nbk)
         ipage = curp + 1
 
-        cptr = gtk_notebook_get_nth_page(idpt(nbstring), curp)
-        call FindItemP(cptr, nci)
-        if(nci > 0) childname = clobj%idd(nci)%s
+        ! cptr = gtk_notebook_get_nth_page(nbk, curp)
 
         if(ipage /= ncp) then
             NBpreviousPage = ncp
@@ -2317,29 +2301,29 @@ contains
 
     subroutine NBlabelmodify
 
-        use UR_gtk_globals,         only: Notebook_labelid,Notebook_labeltext,item_setintern,NBsoftSwitch
-        use UR_Loadsel,               only: NBcurrentPage, NBpreviousPage
-        use gtk,                      only: gtk_label_set_markup
+        use UR_gtk_globals, only: Notebook_labeltext,item_setintern,NBsoftSwitch, UR_widgets
+        use UR_Loadsel,     only: NBcurrentPage, NBpreviousPage
+        use gtk,            only: gtk_label_set_markup
 
         implicit none
 
         type(c_ptr)        :: ptr
         integer            :: i
 
-        item_setintern = .true.
+
         NBsoftSwitch = .true.
 
-        ! if(i == 0) goto 100     ! deactivated  2025.01.23 GK
         i = NBcurrentPage
-        ptr = idpt(trim(Notebook_labelid(i)))
+        ptr = UR_widgets%notebooks(i)
+
         call gtk_label_set_markup(ptr,  &
             '<span foreground="blue">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
         i = NBpreviousPage
-        ptr = idpt(trim(Notebook_labelid(i)))
+        ptr = UR_widgets%notebooks(i)
         call gtk_label_set_markup(ptr,  &
             '<span foreground="black">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
 
-        item_setintern = .false.
+
         NBsoftSwitch = .false.
 
     end subroutine NBlabelmodify
@@ -2355,7 +2339,7 @@ contains
             gtk_adjustment_get_value,gtk_adjustment_set_value,   &
             gtk_scrollable_set_vadjustment
         use UR_gtk_globals,   only: ntvs,tvnames,tvcolindex
-        use UR_gtk_window, only: GtkRequisition
+        use UR_gtk_window_types, only: GtkRequisition
 
         implicit none
 
@@ -2488,7 +2472,7 @@ contains
         type(c_ptr)          :: tree,store
         integer(c_int)       :: irow1,icol1
 !--------------------------------------------------------------------------------------
-        item_setintern = .true.
+
         tree = idpt(trim(treename))
         store = gtk_tree_view_get_model(tree)
         !if(trim(treename) /= 'treeview2') then
@@ -2534,7 +2518,7 @@ contains
         end select
 
         call hl_gtk_listn_set_cell(tree, row=irow1, col=icol1,  svalue=bcolorname)
-        item_setintern = .false.
+
 
     end subroutine WTreeViewSetColorCell
 
@@ -2555,7 +2539,7 @@ contains
         integer(c_int)               :: icol1
         integer                      :: i,irr(6)
         !--------------------------------------------------------------------------------------
-        item_setintern = .true.
+
         tree = idpt(treename)
 
         if(treename == 'treeview1') then
@@ -2632,7 +2616,7 @@ contains
             end do
         end if
 
-        item_setintern = .false.
+
 
     end subroutine WTreeViewSetColorRow
 
@@ -2643,42 +2627,44 @@ contains
         use gtk,           only: gtk_label_set_markup, gtk_label_get_text, &
                                  gtk_entry_get_text, &
                                  gtk_widget_override_color, &
-                                 gtk_label_set_use_markup
+                                 gtk_label_set_use_markup, gtk_widget_get_name
         use file_io,       only: logger
 
-        use UR_gtk_window, only: GdkRGBA
+        use UR_gtk_window_types, only: GdkRGBA
 
         implicit none
 
         character(len=*),intent(in)  :: labelid, colorname
         integer(c_int),intent(in)    :: gtkstate
 
-        type(c_ptr)                  :: cstring
+        type(c_ptr)                  :: cstring, widget, name_ptr
         character(len=:),allocatable :: fstring
         character(len=512)           :: log_str
+        character(len=32)            :: tmp_name_widget
         integer                      :: ncitem,i1,i2,i3
         real(c_double)               :: rgba(4)
         type(GdkRGBA), target        :: URcolor
         !-----------------------------------------------------------------------------
-        item_setintern = .true.
-        ncitem = 0
+
+        ! ncitem = 0
 
         allocate(character(len=400) :: fstring)
 
-        call FindItemS(labelid, ncitem)
-        if(ncitem == 0) then
-!             write(66,*) 'WDPutLabelColorF:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
-            write(log_str, '(*(g0))') 'WDPutLabelColorF:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
-            call logger(66, log_str)
-            return
+        widget = idpt(labelid)
+        name_ptr = gtk_widget_get_name(widget)
+        if ( c_associated(name_ptr) ) then
+            call c_f_string(name_ptr, tmp_name_widget)
+        else
+            print *, 'Error finding the widget_class'
         end if
-        if(trim(clobj%name(ncitem)%s) == 'GtkButton') return
 
-        if(.true. .and. (trim(clobj%name(ncitem)%s) == 'GtkLabel')) then    !  .and. trim(clobj%name(ncitem)%s) == 'GtkCheckButton')) then
-            call gtk_label_set_use_markup(clobj%id_ptr(ncitem), 1_c_int)
-            cstring = gtk_label_get_text(clobj%id_ptr(ncitem))
+        if(trim(tmp_name_widget) == 'GtkButton') return
+
+        if(.true. .and. (trim(tmp_name_widget) == 'GtkLabel')) then    !  .and. trim(tmp_name_widget) == 'GtkCheckButton')) then
+            call gtk_label_set_use_markup(widget, 1_c_int)
+            cstring = gtk_label_get_text(widget)
             if(c_associated(cstring)) call c_f_string(cstring, fstring)
-            call gtk_label_set_markup(clobj%id_ptr(ncitem),  &
+            call gtk_label_set_markup(widget,  &
                 '<span foreground="' // trim(colorname) // '">' // trim(fstring) // '</span>'//c_null_char)
         else
             rgba = (/0._c_double, 0._c_double, 0._c_double, 1._c_double /)    ! black
@@ -2698,9 +2684,9 @@ contains
                 Urcolor%blue = rgba(3)
                 Urcolor%alpha = rgba(4)
             end if
-            call gtk_widget_override_color(clobj%id_ptr(ncitem), gtkstate, c_loc(URColor))
+            call gtk_widget_override_color(idpt(labelid), gtkstate, c_loc(URColor))
         end if
-        item_setintern = .false.
+
 
     end subroutine WDPutLabelColorF
 
@@ -2709,9 +2695,9 @@ contains
     subroutine WDPutLabelColorB(labelid, gtkstate, colorname)
 
         use gtk,           only: gtk_label_set_markup, gtk_label_get_text, gtk_entry_get_text, &
-                                 gtk_widget_override_background_color
+                                 gtk_widget_override_background_color, gtk_widget_get_name
         use file_io,       only: logger
-        use UR_gtk_window, only: GdkRGBA
+        use UR_gtk_window_types, only: GdkRGBA
 
 
         implicit none
@@ -2719,28 +2705,27 @@ contains
         character(len=*),intent(in)   :: labelid, colorname
         integer(c_int),intent(in)     :: gtkstate
 
-        type(c_ptr)                  :: cstring
+        type(c_ptr)                  :: cstring, widget_ptr, name_ptr
         character(len=:),allocatable :: fstring
-        integer                      :: ncitem,i1,i2,i3
-        character(len=512)           :: log_str
+        character(32)                :: tmp_name_widget
+        integer                      :: i1,i2,i3
         real(c_double)               :: rgba(4)
         type(GdkRGBA), target        :: URcolor
         !-----------------------------------------------------------------------------
 
-        item_setintern = .true.
-        ncitem = 0
-        call FindItemS(trim(labelid), ncitem)
-        !         if(ncitem == 0) write(66,*) 'WDPutLabelColorF:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
-        if(ncitem == 0)  then
-            write(log_str, '(*(g0))') 'WDPutLabelColorF:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
-            call logger(66, log_str)
-        end if
+        widget_ptr = idpt(labelid)
 
+        name_ptr = gtk_widget_get_name(widget_ptr)
+        if ( c_associated(name_ptr) ) then
+            call c_f_string(name_ptr, tmp_name_widget)
+        else
+            print *, 'Error finding the widget_class'
+        end if
         allocate(character(len=400) :: fstring)
-        if(trim(clobj%name(ncitem)%s) == 'GtkLabel') then
-            cstring = gtk_label_get_text(clobj%id_ptr(ncitem))
+        if(trim(tmp_name_widget) == 'GtkLabel') then
+            cstring = gtk_label_get_text(widget_ptr)
             if(c_associated(cstring)) call c_f_string(cstring, fstring)
-            call gtk_label_set_markup(clobj%id_ptr(ncitem),  &
+            call gtk_label_set_markup(widget_ptr,  &
                 '<span background="' // trim(colorname) // '">' // trim(fstring) // '</span>'//c_null_char)
         else
             rgba = (/0._c_double, 0._c_double, 0._c_double, 1._c_double /)    ! black
@@ -2759,9 +2744,9 @@ contains
                 Urcolor%blue = rgba(3)
                 Urcolor%alpha = rgba(4)
             end if
-            call gtk_widget_override_background_color(clobj%id_ptr(ncitem), gtkstate, c_loc(URColor))
+            call gtk_widget_override_background_color(widget_ptr, gtkstate, c_loc(URColor))
         end if
-        item_setintern = .false.
+
 
     end subroutine WDPutLabelColorB
 
@@ -2782,25 +2767,25 @@ contains
         character(len=512)  :: log_str
         integer             :: ncitem
 
-        ncitem = 0
-        call FindItemS(trim(labelid), ncitem)
-        if(ncitem == 0)  then
-            write(log_str, '(*(g0))') 'WDPutLabelStringBold:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
-            call logger(66, log_str)
-        end if
-
-        ! if(ncitem > 0) then
-        !     if(trim(clobj%name(ncitem)%s) == 'GtkFrame' ) color_fg = colors%frame_fg
+        ! ncitem = 0
+        ! call FindItemS(trim(labelid), ncitem)
+        ! if(ncitem == 0)  then
+        !     write(log_str, '(*(g0))') 'WDPutLabelStringBold:  labelid=',trim(labelid),'  existiert nicht: ncitem=0'
+        !     call logger(66, log_str)
         ! end if
 
-        item_setintern = .true.
+        ! if(ncitem > 0) then
+        !     if(trim(tmp_name_widget) == 'GtkFrame' ) color_fg = colors%frame_fg
+        ! end if
+
+
         str1 = labeltext
 
-        call gtk_label_set_markup(clobj%id_ptr(ncitem),  &
+        call gtk_label_set_markup(idpt(labelid),  &
             trim('<span foreground="' // trim(color_fg) // '"><b>' // trim(str1) // '</b></span>' &
             //c_null_char  ) )
 
-        item_setintern = .false.
+
     end subroutine WDPutLabelStringBold
 
 !###############################################################################
@@ -2822,7 +2807,7 @@ contains
         character(len=2)               :: mcol
 
 !------------------------------------------------------------
-        item_setintern = .true.
+
         kt = 0
         do i=1,ntvs
             if(trim(treename) == trim(tvnames(i)%s)) kt = i
@@ -2834,14 +2819,9 @@ contains
         write(mcol,'(i2)') tvcolindex(kt,ncol)
         treecol = trim(treecol) // adjustl(mcol)
 
-
-        call FindItemS(treecol, ncitem)
-
-        if(ncitem == 0) goto 999  ! return
-
-        call gtk_tree_view_column_set_title(clobj%id_ptr(ncitem), trim(string) // c_null_char)
+        call gtk_tree_view_column_set_title(idpt(treename), trim(string) // c_null_char)
 999     continue
-        item_setintern = .false.
+
 
     end subroutine WDPutTreeViewColumnLabel
 
@@ -2863,7 +2843,7 @@ contains
         integer                            :: ncitem,kt,i
         character(len=2)                   :: mcol
 !------------------------------------------------------------
-        item_setintern = .true.
+
         kt = 0
         do i=1,ntvs
             if(trim(treename) == trim(tvnames(i)%s)) kt = i
@@ -2875,14 +2855,11 @@ contains
         write(mcol,'(i2)') tvcolindex(kt,ncol)
         treecol = trim(treecol) // adjustl(mcol)
 
-
-        call FindItemS(treecol, ncitem)
-        if(ncitem == 0) goto 999  ! return
-        cptr = gtk_tree_view_column_get_title(clobj%id_ptr(ncitem))
+        cptr = gtk_tree_view_column_get_title(idpt(treename))
         call convert_c_string(cptr, string)
 
 999     continue
-        item_setintern = .false.
+
 
     end subroutine WDGetTreeViewColumnLabel
 
@@ -2940,7 +2917,7 @@ contains
         character(len=2)        :: crlf = char(13)//char(10)
         character(len=200)      :: textline(1)
         !------------------------------------------------------------
-        item_setintern = .true.
+
         prout = .false.
         ! prout = .true.
 
@@ -2959,7 +2936,7 @@ contains
         if(ios /= 0) then
             close (15)
             ifehl = 1
-            item_setintern = .false.
+
             return
         end if
 
@@ -2992,7 +2969,7 @@ contains
             call hl_gtk_text_view_insert(widget,textline)
         end do
         close (15)
-        item_setintern = .false.
+
 
     end subroutine WDPutTextviewEditor
 
@@ -3061,9 +3038,11 @@ contains
 
     subroutine UpdateProName(proname)
 
-        use ur_general_globals,     only: dir_sep
-        use gtk,              only: gtk_window_set_title
-        use top,              only: WrStatusbar
+        use ur_general_globals, only: dir_sep
+        use UR_gtk_globals,     only: UR_widgets
+        use UR_params,          only: win_title
+        use gtk,                only: gtk_window_set_title
+        use top,                only: WrStatusbar
         use translation_module, only: T => get_translation
 
         implicit none
@@ -3075,7 +3054,7 @@ contains
         i1 = 1
         if(LEN_TRIM(proname) > 59) i1 = LEN_TRIM(proname) - 59 + 1
 
-        call WrStatusBar(1,T('Project') // ': '//TRIM(proname(i1:)))
+        call WrStatusBar(1,T('Project') // ': '//trim(proname(i1:)))
 
         prstr = trim(proname)
         do i=len_trim(proname),1,-1
@@ -3085,7 +3064,7 @@ contains
             end if
         end do
 
-        call gtk_window_set_title(idpt('window1'), trim(win_title)// '   -   ' // trim(prstr) // c_null_char)
+        call gtk_window_set_title(UR_widgets%window1, trim(win_title)// '   -   ' // trim(prstr) // c_null_char)
         call pending_events()
 
     end subroutine UpdateProName

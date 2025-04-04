@@ -19,7 +19,7 @@ module ur_general_globals
 
     use, intrinsic :: iso_c_binding
     use UR_types
-    use UR_gtk_window,  only: charv
+    use UR_gtk_window_types,  only: charv
     !
     !   global variables for any routine with 'use ur_general_globals'
     !
@@ -138,7 +138,7 @@ end module ur_general_globals
 
 module UR_Gleich_globals
     use UR_types,       only: rn
-    use UR_gtk_window,  only: charv
+    use UR_gtk_window_types,  only: charv
 
     implicit none
 
@@ -154,7 +154,7 @@ module UR_Gleich_globals
     integer   , parameter    :: ncovmx = 50
 
     type(charv),allocatable  :: Formeltext(:)        ! String arry of equations
-    type(charv),allocatable  :: FormeltextFit(:)     ! string array of formulae in a decay curve model
+    type(charv),allocatable  :: Formeltextfit(:)     ! string array of formulae in a decay curve model
 
     type(charv),allocatable  :: Formelt(:)  ! string array of the individual equations
     type(charv),allocatable  :: RSeite(:)   ! the right-hand sides of the equations/formulae
@@ -527,9 +527,9 @@ module UR_gtk_globals
     use, intrinsic :: iso_c_binding, only: c_double, c_char, c_int, &
                                            c_bool, c_ptr
 
-    use UR_types,            only: rn
-    use UR_gtk_window,       only: widgets_named, Wclobj, GdkRGBA, &
-                                   KSetting, charv
+    use UR_types,            only: rn, Wclobj, GdkRGBA, &
+                                   KSetting, charv, widgets_named
+
 
     use gtk_sup,             only: gtktreeiter, gvalue
 
@@ -544,6 +544,8 @@ module UR_gtk_globals
                             stringv
 
     type(widgets_named), target :: UR_widgets
+
+
     type(Wclobj), target     :: clobj
     integer                  :: nclobj       ! number of widgets
 
@@ -592,7 +594,6 @@ module UR_gtk_globals
     logical                  :: dialogloop_on
     integer                  :: ncitemClicked
     character(len=4)         :: toggleTypeGTK
-    character(len=30)        :: Notebook_labelid(6)      ! ,Notebook2_labelid(3)
     character(len=30)        :: Notebook_labeltext(6)    !   ,Notebook2_labeltext(3)
     character(:),allocatable :: chfilter                 ! FileChooser
 
@@ -626,6 +627,7 @@ module UR_gtk_globals
 
     type(c_ptr)             :: nbook2
     type(c_ptr)             :: provider
+    type(c_ptr)             :: builder
 
 end module UR_gtk_globals
 
@@ -681,7 +683,7 @@ module UR_Loadsel
     integer                   :: ichk1,ichk2,ichk3,kopt, klfrename
     integer                   :: numrowsold
     character(:),allocatable  :: Sname,Soldname
-    integer                   :: NBcurrentPage,NBcurrentPage2
+    integer                   :: NBcurrentPage
     integer                   :: NBpreviousPage
 
 end module UR_Loadsel

@@ -25,25 +25,25 @@ contains
         ! finds the c-pointer value of the GUI widget with id name string strid
         ! from the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+        ! Flo: this is just a wrapper to use the old structure of UR, clobj isn't
+        !      used anymore
 
-        use UR_gtk_globals,  only: clobj, nclobj
+        !     Copyright (C) 2014-2025  Günter Kanisch
+
+        use, intrinsic :: iso_c_binding,  only: c_null_char, c_associated
+        use gtk, only: gtk_builder_get_object
+        use UR_gtk_globals,  only: builder
         implicit none
 
         type(c_ptr)                   :: ptr
         character(len=*),intent(in)   :: strid      ! Name des ID-Labels aus dem Glade-File
 
-        integer                       :: i
+        ptr = gtk_builder_get_object(builder, strid // c_null_char)
 
-        ! Flo: tdb
-        call FindItemS(strid, i)
-
-        if (i > nclobj .or. i == 0) then
+        if (.not. c_associated(ptr)) then
             ptr = c_null_ptr
             write(66,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
             write(*,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
-        else
-            ptr = clobj%id_ptr(i)
         end if
 
     end function idpt

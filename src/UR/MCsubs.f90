@@ -401,7 +401,7 @@ contains
         use common_sub1,     only: drawboxpackedMC,  &
                                    drawboxpackedELI, drawboxpackedBS, drawboxpackedCP
 
-        use UR_gtk_window,    only: GdkRGBA
+        use UR_gtk_window_types,    only: GdkRGBA
 
         use UR_gtk_globals, only: consoleout_gtk, winPL_shown, posx, posy, &
                                     scrwidth_min,scrwidth_max,scrheight_min,monitorUR, &

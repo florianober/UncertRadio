@@ -76,17 +76,6 @@ add_custom_command(
     DEPENDS ${CMAKE_SOURCE_DIR}/UncertRadio.gresources.xml ${CMAKE_SOURCE_DIR}/UR2_5.glade
 )
 
-# Custom command to generate the Fortran include file if the Glade file has changed
-add_custom_command(
-    OUTPUT ${CMAKE_SOURCE_DIR}/src/UR/widgets-auto.in
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMAND python ${CMAKE_SOURCE_DIR}/gen_widget_ids.py
-    DEPENDS ${CMAKE_SOURCE_DIR}/UR2_5.glade
-    COMMENT "Generating Fortran include file from Glade file"
-    VERBATIM
-)
-
-
 # set output dir
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
@@ -153,7 +142,6 @@ target_sources(UncertRadio PRIVATE
     src/UR/TopoEqs.f90
     src/UR/TranslateUR.f90
     src/UR/Translate_mod.f90
-    src/UR/URGladesys.f90
     src/UR/UR_Randoms.f90
     src/UR/UR_Winmod.f90
     src/UR/UR_gtk-routines.f90
@@ -185,8 +173,8 @@ target_sources(UncertRadio PRIVATE
     # gresource binary
     ${CMAKE_BINARY_DIR}/UncertRadio.gresources.c
 
-    # include widgets based on the glade file
-    src/UR/widgets-auto.in
+    # # include widgets based on the glade file
+    # src/UR/widgets-auto.in
     )
 
 # Link libraries

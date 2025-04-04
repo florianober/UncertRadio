@@ -315,9 +315,9 @@ contains
         icon = gdk_pixbuf_new_from_resource("/org/UncertRadio/icons/ur2_symbol.png" // c_null_char, &
                                             c_null_ptr)
 
-        call gtk_window_set_icon(UR_widgets%window1%id_ptr, icon)
+        call gtk_window_set_icon(UR_widgets%window1, icon)
 
-        if(.not. runauto) call gtk_window_set_title(UR_widgets%window1%id_ptr, win_title // c_null_char)
+        if(.not. runauto) call gtk_window_set_title(UR_widgets%window1, win_title // c_null_char)
 
         call gtk_window_set_title(idpt('window_graphs'), 'Plots'//c_null_char)
 
@@ -618,7 +618,7 @@ contains
         res = gtk_text_view_place_cursor_onscreen(idpt('textview2'))
         call gtk_text_view_set_cursor_visible(idpt('textview2'), 1_c_int)
 
-        call gtk_widget_set_focus_on_click(UR_widgets%window1%id_ptr, 1_c_int)
+        call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
 
         call gtk_widget_grab_focus(idpt('textview1'))
         dialog_on = .false.

@@ -44,12 +44,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox15">
+      <object class="GtkBox" id="dialog_vbox15">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area16">
+          <object class="GtkButtonBox" id="dialog_action_area16">
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
@@ -1498,12 +1498,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox2">
+      <object class="GtkBox" id="dialog_vbox2">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area2">
+          <object class="GtkButtonBox" id="dialog_action_area2">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -2461,12 +2461,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox20">
+      <object class="GtkBox" id="dialog_vbox20">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area21">
+          <object class="GtkButtonBox" id="dialog_action_area21">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -2652,12 +2652,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox11">
+      <object class="GtkBox" id="dialog_vbox11">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area13">
+          <object class="GtkButtonBox" id="dialog_action_area13">
             <property name="can-focus">False</property>
             <property name="margin-top">10</property>
             <property name="margin-bottom">4</property>
@@ -2820,12 +2820,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox5">
+      <object class="GtkBox" id="dialog_vbox5">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area7">
+          <object class="GtkButtonBox" id="dialog_action_area7">
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="margin-bottom">4</property>
@@ -3491,12 +3491,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox21">
+      <object class="GtkBox" id="dialog_vbox21">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area23">
+          <object class="GtkButtonBox" id="dialog_action_area23">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -3771,12 +3771,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox6">
+      <object class="GtkBox" id="dialog_vbox6">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area8">
+          <object class="GtkButtonBox" id="dialog_action_area8">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -4137,7 +4137,7 @@
                     <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                     <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selectionTV5">
+                      <object class="GtkTreeSelection" id="treeview_selectionTV5">
                         <property name="mode">multiple</property>
                         <signal name="changed" handler="ActualTreeV" swapped="no"/>
                       </object>
@@ -4729,12 +4729,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox17">
+      <object class="GtkBox" id="dialog_vbox17">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area18">
+          <object class="GtkButtonBox" id="dialog_action_area18">
             <property name="sensitive">False</property>
             <property name="can-focus">False</property>
             <property name="halign">start</property>
@@ -4775,7 +4775,7 @@
                     <property name="enable-grid-lines">both</property>
                     <signal name="key-press-event" handler="keyPress" swapped="no"/>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection"/>
+                      <object class="GtkTreeSelection" id="treeview_selection"/>
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="treeviewcolumn58">
@@ -5550,18 +5550,18 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox9">
+      <object class="GtkBox" id="dialog_vbox9">
         <property name="can-focus">False</property>
         <property name="vexpand">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area11">
+          <object class="GtkButtonBox" id="dialog_action_area11">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="layout-style">end</property>
             <child>
-              <object class="GtkButtonBox" id="dialog-action_area12">
+              <object class="GtkButtonBox" id="dialog_action_area12">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="margin-bottom">10</property>
@@ -6425,7 +6425,7 @@
                     <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                     <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                     <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selectionTV6">
+                      <object class="GtkTreeSelection" id="treeview_selectionTV6">
                         <property name="mode">multiple</property>
                         <signal name="changed" handler="ActualTreeV" swapped="no"/>
                       </object>
@@ -7069,7 +7069,7 @@
                         <property name="show-expanders">False</property>
                         <property name="enable-grid-lines">both</property>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selectionTV9">
+                          <object class="GtkTreeSelection" id="treeview_selectionTV9">
                             <property name="mode">multiple</property>
                           </object>
                         </child>
@@ -7350,12 +7350,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox13">
+      <object class="GtkBox" id="dialog_vbox13">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area14">
+          <object class="GtkButtonBox" id="dialog_action_area14">
             <property name="can-focus">False</property>
             <property name="valign">start</property>
             <property name="margin-top">10</property>
@@ -7604,7 +7604,7 @@
                         <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                         <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                         <child internal-child="selection">
-                          <object class="GtkTreeSelection" id="treeview-selectionTV7">
+                          <object class="GtkTreeSelection" id="treeview_selectionTV7">
                             <property name="mode">multiple</property>
                             <signal name="changed" handler="ActualTreeV" swapped="no"/>
                           </object>
@@ -7928,12 +7928,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox1">
+      <object class="GtkBox" id="dialog_vbox1">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
+          <object class="GtkButtonBox" id="dialog_action_area1">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -8168,7 +8168,7 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButtonBox" id="dialog-action_area6">
+                          <object class="GtkButtonBox" id="dialog_action_area6">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="layout-style">center</property>
@@ -8643,7 +8643,7 @@
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-vbox22">
+          <object class="GtkButtonBox" id="dialog_vbox22">
             <property name="can-focus">False</property>
             <property name="halign">start</property>
             <property name="valign">start</property>
@@ -9016,7 +9016,7 @@
                             <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                             <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selectionTV8">
+                              <object class="GtkTreeSelection" id="treeview_selectionTV8">
                                 <property name="mode">multiple</property>
                                 <signal name="changed" handler="ActualTreeV" swapped="no"/>
                               </object>
@@ -9476,12 +9476,12 @@
     <property name="deletable">False</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox4">
+      <object class="GtkBox" id="dialog_vbox4">
         <property name="can-focus">False</property>
         <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area4">
+          <object class="GtkButtonBox" id="dialog_action_area4">
             <property name="can-focus">False</property>
             <property name="margin-bottom">4</property>
             <property name="layout-style">end</property>
@@ -11290,7 +11290,7 @@
                             <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                             <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selectionTV1">
+                              <object class="GtkTreeSelection" id="treeview_selectionTV1">
                                 <property name="mode">multiple</property>
                                 <signal name="changed" handler="ActualTreeV" swapped="no"/>
                               </object>
@@ -11813,7 +11813,7 @@
                             <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                             <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selectionTV2">
+                              <object class="GtkTreeSelection" id="treeview_selectionTV2">
                                 <signal name="changed" handler="ActualTreeV" swapped="no"/>
                               </object>
                             </child>
@@ -12105,7 +12105,7 @@
                                 <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                                 <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                                 <child internal-child="selection">
-                                  <object class="GtkTreeSelection" id="treeview-selectionTV3">
+                                  <object class="GtkTreeSelection" id="treeview_selectionTV3">
                                     <property name="mode">multiple</property>
                                     <signal name="changed" handler="ActualTreeV" swapped="no"/>
                                   </object>
@@ -12463,7 +12463,7 @@
                             <signal name="row-activated" handler="ActualTreeV" swapped="no"/>
                             <signal name="select-cursor-row" handler="ActualTreeV" swapped="no"/>
                             <child internal-child="selection">
-                              <object class="GtkTreeSelection" id="treeview-selectionTV4">
+                              <object class="GtkTreeSelection" id="treeview_selectionTV4">
                                 <signal name="changed" handler="ActualTreeV" swapped="no"/>
                               </object>
                             </child>
