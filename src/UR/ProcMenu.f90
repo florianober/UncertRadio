@@ -42,21 +42,21 @@ recursive subroutine ProcMenu(ncitem)
 
     use gtk_draw_hl,         only: hl_gtk_drawing_area_resize, gtkallocation
 
-    use UR_gtk_globals,    only: clobj, ioption, QuitProg, HelpButton, consoleout_gtk, &
+    use UR_gtk_globals,      only: clobj, ioption, QuitProg, HelpButton, consoleout_gtk, &
                                    dialog_leave, item_setintern, gscreen, scrwidth_min, &
                                    scrwidth_max, scrheight_min, scrheight_max, plot_setintern, &
                                    zoomf, replot_on, nbook2, zoomf_prev
     use UR_Linft,            only: FitDecay, export_case, klincall, ifit, dmodif, SumEval_fit, export_r
     use UR_Gspk1Fit,         only: Gamspk1_Fit, gmodif
     use ur_general_globals
-    use UR_Gleich_globals,           only: loadingpro, kEGr, refresh_type, Symbole, knetto, kbrutto, kEGr, &
+    use UR_Gleich_globals,   only: loadingpro, kEGr, refresh_type, Symbole, knetto, kbrutto, kEGr, &
                                    knumEGr, ifehl, syntax_check, symlist_modified, linmod1_on, &
                                    knumold, ngrs, refresh_but, incall, kEGr_old, apply_units, ncov, &
                                    symtyp, syntax_check, retain_triggers
 
     use UR_DLIM,             only: KBgrenzu, KBgrenzo, KBgrenzuSH, KBgrenzoSH
     use UR_perror,           only: ifehlp
-    use top,                 only: FindItemS, idpt, FieldUpdate, WrStatusbar, load_unit_conv
+    use top,                 only: idpt, FieldUpdate, WrStatusbar, load_unit_conv
     use Rout,                only: WDNotebookSetCurrPage, WDPutTextviewEditor, fopen, Messageshow, &
                                    pending_events, WDPutEntryString, WDSetComboboxAct, ClearMCfields, &
                                    WDGetSelRadioMenu, EraseNWGfields, &
@@ -507,7 +507,8 @@ recursive subroutine ProcMenu(ncitem)
                 if(prout) write(66,'(a,i0,1x,i0,a,L1)') 'knumold,knumEGr=',knumold,knumEGr,' dialog_leave=',dialog_leave
                 if(dialog_leave == 1 .and. knumold == 1 .and. knumold < knumEGr) then
                     loadingPro = .true.
-                    call FindItemS('button_LoadSymbols', nci2)
+                    ! call FindItemS('button_LoadSymbols', nci2)
+                    nci2 = 1
                     call ProcMainDiag(nci2)
                     loadingPro = .false.
                 end if

@@ -88,10 +88,10 @@ contains
 
         ! This is the basic routine which shows a dialog, reacts to possible user actions
         ! by processing them in this routine and reads the necessary information from the
-        ! dioalog when this was requested (e.g. butto 'OK') to end the communication; finally
-        ! the dialog is hided.  The necessary sequence of steps is shown by comments in the
+        ! dialog when this was requested (e.g. button 'OK') to end the communication; finally
+        ! the dialog is hidden.  The necessary sequence of steps is shown by comments in the
         ! code.
-        !  Copyright (C) 2014-2023  Günter Kanisch
+        !  Copyright (C) 2014-2025  Günter Kanisch
         !
 
         use, intrinsic :: iso_c_binding, only: c_ptr, c_int, c_null_char, &
@@ -135,7 +135,7 @@ contains
 
         use UR_gtk_window_types,      only:   GdkRGBA
 
-        use top,                only:   idpt,WrStatusbar,FieldUpdate,MDcalc,FindItemS, &
+        use top,                only:   idpt,WrStatusbar,FieldUpdate,MDcalc, &
                                         PixelPerString,RealModA1,CharModa1,IntModA1,InitVarsTV5,InitVarsTV5_CP, &
                                         InitVarsTV6_CP,LogModA1,CharModStr
         use ur_general_globals,       only:   actual_plot,Confidoid_activated, plot_confidoid,plot_ellipse, &
@@ -272,21 +272,6 @@ contains
         if(mode == 2 .and. ncitem == 0) return
         prout = .false.
 
-        ! if(ioption == 71) prout = .true.
-        !         prout = .true.
-
-        !write(66,*) 'gtk_RESPONSE_NONE=',gtk_RESPONSE_NONE
-        !write(66,*) 'gtk_RESPONSE_REJECT=',gtk_RESPONSE_REJECT
-        !write(66,*) 'gtk_RESPONSE_ACCEPT=',gtk_RESPONSE_ACCEPT
-        !write(66,*) 'gtk_RESPONSE_DELETE_EVENT=',gtk_RESPONSE_DELETE_EVENT
-        !write(66,*) 'gtk_RESPONSE_CANCEL=',gtk_RESPONSE_CANCEL
-        !write(66,*) 'gtk_RESPONSE_CLOSE=',gtk_RESPONSE_CLOSE
-        !write(66,*) 'gtk_RESPONSE_YES=',gtk_RESPONSE_YES
-        !write(66,*) 'gtk_RESPONSE_NO=',gtk_RESPONSE_NO
-        !write(66,*) 'gtk_RESPONSE_APPLY=',gtk_RESPONSE_APPLY
-
-        !!! allocate(character(len=500) :: str1)
-
         dialog = c_null_ptr      ! 2025.01.23 GK
 
         if(ncitem > 0) then
@@ -294,10 +279,8 @@ contains
             widgetlabel = clobj%label(ncitem)%s
             objstr      = clobj%name(ncitem)%s
             signal      = clobj%signal(ncitem)%s
-            ! write(66,*) 'Loadsel:   iop=',ioption,'  dialogstr=',trim(dialogstr),'  idstring=',trim(idstring), &
-            !              '  widgetlabel=',trim(widgetlabel),'  objstr=',trim(objstr)
         end if
-!         if(prout .and. len_trim(dialogstr) > 0) write(66,*) '         dialog=',trim(dialogstr)
+
         if(prout .and. len_trim(dialogstr) > 0)  then
             write(log_str, '(*(g0))') '         dialog=',trim(dialogstr)
             call logger(66, log_str)
@@ -1021,7 +1004,7 @@ contains
         end if
 
         if(clobj%name(ncitemclicked)%s == 'GtkButton' .and. HelpButton) then
-            ! The case of HelpFX considers several help topics and muist therefore
+            ! The case of HelpFX considers several help topics and must therefore
             ! handled below under the idstring 'HelpFX'
             ! 9.3.2024
             if(clobj%idd(ncitemclicked)%s /= 'HelpFX') then
@@ -1597,26 +1580,6 @@ contains
                         write(log_str, '(*(g0))') '  from ColorSelection:   c_associated(pointer pcolor)=',c_associated(pcolor)
                         call logger(66, log_str)
                     end if
-!                     if(c_associated(pcolor)) then
-!                         call c_f_pointer(pcolor, pURcolor)
-!                         if(prout) then
-! !                             write(66,*) 'URcolor=',URcolor
-!                             write(log_str, '(*(g0))') 'URcolor=',URcolor
-!                             call logger(66, log_str)
-! !                             write(66,*) '    red    =',URcolor%red
-!                             write(log_str, '(*(g0))') '    red    =',URcolor%red
-!                             call logger(66, log_str)
-! !                             write(66,*) '    green  =',URcolor%green
-!                             write(log_str, '(*(g0))') '    green  =',URcolor%green
-!                             call logger(66, log_str)
-! !                             write(66,*) '    blue   =',URcolor%blue
-!                             write(log_str, '(*(g0))') '    blue   =',URcolor%blue
-!                             call logger(66, log_str)
-! !                             write(66,*) '    alpha  =',URcolor%alpha
-!                             write(log_str, '(*(g0))') '    alpha  =',URcolor%alpha
-!                             call logger(66, log_str)
-!                         end if
-!                     end if
                     write(colorname,'(a1,z2.2,z2.2,z2.2)') '#',int(URcolor%red*256_c_double), &
                         int(URcolor%green*256_c_double), &
                         int(URcolor%blue*256_c_double)
@@ -2088,8 +2051,6 @@ contains
                 goto 1010
 
               case ('HelpFX')
-                ! write(66,*) 'HelpFX:    buthelp=',trim(buthelp)
-                call FindItemS(trim(buthelp), kk)
                 call DisplayHelp(0, idstr=trim(buthelp))
                 goto 1010
 
@@ -2170,7 +2131,7 @@ contains
 
             end select
         end select   ! widget-label
-!-----------------------------------------------------------------------------
+       !-----------------------------------------------------------------------------
         select case (trim(signal))
 
             ! Actions required by LoadselDiag are handled in this part for dialog widgets

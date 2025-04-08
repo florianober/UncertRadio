@@ -46,6 +46,8 @@ contains
 
         call Batest_no_gui()
 
+        call test_gtk_get_buildable_id()
+
         write(*,'(2X,A)') "All tests done"
 
     end subroutine
@@ -457,5 +459,59 @@ contains
             write(*, '(4X, A,I0,A)') "lowercase: Warning, found ", errors, " error(s)"
         end if
     end subroutine test_lowercase
+
+
+    subroutine test_gtk_get_buildable_id()
+
+        use Rout, only: get_gladeid_name
+        use gtk, only: gtk_button_new, gtk_widget_destroy
+        use UR_gtk_globals, only: UR_widgets
+
+        use iso_c_binding, only: c_null_ptr, c_ptr
+
+        implicit none
+
+        character(64) :: glade_id
+        character(:), allocatable :: error
+        integer :: errors = 0
+
+        ! ! Initialize GTK (atm gtk is already initialized when starting these tests)
+        ! call gtk_init()
+        ! Test case 1: Valid buildable object
+        glade_id = get_gladeid_name(UR_widgets%window1, error=error)
+        if (trim(glade_id) /= "window1") then
+            errors = errors + 1
+            write(*,'(4X,A)') "Test 1 Failed: Expected 'window1', got '" // trim(glade_id) // "'"
+        end if
+
+        ! Test case 2: Null buildable object
+        glade_id = get_gladeid_name(c_null_ptr, error=error)
+        if (len_trim(glade_id) > 0 .or. len(error) == 0) then
+            errors = errors + 1
+            write(*,'(4X,A)') "Test 2 Failed: Expected empty string, got '" // trim(glade_id) // "'"
+        end if
+
+        ! Test case 3: without error argument
+        glade_id = get_gladeid_name(UR_widgets%window1)
+        if (trim(glade_id) /= "window1") then
+            errors = errors + 1
+            write(*,'(4X,A)') "Test 3 Failed: Expected 'window1', got '" // trim(glade_id) // "'"
+        end if
+
+        ! ! Test case 4: with allocatable error
+        ! glade_id = get_gladeid_name(c_null_ptr, error=error2)
+
+        ! if (len_trim(error2) == 0) then
+        !     print *, error2
+        !     errors = errors + 1
+        !     write(*,'(4X,A)') "Test 2 Failed: Expected empty string, got '" // trim(glade_id) // "'"
+        ! end if
+
+        if (errors == 0) then
+            write(*,'(4X,A)') "gtk_get_buildable_id: no errors"
+        else
+            write(*, '(4X, A,I0,A)') "gtk_get_buildable_id: Warning, found ", errors, " error(s)"
+        end if
+    end subroutine test_gtk_get_buildable_id
 
 end module UR_tests

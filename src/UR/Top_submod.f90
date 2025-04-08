@@ -50,68 +50,68 @@ contains
 
     ! #############################################################################################
 
-    pure module subroutine FindItemP(ptr, ncitem)
+    ! pure module subroutine FindItemP(ptr, ncitem)
 
-        ! finds for the given c-pointer value ptr the associated index number
-        ! ncitem within the structure clobj derived from the Glade file
+    !     ! finds for the given c-pointer value ptr the associated index number
+    !     ! ncitem within the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+    !     !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
-        use UR_gtk_globals,            only: clobj, nclobj
-        implicit none
+    !     use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+    !     use UR_gtk_globals,            only: clobj, nclobj
+    !     implicit none
 
-        type(c_ptr), value, intent(in) :: ptr
-        integer, intent(out)           :: ncitem
+    !     type(c_ptr), value, intent(in) :: ptr
+    !     integer, intent(out)           :: ncitem
 
-        integer :: i
-        ! -----------------------------------------------------------------------------------------
-        ncitem = 0
-        if( .not. c_associated(ptr)) return
+    !     integer :: i
+    !     ! -----------------------------------------------------------------------------------------
+    !     ncitem = 0
+    !     if( .not. c_associated(ptr)) return
 
-        do i=1, nclobj
-            if(c_associated(ptr, clobj%id_ptr(i))) then
-                ncitem = i
-                exit
-            end if
-        end do
+    !     do i=1, nclobj
+    !         if(c_associated(ptr, clobj%id_ptr(i))) then
+    !             ncitem = i
+    !             exit
+    !         end if
+    !     end do
 
-    end subroutine FindItemP
+    ! end subroutine FindItemP
 
     !#############################################################################################
 
-    module subroutine FindItemS(dialogstr, ncitem)
+    ! module subroutine FindItemS(dialogstr, ncitem)
 
-        ! finds for the given dialogstr the associated index number
-        ! ncitem within the structure clobj derived from the Glade file
+    !     ! finds for the given dialogstr the associated index number
+    !     ! ncitem within the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+    !     !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use UR_gtk_globals,  only: clobj, nclobj
-        implicit none
+    !     use UR_gtk_globals,  only: clobj, nclobj
+    !     implicit none
 
-        character(*), intent(in) :: dialogstr
-        integer, intent(out)     :: ncitem
+    !     character(*), intent(in) :: dialogstr
+    !     integer, intent(out)     :: ncitem
 
-        integer                  :: i
-        !---------------------------------------------------------------
-        ncitem = 0
+    !     integer                  :: i
+    !     !---------------------------------------------------------------
+    !     ncitem = 0
 
-        do i=1, nclobj
-            if(clobj%idd(i)%s == dialogstr) then
-                ncitem = i
-                exit
-            end if
-        end do
+    !     do i=1, nclobj
+    !         if(clobj%idd(i)%s == dialogstr) then
+    !             ncitem = i
+    !             exit
+    !         end if
+    !     end do
 
-    end subroutine FindItemS
+    ! end subroutine FindItemS
     !-----------------------------------------------------------------
 
     !#############################################################################################
     !
     module subroutine FieldUpdate()
         !
-        !   This routine enables/disables the GUI menu items needed for saveing
+        !   This routine enables/disables the GUI menu items needed for saving
         !   the project
         !
         use, intrinsic :: iso_c_binding

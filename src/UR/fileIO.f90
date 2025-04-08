@@ -73,7 +73,7 @@ contains
         !     55  : Output von Gleichungen-Interpretieren
         !     62  : in Batest
         !     63  : output von MCtables
-        !     65  : Output von URGladeSys
+        !     65  : GTK output
         !     66  : Standard-Kontroll-Output von UR
         !     67  : Batest, Cofellipse, DisplayHelp,Loadseldiag_new,MCCalc,...diverse
         !     69  : Lsqlincov2
@@ -112,6 +112,9 @@ contains
 
         case(30)
             full_file_name = log_path // 'char_limits.txt'
+
+        case(65)
+            full_file_name = log_path // 'gtk_output.txt'
 
         case(66)
             ! this is the main log file

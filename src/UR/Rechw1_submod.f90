@@ -147,7 +147,7 @@ contains
         use gtk,              only: gtk_buttons_OK, gtk_widget_set_sensitive,GTK_MESSAGE_WARNING
 
         use UR_gtk_globals, only: dialogstr,ioption,consoleout_gtk
-        use top,              only: FinditemS,idpt,wrstatusbar,dpafact,MDcalc,chupper_eq,CharModA1, &
+        use top,              only: idpt,wrstatusbar,dpafact,MDcalc,chupper_eq,CharModA1, &
                                     IntModA1,RealModA1,LogModA1,ModVarsTV2,CharModStr
 
         use CHF,              only: FindLocT,ucase
@@ -495,7 +495,7 @@ contains
                     call WrStatusbar(4,'Check BinPoi-Parameters:')
                     dialogstr = 'dialog_BinPoi'
                     ioption = 71
-                    call FindItemS(trim(dialogstr), ncitem2)
+                    !call FindItemS(trim(dialogstr), ncitem2)
                     call Loadsel_diag_new(1, ncitem2)
                     iptr_cnt(i) = i
                     write(66,'(a,4(i0,1x))') 'itm_binom,ip_binom,ilam_binom=',itm_binom,ip_binom,ilam_binom
@@ -646,7 +646,7 @@ contains
                 ioption = 3
                 ifehlx = 0
                 dialogstr = 'dialog_decayvals'
-                call FindItemS(dialogstr, ncitem)
+                !call FindItemS(dialogstr, ncitem)
                 call Loadsel_diag_new(1, ncitem)
                 if(ifehl == 1) then
                     write(66,'(a,i0)') 'After Laodsel (3):  ifehl=',ifehl
@@ -742,7 +742,7 @@ contains
                 ! read gamma peak data by invokling the dialog:
                 ioption = 5
                 dialogstr = 'dialog_gspk1'
-                call FindItemS(dialogstr, ncitem)
+                ! call FindItemS(dialogstr, ncitem)
                 call Loadsel_diag_new(1, ncitem)               !, c_null_ptr)
                 if(ifehl == 1) then
                     write(66,*) 'RW1_706:  Error in input of gamma peak data: stopped!'
@@ -2189,7 +2189,6 @@ contains
         use UR_Gleich_globals,        only: loadingpro
         use UR_gtk_globals, only: dialogstr,ioption
         use Rout,             only: WDGetCheckButton
-        use top,              only: FindItemS
         use LDN,              only: Loadsel_diag_new
         use KLF,              only: XKalfit
 
@@ -2201,7 +2200,7 @@ contains
         if(.not. loadingpro) then
             ioption = 8
             dialogstr = 'dialog_kalfit'
-            call FindItemS(trim(dialogstr), ncitem)
+            !call FindItemS(trim(dialogstr), ncitem)
             write(66,'(a,i0)') 'Kalfit:  ncitem=',ncitem
             call Loadsel_diag_new(1, ncitem)
         end if

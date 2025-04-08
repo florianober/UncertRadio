@@ -3020,7 +3020,50 @@ contains
 
     end subroutine MessageShow
 
-!#####################################################################################
+    !#####################################################################################
+
+    function get_gladeid_name(buildable, error)
+        !-----------------------------------------------------------------------------------------!
+        ! This function retrieves the Glade ID (name) of a given GTK buildable object.
+        ! Parameters:
+        !   buildable: c_ptr - The GTK buildable object.
+        !   error: character(:), allocatable, optional - Optional error message.
+        ! Returns:
+        !   get_gladeid_name: character(:), allocatable - The Glade ID of the buildable object.
+        !-----------------------------------------------------------------------------------------!
+        use gtk, only: gtk_buildable_get_name
+        use gtk_sup, only: c_f_string
+        !-----------------------------------------------------------------------------------------!
+        implicit none
+        type(c_ptr), intent(in) :: buildable
+        character(:), allocatable :: get_gladeid_name
+        character(:), allocatable, optional, intent(out) :: error
+
+        type(c_ptr) :: c_buildable_id
+        character(64) :: buildable_id, error_message
+        integer(c_int) :: status
+        integer :: tmp_error = 0
+        !-----------------------------------------------------------------------------------------!
+        buildable_id = ""
+        c_buildable_id  = gtk_buildable_get_name(buildable)
+        if (c_associated(c_buildable_id)) then
+            call c_f_string(c_buildable_id, buildable_id, status=status)
+            if (status /= 0_c_int) tmp_error = 2
+        else
+            tmp_error = 1
+        end if
+
+        if (present(error)) then
+            error = ""
+            if (tmp_error /= 0) then
+                write(error_message, '(A, I0)') "Error in get_glade_name: ", tmp_error
+                error = trim(error_message)
+            end if
+        end if
+
+        get_gladeid_name = trim(buildable_id)
+
+    end function
 
     subroutine SetTooltipText(wstring,tooltiptext)
 

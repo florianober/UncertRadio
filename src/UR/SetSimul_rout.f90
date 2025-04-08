@@ -829,7 +829,7 @@ subroutine setDistPars()
     use ur_general_globals,      only: SetDP, top_selrow
     use UR_gtk_globals,  only: ioption
     use LDN,               only: Loadsel_diag_new
-    use Top,               only: FindItemS,MDcalc
+    use Top,               only: MDcalc
 
     implicit none
     integer             :: ncitem
@@ -860,7 +860,7 @@ subroutine setDistPars()
         call MDcalc(k_datvar)
 
         ioption = 74
-        call FindItemS('TBDistribDialog', ncitem)
+        !call FindItemS('TBDistribDialog', ncitem)
         call Loadsel_diag_new(1, ncitem)
     end do
 

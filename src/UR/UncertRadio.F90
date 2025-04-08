@@ -211,6 +211,8 @@ program UncertRadio
     call logger(30, '')
     call logger(63, GPL_HEADER, new=.true.)
     call logger(63, '')
+    call logger(65, GPL_HEADER, new=.true.)
+    call logger(65, '')
 
     ! get the UR Version and git hash
 #ifdef GITVERSIONTAG
@@ -268,7 +270,8 @@ program UncertRadio
 
     ! Test for an already running instance of UR2; if so, don't start a second one.
     ! and stop UR with errorcode 2
-    call check_if_running(work_path // LOCKFILENAME, ur_runs)
+    ! call check_if_running(work_path // LOCKFILENAME, ur_runs)
+    ur_runs = .false.
     if(ur_runs) then
         call logger(66, "An UR2 instance is already running! A second one is not allowed!")
         tmp_str = T('An UR2 instance is already running! A second one is not allowed!\n' // &
@@ -489,7 +492,6 @@ program UncertRadio
         item_setintern = .false.
         call gtk_main()
     end if
-
     !-----------------------------------------------------------
     ! stop UncertRadio correctly
     call quit_uncertradio(0)

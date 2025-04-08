@@ -105,7 +105,7 @@ contains
                                     kbgrenzuSH,nit_decl,nit_detl,nwgmeth,UcombBayes,var_brutto_auto,W1minusG, &
                                     WertBayes,nit_detl_max
         use UR_MCC,           only: iopt_copygr,ncovmx
-        use top,              only: FindItemS,idpt,WrStatusbar,FieldUpdate,CharModA1,IntModA1, &
+        use top,              only: idpt,WrStatusbar,FieldUpdate,CharModA1,IntModA1, &
                                     RealModA1, LogModA1, InitVarsTV2_CP, InitVarsTV8, load_unit_conv, &
                                     InitVarsTV5, InitVarsTV5_CP
         use Rout,             only: MessageShow,WTreeViewGetStrArray,WTreeViewGetDoubleArray,  &
@@ -983,7 +983,7 @@ contains
                     if(kbgv_binom <= 0) then
                         dialogstr = 'dialog_BinPoi'
                         ioption = 71
-                        call FindItemS(trim(dialogstr), ncitem2)
+                        !call FindItemS(trim(dialogstr), ncitem2)
                         call Loadsel_diag_new(1, ncitem2)
                         if(ubound(iptr_cnt,dim=1) < i) call IntModA1(iptr_cnt,i)
                         iptr_cnt(i) = i
@@ -1137,7 +1137,7 @@ contains
                     ioption = 3                                                !!
                     ifehl = 0                                                  !!
                     dialogstr = 'dialog_decayvals'                             !!
-                    call FindItemS(dialogstr, ncitem2)                         !!
+                    !call FindItemS(dialogstr, ncitem2)                         !!
                     call Loadsel_diag_new(1, ncitem2)                          !!
                     IF(ifehl == 1) then                                        !!
 !                         write(66,'(a,i0)') 'After Laodsel (3):  ifehl=',ifehl   !!
@@ -1367,14 +1367,14 @@ contains
               case ('Copy1GrELI')
                 dialogstr = 'dialogeli'
                 ioption = 68
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
               case ('EQRenameSymb')
                 dialogstr = 'dialog_symbchg'
                 ioption = 7
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
@@ -1382,7 +1382,7 @@ contains
 
             end select
 
-!----------------------------------------------------
+          !----------------------------------------------------
 
           case ('GtkRadioMenuItem')
             select case (trim(idstring))
@@ -1396,7 +1396,7 @@ contains
               case default
             end select
             goto 9000
-!---------------------------------------------------------------------
+          !---------------------------------------------------------------------
 
           case ('GtkMenuItem', 'GtkToolButton', 'GtkImageMenuItem')
 
@@ -1405,7 +1405,7 @@ contains
               case ('PreSettings')
                 ioption = 1
                 dialogstr = 'dialog_options'
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 if(ifehl == 1) goto 9000
 
@@ -1418,21 +1418,21 @@ contains
                     dialogstr = 'dialog_gspk1'
                     ioption = 5
                 end if
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
               case ('RenameQuantity','EQRenameSymb')
                 dialogstr = 'dialog_symbchg'
                 ioption = 7
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
               case ('NumberOutputQuantities')
                 ioption = 6
                 dialogstr = 'dialog_numegr'
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
@@ -1450,14 +1450,14 @@ contains
               case ('TBFontSel', 'FontSel')
                 dialogstr = 'dialog_fontbutton'
                 ioption = 62
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
               case ('TBColorSel')
                 dialogstr = 'dialogColB'
                 ioption = 63
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
 
@@ -1488,7 +1488,7 @@ contains
                 pSV = W1minusG
                 ioption = 65
                 dialogstr = 'dialogELI'
-                call FindItemS('dialogELI', ncitem2)
+                !call FindItemS('dialogELI', ncitem2)
 !                 write(66,*) 'PrepConfidoid: ncitem2=',ncitem2
                 write(log_str, '(*(g0))') 'PrepConfidoid: ncitem2=',ncitem2
                 call logger(66, log_str)
@@ -1736,14 +1736,14 @@ contains
               case ('Exchange2Symbols')
                 dialogstr = 'dialog_symbExchg'
                 ioption = 67
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 if(ifehl == 1) goto 9000
 
               case ('TBmeansMD')
                 ioption = 69
                 dialogstr = 'dialogMeanData'
-                call FindItemS(dialogstr, nci)
+                !call FindItemS(dialogstr, nci)
                 !write(66,*) 'nvarsMD=',nvarsMD
                 !write(66,*) 'meanID(1)=',meanID(1)
                 ! call gtk_widget_set_sensitive(idpt('TBRemoveGridLine'), 1_c_int)
@@ -1753,7 +1753,7 @@ contains
               case ('SerialEval')
                 ioption = 70
                 dialogstr = 'dialogSerEval'
-                call FindItemS('dialogSerEval', ncitem2)
+                !call FindItemS('dialogSerEval', ncitem2)
 !                 write(66,*) 'dialogSerEval: ncitem2=',ncitem2
                 write(log_str, '(*(g0))') 'dialogSerEval: ncitem2=',ncitem2
                 call logger(66, log_str)
@@ -1769,14 +1769,14 @@ contains
               case ('BinPoiPars')
                 ioption = 71
                 dialogstr = 'dialog_BinPoi'
-                call FindItemS('dialog_BinPoi', ncitem2)
+                !call FindItemS('dialog_BinPoi', ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 goto 9000
 
               case ('BatestUser')
                 ioption = 72
                 dialogstr = 'dialog_Batest'
-                call FindItemS('dialog_Batest', ncitem2)
+                !call FindItemS('dialog_Batest', ncitem2)
                 call Loadsel_diag_new(1, ncitem2)
                 if(ifehl == 1) goto 9000
 
@@ -1788,7 +1788,7 @@ contains
               case ('BatFiles')
                 ioption = 73
                 dialogstr = 'dialogBatEval'
-                call FindItemS('dialogBatEval', ncitem2)
+                !call FindItemS('dialogBatEval', ncitem2)
 !                 write(66,*) 'dialogBatEval: ncitem2=',ncitem2,' BatFiles'
                 write(log_str, '(*(g0))') 'dialogBatEval: ncitem2=',ncitem2,' BatFiles'
                 call logger(66, log_str)
@@ -1816,7 +1816,7 @@ contains
                 ioption = 74
                 dialogstr = 'dialog_distributions'
                 ! call FindItemS('dialogBatEval', ncitem2)
-                call FindItemS('dialog_distributions', ncitem2)
+                !call FindItemS('dialog_distributions', ncitem2)
                 call Loadsel_diag_new(1, ncitem)
                 goto 9000
 
@@ -1824,7 +1824,7 @@ contains
                 dialogstr = 'dialog_infoFX'
                 ioption = 75
 
-                call FindItemS(trim(dialogstr), ncitem2)
+                !call FindItemS(trim(dialogstr), ncitem2)
                 ! write(66,*) 'PMD: URfunctions  arrived     ncitem2=',ncitem2
                 call Loadsel_diag_new(1, ncitem2)
                 IF(ifehl == 1) goto 9000
@@ -1922,7 +1922,7 @@ contains
                         kEGr = 1
                         ioption = 6
                         dialogstr = 'dialog_numegr'
-                        call FindItemS(trim(dialogstr), ncitem2)
+                        !call FindItemS(trim(dialogstr), ncitem2)
                         call Loadsel_diag_new(1, ncitem2)
                         IF(ifehl == 1) goto 9000
                     end if

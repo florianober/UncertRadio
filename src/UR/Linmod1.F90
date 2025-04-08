@@ -68,7 +68,7 @@ subroutine Linmod1(mode)
 
     ioption = 2
     dialogstr = 'dialogDecayModel'
-    call FindItemS(dialogstr, ncitem)
+    ! call FindItemS(dialogstr, ncitem)
     call Loadsel_diag_new(1, ncitem)
 
     if(mode == 2 .and. syntax_check) then

@@ -16,23 +16,15 @@
 !
 !-------------------------------------------------------------------------------------------------!
 
-subroutine DisplayHelp(ncitem, idstr)
+subroutine DisplayHelp(idstr)
 
-    ! this routine is called by clicking on Help buttons; it calls then
-    ! via the HTML Help Workshop the UncertRadio CHM Help file and displays it.
-    ! There are about 25 topics defined in the Help file (arrays topics_de or
-    ! topics, defined as below) which are shown directly (i.e., context-related)
-    ! when clicking an associated Help button.
-    ! The UncertRadio CHM Helpfile is generated from a Word document and compiled
-    ! to CHM (compiled HTML) with the software NüHelp; see the CHM help for
-    ! information about NüHelp; https://sourceforge.net/projects/nuhelp/
+    ! This subroutine is called when a user clicks on various Help buttons throughout the application.
+    ! It displays the appropriate help content by opening the corresponding URL in the system's default web browser.
+    ! If the specific help topic is not found, it defaults to the main help index page.
     !
-    !   Copyright (C) 2014-2023  Günter Kanisch
-    ! Flo: I think we should convert the help files to a simple html page.
-    !      It's easier to maintain and does not depend on the windows help system
 
     use, intrinsic :: iso_c_binding,       only: c_int, c_null_ptr, c_null_char, c_new_line
-    use UR_gtk_globals,                    only: clobj, UR_widgets
+    use UR_gtk_globals,                    only: UR_widgets
     use ur_general_globals,                only: help_path, dir_sep
     use file_io,                           only: logger
     use gtk,                               only: GTK_BUTTONS_OK, GTK_MESSAGE_WARNING, &
@@ -44,8 +36,7 @@ subroutine DisplayHelp(ncitem, idstr)
 
     implicit none
 
-    integer, intent(in)                    :: ncitem
-    character(len=*), optional, intent(in) :: idstr
+    character(len=*), intent(in) :: idstr
 
     logical                                :: ex
     integer                                :: i, pos
@@ -82,21 +73,11 @@ subroutine DisplayHelp(ncitem, idstr)
     topics(25) = 'doc_files/special_methods/aggregating_activities.html | HelpSumEval'
     topics(26) = 'doc_files/first_steps/example_projects.html | HelpExamples'
 
-    idstring = ""
 
-    if(ncitem > 0) then
-
-        if(clobj%idparent(ncitem) <= 0) return
-
-        idstring = clobj%idd(ncitem)%s
-
-        if(idstring == 'HelpFX' .and. present(idstr)) idstring = idstr
-    else if(ncitem == 0 .and. present(idstr)) then
-        idstring = idstr
-    end if
-
-    url = ""
+    url = " "
     home_url = help_path // 'final' // dir_sep // 'html' // dir_sep // 'index.html'
+
+    idstring = idstr
 
     inquire(file=flfu(home_url), exist=ex)
     if (.not. ex) then

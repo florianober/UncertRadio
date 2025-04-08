@@ -486,7 +486,7 @@
                 <property name="margin-top">5</property>
                 <property name="image">image_help2</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -1003,7 +1003,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_help3</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -1198,7 +1198,7 @@
                 <property name="valign">start</property>
                 <property name="image">image_help4</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -1842,7 +1842,7 @@
                     <property name="margin-bottom">9</property>
                     <property name="image">image_help20</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -2017,7 +2017,7 @@
                 <property name="margin-top">5</property>
                 <property name="image">image_help1</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -2918,7 +2918,7 @@
                     <property name="valign">start</property>
                     <property name="image">image_help5</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -3903,7 +3903,7 @@
                     <property name="margin-end">10</property>
                     <property name="image">image_help8</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -5137,7 +5137,7 @@
                     <property name="margin-end">30</property>
                     <property name="image">image_help6</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -5256,7 +5256,7 @@
                 <property name="margin-end">5</property>
                 <property name="image">image_help7</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="SelOpt" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -5660,7 +5660,7 @@
                     <property name="hexpand">True</property>
                     <property name="image">image_help9</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -7517,7 +7517,7 @@
                     <property name="hexpand">True</property>
                     <property name="image">image_help10</property>
                     <property name="always-show-image">True</property>
-                    <signal name="clicked" handler="clickbut" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                     <style>
                       <class name="button"/>
                     </style>
@@ -7980,7 +7980,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_help11</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -8696,7 +8696,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_help12</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -9851,7 +9851,7 @@
     <property name="vexpand">True</property>
     <property name="window-position">center-always</property>
     <property name="destroy-with-parent">True</property>
-    <signal name="delete-event" handler="SelOpt" swapped="no"/>
+    <signal name="delete-event" handler="on_destroy_selected" swapped="no"/>
     <child>
       <object class="GtkBox" id="box1">
         <property name="visible">True</property>
@@ -9931,7 +9931,7 @@
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Programm Quit</property>
                         <property name="use-underline">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_destroy_selected" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -10315,7 +10315,7 @@
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Monitor#: </property>
                         <property name="use-underline">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_monitor_activated" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -10341,7 +10341,7 @@
                         <property name="image">image12</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_help_button_clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10352,7 +10352,7 @@
                         <property name="image">image10</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_help_button_clicked" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10712,7 +10712,7 @@
                     <property name="label" translatable="yes">toolbutton11</property>
                     <property name="use-underline">True</property>
                     <property name="icon-widget">image21</property>
-                    <signal name="clicked" handler="SelOpt" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -10730,7 +10730,7 @@
                     <property name="label" translatable="yes">toolbutton13</property>
                     <property name="use-underline">True</property>
                     <property name="icon-widget">image22</property>
-                    <signal name="clicked" handler="SelOpt" swapped="no"/>
+                    <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -10801,7 +10801,7 @@
                 <property name="margin-end">20</property>
                 <property name="image">image_help14</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="SelOpt" swapped="no"/>
+                <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -10900,7 +10900,7 @@
                         <property name="hexpand">True</property>
                         <property name="image">image_help15</property>
                         <property name="always-show-image">True</property>
-                        <signal name="clicked" handler="SelOpt" swapped="no"/>
+                        <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                         <style>
                           <class name="button"/>
                         </style>
@@ -11050,7 +11050,7 @@
                         <property name="valign">start</property>
                         <property name="image">image_help16</property>
                         <property name="always-show-image">True</property>
-                        <signal name="clicked" handler="SelOpt" swapped="no"/>
+                        <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                         <style>
                           <class name="button"/>
                         </style>
@@ -11707,7 +11707,7 @@
                         <property name="margin-right">5</property>
                         <property name="image">image_help17</property>
                         <property name="always-show-image">True</property>
-                        <signal name="clicked" handler="SelOpt" swapped="no"/>
+                        <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                         <style>
                           <class name="button"/>
                         </style>
@@ -12396,7 +12396,7 @@
                         <property name="halign">end</property>
                         <property name="image">image_help18</property>
                         <property name="always-show-image">True</property>
-                        <signal name="clicked" handler="SelOpt" swapped="no"/>
+                        <signal name="clicked" handler="on_help_button_clicked" swapped="no"/>
                         <style>
                           <class name="button"/>
                         </style>

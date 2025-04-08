@@ -31,7 +31,7 @@ subroutine PrepReport()
     use ur_dlim
     use ur_gspk1fit
     use ur_mcc
-    use top,                only: finditems
+
     use rout,               only: wdgettextviewstring, wtreeviewgetdoublearray, wdgetlabelstring,  &
                                   wdgetentryint, wdgetcheckbutton, wdgetentrydouble
     use urdate,             only: get_formated_date_time
@@ -103,7 +103,8 @@ subroutine PrepReport()
 
     if(knumegr > 1 .and. kegr /= 1) then
         kEGr = 1
-        call FindItemS('QFirst', ncitem)
+        ! call FindItemS('QFirst', ncitem)
+
         call ProcMenu(ncitem)
     end if
 

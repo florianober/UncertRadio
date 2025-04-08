@@ -162,7 +162,7 @@ subroutine TranslateUR()
                                     gtk_combo_box_text_remove, &
                                     gtk_combo_box_text_insert_text
 
-    use UR_gtk_globals,     only: Notebook_labeltext, clobj, nclobj
+    use UR_gtk_globals,     only: Notebook_labeltext
     use Top,                  only: idpt
     use Rout,                 only: WDPutLabelString, &
                                     WDPutLabelStringBold, &
@@ -703,11 +703,11 @@ subroutine TranslateUR()
     call SetTooltipText('radiobuttonPMLE', T('fit method for very small counts, CHM 7.3.4'))
     call SetTooltipText('URfunctions', T('Infos about special UR functions'))
 
-    do i=1,nclobj
-        if(clobj%name(i)%s /= 'GtkButton') cycle
-        idstr = clobj%idd(i)%s
-        str = clobj%label(i)%s
-        call WDPutLabelString(idstr, T(trim(str)))
-    end do
+    ! do i=1,nclobj
+    !     if(clobj%name(i)%s /= 'GtkButton') cycle
+    !     idstr = clobj%idd(i)%s
+    !     str = clobj%label(i)%s
+    !     call WDPutLabelString(idstr, T(trim(str)))
+    ! end do
 
 end subroutine TranslateUR

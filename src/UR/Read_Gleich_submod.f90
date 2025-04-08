@@ -67,7 +67,7 @@ contains
         use gtk,                only: gtk_widget_set_sensitive, GTK_BUTTONS_OK,GTK_MESSAGE_WARNING, &
                                       gtk_text_view_set_cursor_visible,gtk_text_view_place_cursor_onscreen
         use gui_functions,      only: lowcase
-        use top,                only: FindItemS, idpt, WrStatusbar, CharModA1, CharModStr
+        use top,                only: idpt, WrStatusbar, CharModA1, CharModStr
         use Rout,               only: MessageShow, WDPutTextviewString, WDSetCheckMenuItem,  &
                                       WDGetTextviewString, WDPutSelRadio
 
@@ -149,7 +149,7 @@ contains
             ! ask for the number of output quantities:
             ioption = 6
             dialogstr = 'dialog_numegr'
-            call FindItemS(dialogstr, ncitem)
+            ! call FindItemS(dialogstr, ncitem)
             call Loadsel_diag_new(1, ncitem)
             if(ifehl == 1) goto 9000    ! RETURN
             if(knumEGr > 0) kEGr = 1

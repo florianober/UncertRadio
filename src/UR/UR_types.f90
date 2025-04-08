@@ -57,6 +57,11 @@ module UR_gtk_window_types
         type(c_ptr) :: notebooks(6)
     end type
 
+    type, bind(c) :: widget_test
+        type(c_ptr)  :: id_ptr
+        integer(c_int) :: myint
+    end type
+
     type, bind(c)   :: GdkRGBA
         real(c_double) :: red   = 0.1_c_double
         real(c_double) :: green = 0.1_c_double
