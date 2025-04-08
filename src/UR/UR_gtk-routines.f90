@@ -222,7 +222,7 @@ contains
 
         use gtk,                  only: gtk_entry_set_text
         use CHF,                  only: FormatNumStr
-        use ur_general_globals,         only: sDecimalPoint
+        use ur_general_globals,   only: sDecimalPoint
 
         implicit none
 

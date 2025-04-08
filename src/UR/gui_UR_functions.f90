@@ -186,7 +186,7 @@ contains
         UR_widgets%notebooks(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
 
         ! connect signal handlers
-        call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_loc(UR_widgets%window1))
+        call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
 
         call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), 0_c_int)
@@ -358,11 +358,12 @@ contains
 
         use, intrinsic :: iso_c_binding,    only: c_ptr, c_char, c_int
         use file_io,          only: logger
-        use gtk_sup,          only: c_f_string
+        use gtk_sup,          only: c_f_string, f_c_string
         use gtk,              only: g_signal_connect, gtk_builder_get_type, gtk_widget_get_name, &
                                     gtk_buildable_get_name
+        use Rout,             only: get_gladeid_name
 
-        use UR_gtk_window_types, only: widget_test
+        use UR_gtk_window_types, only: widget_type
         implicit none
 
         type(c_ptr), value               :: builder           !a GtkBuilder
@@ -372,16 +373,16 @@ contains
         type(c_ptr), value               :: connect_object    !a GObject, if non-NULL, use g_signal_connect_object()
         integer(c_int), value            :: flags             !GConnectFlags to use
         type(c_ptr), value               :: c_Win             !user data
-        !integer(c_int), target :: myint
-        character(len=25), target        :: h_name, h_signal
-        integer(c_int), target :: my_int
-        type(widget_test), pointer       :: ur_widget
+
+        character(len=25), target        :: h_name, h_signal, galdeid
+        character(kind=c_char), allocatable :: test(:)
+        type(widget_type), pointer       :: ur_widget
         !--------------------------------------------------------------------------------------------------------------
 
         call c_f_string_chars(handler_name, h_name)
         call c_f_string_chars(signal_name, h_signal)
 
-        allocate(widget_test :: ur_widget)
+        allocate(widget_type :: ur_widget)
         select case (h_name)
 
         ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
@@ -400,6 +401,14 @@ contains
             else
                 ur_widget%myint = 98
             end if
+
+            call f_c_string(h_signal, test)
+            ur_widget%signal(1:size(test)) = test
+            call f_c_string(h_name, test)
+            ur_widget%handler(1:size(test)) = test
+            call f_c_string(get_gladeid_name(object), test)
+            ur_widget%gladeid(1:size(test)) = test
+
             c_Win = c_loc(ur_widget)
 
             call g_signal_connect (object, signal_name, c_funloc(ProjectOpen_cb), c_Win)
@@ -740,13 +749,13 @@ contains
         use gtk_sup, only: c_f_string
         use UR_gtk_globals,     only: Quitprog,dialog_on
         use ur_general_globals, only: FileTyp, fname, Savep
-        use UR_interfaces,    only: ProcessLoadPro_new
-        use UR_Gleich_globals,only: ifehl
-        use file_io,          only: logger
-        use Rout,             only: MessageShow, fopen, get_gladeid_name
-        use Top,              only: FieldUpdate
+        use UR_interfaces,      only: ProcessLoadPro_new
+        use UR_Gleich_globals,  only: ifehl
+        use file_io,            only: logger
+        use Rout,               only: MessageShow, fopen, get_gladeid_name
+        use Top,                only: FieldUpdate
         use translation_module, only: T => get_translation
-        use UR_gtk_window_types, only: widget_test
+        use UR_gtk_window_types, only: widget_type
 
         implicit none
 
@@ -758,16 +767,23 @@ contains
         character(len=512)    :: log_str
         character(len=120)    :: str1
         character(:), allocatable :: idstring, error
-        type(widget_test), pointer :: data_ptr
+        type(widget_type), pointer :: data_ptr
         !----------------------------------------------------------------------------
         idstring = get_gladeid_name(widget, error)
         print *, idstring, ' object'
         print *, 'result:'
-        print *, gdata
+        !print *, gdata
         call c_f_pointer(gdata, data_ptr)
         print *, data_ptr%myint
         idstring = get_gladeid_name(data_ptr%id_ptr, error)
         print *, idstring, ' data0'
+        call c_f_string_chars(data_ptr%signal, str1)
+        print *, 'is this|', trim(str1), '|working??'
+        call c_f_string_chars(data_ptr%handler, str1)
+        print *, 'is this|', trim(str1), '|even more working??'
+        call c_f_string_chars(data_ptr%gladeid, str1)
+        print *, 'is this|', trim(str1), '|even this even more working??'
+
 
         ! if(dialog_on) then
         !     call FindItemP(widget, ncitem)

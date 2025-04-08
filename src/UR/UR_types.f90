@@ -40,26 +40,32 @@ module UR_gtk_window_types
         integer, allocatable      :: idparent(:)
     end type
 
-    type widget_type
-        type(charv)  :: classname
-        type(charv)  :: gladeid
-        type(charv)  :: label
-        type(c_ptr)  :: id_ptr
-        type(c_ptr)  :: id_parent_ptr
-        type(c_ptr)  :: label_ptr
-        type(charv)  :: signal
-        type(charv)  :: handler
-        type(charv)  :: gladeid_parent
-    end type
+    ! type widget_type
+    !     type(charv)  :: classname
+    !     type(charv)  :: gladeid
+    !     type(charv)  :: label
+    !     type(c_ptr)  :: id_ptr
+    !     type(c_ptr)  :: id_parent_ptr
+    !     type(c_ptr)  :: label_ptr
+    !     type(charv)  :: signal
+    !     type(charv)  :: handler
+    !     type(charv)  :: gladeid_parent
+    ! end type
 
     type widgets_named
         type(c_ptr) :: window1
         type(c_ptr) :: notebooks(6)
     end type
 
-    type, bind(c) :: widget_test
-        type(c_ptr)  :: id_ptr
+    type, bind(c) :: widget_type
+        type(c_ptr) :: id_ptr
+
         integer(c_int) :: myint
+        type(c_ptr) :: string_pointer
+
+        character(kind=c_char) :: signal(32)
+        character(1, kind=c_char) :: handler(32)
+        character(1, kind=c_char) :: gladeid(32)
     end type
 
     type, bind(c)   :: GdkRGBA
