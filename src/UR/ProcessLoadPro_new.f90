@@ -82,7 +82,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     call WDNotebookGetCurrPage('notebook1', kpage1)
 
     loadingPro = .true.
-    call ExpandTV2Col7(.false.)
+    !Flo call ExpandTV2Col7(.false.)
 
     kknetR = 0
     kkbrutR = 0

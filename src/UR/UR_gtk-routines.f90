@@ -1987,11 +1987,12 @@ contains
         use gtk_hl,       only: hl_gtk_file_chooser_show, false, true
 
         use ur_general_globals, only: work_path, fname, FileTyp, &
-                                EditorFileName, fname_grout, &
-                                serial_csvinput, filtname, dir_sep
+                                      EditorFileName, fname_grout, &
+                                      serial_csvinput, filtname, dir_sep
 
         use CHF,          only: ucase
         use translation_module, only: T => get_translation
+        use gtk_sup, only: f_c_string
 
         implicit none
 
@@ -2025,10 +2026,10 @@ contains
         if(createf) ccreate = True
         xhinweis = trim(hinweis)
 
-        gwork_path = work_path
+        gwork_path = 'dsff'
 
-        call convert_f_string_s(gwork_path, cinidir)
-        call convert_f_string_s(xhinweis, ctitle)
+        call f_c_string(gwork_path, cinidir)
+        call f_c_string(xhinweis, ctitle)
 
         ! write(0,*) 'WSElectFile: initial_dir=',trim(work_path)
         ! write(0,*) 'inidir=',cinidir
@@ -3385,13 +3386,14 @@ contains
 
         logical,intent(in)  :: xpnd     ! expand: yes or no
 
-        integer           :: kwd,kht,pixel_per_char,n,cwidth,nt
+        integer           :: kwd,kht,pixel_per_char,n,cwidth, nt
         character(len=3)  :: chcol
 
 
         ! limit the column width:
-        nt = FindlocT(tvnames,'treeview2')
-        call PixelPerString(idpt(tvnames(nt)%s), '123456789E-02123456789E-02',kwd,kht)
+        !nt = FindlocT(tvnames,'treeview2')
+        nt = 2
+        call PixelPerString(idpt('treeview2'), '123456789E-02123456789E-02',kwd,kht)
         pixel_per_char = int(real(kwd)/real(len_trim('123456789E-02123456789E-02'))) + 1
 
         n = 7

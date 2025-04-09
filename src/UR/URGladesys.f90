@@ -101,13 +101,6 @@ subroutine URGladeSys(builder, ifehl)
     allocate(tvnames(1))
     allocate(lsgtype(nstmax,ncolmax))
 
-    Notebook_labelid(1) = 'NBProcedure'
-    Notebook_labelid(2) = 'NBEquations'
-    Notebook_labelid(3) = 'NBValUnc'
-    Notebook_labelid(4) = 'NBBudget'
-    Notebook_labelid(5) = 'NBResults'
-    Notebook_labelid(6) = 'NBEditor'
-
     ! kkmax = 46                 ! 21.5.2024 GK
     ! do kk=1, kkmax
     !     oclass(kk) = ''
