@@ -203,7 +203,7 @@ contains
         use urInit,             only: GtkSettingsIO,TVtrimCol_width
         use UWB,                only: Exchange2Symbols,ChangeSname
         use KLF,                only: XKalfit
-        use UR_interfaces,      only: DisplayHelp
+
         use CHF,                only: FindLocT, ucase
         use Celli,              only: Confidoid
         use PLsubs,             only: PrintPlot,PlotEli
@@ -899,8 +899,6 @@ contains
             if(open_project_parts .and. setDP) goto 9000
 
 
-          case (75)        ! dialog_InfoFX
-
           case default
 
         end select
@@ -1001,16 +999,6 @@ contains
                 write(log_str, '(*(g0))') '    FieldEditCB=', FieldEditCB
                 call logger(66, log_str)
             end if
-        end if
-
-        if(clobj%name(ncitemclicked)%s == 'GtkButton' .and. HelpButton) then
-            ! The case of HelpFX considers several help topics and must therefore
-            ! handled below under the idstring 'HelpFX'
-            ! 9.3.2024
-            if(clobj%idd(ncitemclicked)%s /= 'HelpFX') then
-                call DisplayHelp(ncitemclicked)
-                goto 1010
-            endif
         end if
 
         dialog_leave = 0
@@ -1777,8 +1765,6 @@ contains
                         DistPars%pval(nn,i) = dummy
                     end do
 
-                  case (75)    ! dialog_infoFX
-
 
                   case default
 !                     write(66,*) 'LoadSel:  wlabel not accepted'
@@ -2051,7 +2037,7 @@ contains
                 goto 1010
 
               case ('HelpFX')
-                call DisplayHelp(0, idstr=trim(buthelp))
+                call DisplayHelp(trim(buthelp))
                 goto 1010
 
               case default
@@ -2361,13 +2347,6 @@ contains
               case (69)
                 goto 1010
 
-              case (75)
-                call WDGetComboboxAct('comboboxtextInfoFX',ifx)
-                if(ifx > 1) then           ! condition introduced 25.2.2024
-                    ! write(66,*) 'InfoFX field ix=',ifx
-                    call InfoFX_Select(ifx,buthelp)
-                endif
-                goto 1010
 
             end select
 
@@ -3096,132 +3075,5 @@ contains
         end if
 
     end subroutine GetxdataMD_fromTree
-
-!###########################################################################################################
-
-    subroutine InfoFX_Select(ifx, buthelp)
-
-        ! show infos about spocial UncertRadio functions, stored in a file InfoFX1.txt
-
-        !   Copyright (C) 2023  Günter Kanisch
-
-        use, intrinsic :: iso_c_binding,      only: c_null_char
-        use gtk,            only: gtk_image_set_from_resource, gtk_image_clear
-        use UR_Gleich_globals,      only: charv
-        use ur_general_globals,     only: help_path
-        use CHF,            only: ucase, flfu
-        use top,            only: idpt,CharModA1
-        use file_io,        only: logger
-        use Rout,           only: WDPutTextviewString
-        use translation_module, only: get_language
-
-        implicit none
-
-        integer, intent(in)            :: ifx
-        character(len=15), intent(out) :: buthelp
-
-        integer                    :: ios, i, nfd, imax
-        type(charv),allocatable    :: textcode(:)
-        character(len=100)         :: iomessg
-        character(len=400)         :: text, textfile
-        character(len=15)          :: code
-
-        allocate(textcode(15))
-
-        call gtk_image_clear(idpt('InfoFX_image1'))
-        call gtk_image_clear(idpt('InfoFX_image2'))
-        call gtk_image_clear(idpt('InfoFX_image3'))
-        textfile = help_Path // 'InfoFX1.txt'
-
-        select case (ifx)
-          case (2)
-            code = 'LINFIT'
-            call gtk_image_set_from_resource(idpt('InfoFX_image1'), &
-                                             '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
-                                              '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
-                                              '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
-            buthelp = 'HelpLinfit'
-
-          case (3)
-            code = 'GAMSPK1'
-            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
-                                              '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
-                                              '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
-            buthelp = 'HelpGspk1'
-
-          case (4)
-            code = 'KALFIT'
-            buthelp = 'HelpKalib'
-
-          case (5)
-            code = 'SUMEVAL'
-            buthelp = 'HelpSumEval'
-
-          case (6)
-            code = 'UVAL'
-            buthelp = 'HelpTextEQ'
-
-          case (7)          ! 2.8.2023
-            code = 'FD'
-            buthelp = 'HelpFD'
-
-        end select
-
-        close (35)
-        nfd = 0
-        open(35, file=flfu(textfile), status='old')
-        do
-            read(35,'(a)',iostat=ios,iomsg=iomessg) text
-!             if(ios /= 0) write(66,*) 'headline: error=',trim(iomessg)
-            if(ios /= 0) call logger(66, 'headline: error=' // trim(iomessg) )
-
-            if(ios /= 0) exit
-            if(get_language() == 'de' .and. index(ucase(text),'#DE#') > 0) exit
-            if((get_language()== 'en' .or. get_language() == 'fr') &
-                .and. index(ucase(text),'#EN#') > 0) exit
-        end do
-        do
-            read(35,'(a)',iostat=ios,iomsg=iomessg) text
-            if(ios /= 0) call logger(66, 'headline: error=' // trim(iomessg))
-
-            if(ios /= 0) exit
-            if(text(1:1) == '#' .and. index(ucase(text),trim(code)) == 2) then
-                nfd = 1
-                do i=1,15
-                    read(35,'(A)',iostat=ios,iomsg=iomessg) text
-                    if(i > 3 .and. (text(1:1) == '#' .or. ios /= 0)) then
-                        imax = i -1
-                        exit
-                    end if
-                    textcode(i)%s = trim(text)
-                    ! write(66,*) textcode(i)%s
-                    if(ios /= 0) then
-
-                        call logger(66, 'error=' //trim(iomessg))
-                        exit
-                    end if
-                end do
-            end if
-            if(nfd == 1) exit
-        end do
-        close (35)
-
-        do i=imax, 3, -1
-            if(len_trim(textcode(i)%s) > 0) then
-                imax = i
-                call CharModA1(textcode,imax)
-                exit
-            end if
-        end do
-        call WDPutTextviewString('textview_InfoFX', textcode)
-
-
-    end subroutine InfoFX_Select
-
-    !########################################################################################
-
 
 end module LDN

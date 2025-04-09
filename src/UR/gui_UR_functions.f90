@@ -18,9 +18,6 @@
 
 module gui_functions
 
-    ! Note:  the Compiler message like "type(c_ptr) is defined ambiguous" is prevented
-    !        by USE gtk_sup
-
     !   Copyright (C) 2014-2025  Günter Kanisch
 
     use, intrinsic :: iso_c_binding
@@ -28,7 +25,7 @@ module gui_functions
 
     implicit none
 
-    ! private
+    private
     public :: create_window, &
               show_window, &
               lowcase, &
@@ -55,29 +52,12 @@ contains
 
     ! c_f_string_chars
 
-    ! what means in the routines:
-    !      if(item_setintern) return   ?
-    ! User actions, like a click to a certain notebook page can also be
-    ! simulated by programming (ProcessLoadPor_new does a lot of this)), like
-    !      call WDNotebookSetCurrPage('notebook1', 1)
-    ! Such a call also triggers the notebook signal which calls then the
-    ! correspondent callback routine. To prevent this calllback routine from
-    ! full execution, the code in WDNotebookSetCurrPage contains a statement
-    !      item_setintern = .true.
-    ! Therefore, the above cited "if(item_setintern) return" reacts to that
-    ! by immediately leaving the notebook callback function.
-
 
 
     subroutine create_window(UR_widgets, ifehl)
 
         ! this routine uses a gtk_builder to build the window from the Glade file
-        ! (glade_file_name) the Window, makes available the icons (partly self-prepared).
         !
-        ! It calls URGladesys which extracts a structure clobj which contains arrays
-        ! of idd_names, labels, signals and so on for each widget contained in the Glade
-        ! file. The idd names and the label names of the widgets are then used to obtain
-        ! with gtk_builder_get_object the associated C-pointers.
         ! It then connects the signals.
         !
         ! UncW_init is then called for a lot of initialisations; the label strings of the
@@ -184,6 +164,8 @@ contains
         UR_widgets%notebooks(4) = gtk_builder_get_object(builder, "NBBudget"//c_null_char)
         UR_widgets%notebooks(5) = gtk_builder_get_object(builder, "NBResults"//c_null_char)
         UR_widgets%notebooks(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
+        UR_widgets%dialog_infofx = gtk_builder_get_object(builder, "dialog_infoFX"//c_null_char)
+        UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
@@ -267,7 +249,7 @@ contains
         call gtk_window_set_transient_for(idpt('dialog_distributions'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_Batest'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialogBatEval'), UR_widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_infoFX'), UR_widgets%window1)
+        call gtk_window_set_transient_for(UR_widgets%dialog_infofx, UR_widgets%window1)
 
         call gtk_widget_grab_focus(idpt('textview1'))
 
@@ -361,7 +343,7 @@ contains
         use gtk_sup,          only: c_f_string, f_c_string, convert_c_string_scalar
         use gtk,              only: g_signal_connect, gtk_builder_get_type, gtk_widget_get_name, &
                                     gtk_buildable_get_name
-        use Rout,             only: get_gladeid_name
+        use Rout,             only: get_gladeid_name, get_widget_class
 
         use UR_gtk_window_types, only: widget_type
         implicit none
@@ -397,6 +379,9 @@ contains
             call f_c_string(get_gladeid_name(object), tmp_str)
             ! print *, h_signal, h_name, 'STILL'
             ur_widget%gladeid(1:size(tmp_str)) = tmp_str
+
+            call f_c_string(get_widget_class(object), tmp_str)
+            ur_widget%classname(1:size(tmp_str)) = tmp_str
         else
             call f_c_string(get_gladeid_name(object), tmp_str)
             ! print *, h_signal, h_name, 'NOT'
@@ -439,12 +424,24 @@ contains
         case("on_show_monitor_info")
             call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), c_Win)
 
+        case("on_show_dialog")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_dialog), c_Win)
+
+        case("on_change_infofx_topic")
+            call g_signal_connect (object, signal_name, c_funloc(on_change_infofx_topic), c_Win)
+
+        case("on_close_dialog")
+            call g_signal_connect (object, signal_name, c_funloc(on_close_dialog), c_Win)
+
+        case("on_show_about_windows")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_about_windows), c_Win)
+
         case ("keyPress")
             call g_signal_connect (object, signal_name, c_funloc(UR_keyPress_cb), c_Win)
         case ("col_clicked")
             call g_signal_connect (object, signal_name, c_funloc(UR_TV_column_clicked_cb), c_Win)
         case default
-            call logger(66, "Unknown handler = " // h_name)
+            call logger(66, "Connect signals: Unknown handler = " // h_name, stdout=.true.)
             call logger(66, "Program terminated")
             stop "Program terminated"
         end select
@@ -567,63 +564,60 @@ contains
         use gtk_sup, only: c_f_string
         use UR_Gleich_globals, only: loadingpro
         use chf,               only: ucase
-        use top,               only: FindItemP
+        use rout,              only: get_gladeid_name
 
         implicit none
 
         type(c_ptr), value     :: widget, gdata
-        ! integer(c_int)         :: ret
-        integer                :: ncitem
-        type(c_ptr)            :: item_clicked, c_widget_id
-        character(len=64)      :: stritem, widget_name
+        type(c_ptr)            :: item_clicked
 
-        ! ret = False
-        c_widget_id = gtk_buildable_get_name(widget)
-        print *, 'HALLO'
-        if (c_associated(c_widget_id)) then
-            call c_f_string(c_widget_id, widget_name)
-            print *, widget_name
-        end if
         item_clicked = widget
 
-!         call FindItemP(widget, ncitem)
-!         str_item_clicked = clobj%idd(ncitem)%s
-!         ! write(66,*) 'Button clicked:   item_clicked=',item_clicked,'   id=',trim(str_item_clicked)
+        str_item_clicked = get_gladeid_name(widget)
 
-!         HelpButton = .false.
-!         if(trim(str_item_clicked) == 'LoadWithCalc') goto 10
-!         if(trim(str_item_clicked) == 'LoadWithoutCalc') goto 10
-!         if(trim(str_item_clicked) == 'BinPoiOK' .or. trim(str_item_clicked) == 'BinPoiCancel') goto 10
+        if(trim(str_item_clicked) == 'LoadWithCalc') goto 10
+        if(trim(str_item_clicked) == 'LoadWithoutCalc') goto 10
+        if(trim(str_item_clicked) == 'BinPoiOK' .or. trim(str_item_clicked) == 'BinPoiCancel') goto 10
 
-!         if(loadingpro) return
-! 10      continue
+        if(loadingpro) return
+10      continue
 
-!         stritem = ucase(str_item_clicked)
-!         ! if(index(stritem,'HELP') > 0 .or. trim(clobj%label(ncitem)) == 'gtk-label') HelpButton = .true.
-!         if(index(stritem,'HELP') > 0 .or. clobj%label(ncitem)%s == 'Hilfe') HelpButton = .true.
-!         if(trim(stritem) == 'HelpFX' .and. HelpButton) HelpButton = .false.   ! 8.3.2024
-!         ! write(66,*) 'button_clicked:   HelpButton=',HelpButton
-!         ! ret = True
-!         ButtonClicked = .true.
-!         ncitemClicked = ncitem
+        ! stritem = ucase(str_item_clicked)
+
+
+        ! write(66,*) 'button_clicked:   HelpButton=',HelpButton
+        ! ret = True
+        ButtonClicked = .true.
 
     end subroutine button_clicked
 
     !---------------------------------------------------------------------------------------------!
     subroutine on_help_button_clicked(widget) bind(c)
 
-        use Rout, only: get_gladeid_name
-        use file_io,    only: logger
+        use gtk_hl_combobox, only: hl_gtk_combo_box_get_active
+        use UR_gtk_globals,  only: UR_widgets
+        use CHF,             only: ucase
+        use Rout,            only: get_gladeid_name
+        use file_io,         only: logger
+        use UR_params,       only: fxtopics
 
         implicit none
         type(c_ptr), value, intent(in) :: widget
-        character(:), allocatable :: button_id, error
+        character(:), allocatable :: button_id, error, topic
+        integer(c_int) :: i_fx
         !-----------------------------------------------------------------------------------------!
 
         button_id = get_gladeid_name(widget, error)
-        print *, button_id, error, len(error)
         if (len(error) == 0) then
-            call DisplayHelp(button_id)
+            topic = button_id
+            if (button_id == 'HelpFX') then
+
+                i_fx = hl_gtk_combo_box_get_active(UR_widgets%comboboxtextinfofx)
+                if (i_fx > 0) topic = trim(fxtopics(i_fx))
+
+            end if
+
+            call DisplayHelp(topic)
         else
             call logger(65, 'Error: on_help_button_clicked: widget is not associated!')
         end if
@@ -633,22 +627,369 @@ contains
     !---------------------------------------------------------------------------------------------!
     subroutine on_destroy_selected(widget, data0) bind(c)
 
-        use Rout, only: get_gladeid_name
         use gtk, only: gtk_widget_destroy, gtk_main_quit
         use UR_gtk_globals, only: UR_widgets
         use file_io, only: logger
 
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
-        character(:), allocatable :: button_id, error
         !-----------------------------------------------------------------------------------------!
+        ! tbd. save project?
 
         call gtk_widget_destroy(UR_widgets%window1)
         call gtk_main_quit()
 
 
     end subroutine on_destroy_selected
+
     !---------------------------------------------------------------------------------------------!
+    subroutine on_change_infofx_topic(widget, data0) bind(c)
+
+        use gtk,                 only: gtk_widget_show_all, gtk_image_set_from_resource, gtk_image_clear
+        use gtk_hl_combobox,     only: hl_gtk_combo_box_get_active
+
+        use UR_gtk_globals,      only: UR_widgets
+        use ur_general_globals,  only: help_path
+        use UR_gtk_window_types, only: charv
+        use top,                 only: idpt,CharModA1
+        use rout,                only: WDPutTextviewString
+        use translation_module,  only: get_language
+        use CHF,                 only: ucase, flfu
+
+        use file_io, only: logger
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+        integer(c_int) :: i_fx
+        integer                    :: ios, i, nfd, imax
+        type(charv), allocatable   :: textcode(:)
+        character(len=100)         :: iomessg
+        character(len=400)         :: text, textfile
+        character(len=15)          :: code
+        !-----------------------------------------------------------------------------------------!
+        i_fx = hl_gtk_combo_box_get_active(UR_widgets%comboboxtextinfofx)
+        if ( i_fx == 0 ) return
+
+        call gtk_image_clear(idpt('InfoFX_image1'))
+        call gtk_image_clear(idpt('InfoFX_image2'))
+        call gtk_image_clear(idpt('InfoFX_image3'))
+
+        select case (i_fx + 1)
+            case (2)
+            code = 'LINFIT'
+            call gtk_image_set_from_resource(idpt('InfoFX_image1'), &
+                                                '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
+            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
+                                                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
+                                                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
+
+
+            case (3)
+            code = 'GAMSPK1'
+            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
+                                                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
+                                                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
+
+            case (4)
+            code = 'KALFIT'
+
+            case (5)
+            code = 'SUMEVAL'
+
+            case (6)
+            code = 'UVAL'
+
+            case (7)
+            code = 'FD'
+
+        end select
+
+        allocate(textcode(15))
+
+        textfile = help_Path // 'InfoFX1.txt'
+
+        nfd = 0
+        open(35, file=flfu(textfile), status='old')
+        do
+            read(35,'(a)',iostat=ios,iomsg=iomessg) text
+!             if(ios /= 0) write(66,*) 'headline: error=',trim(iomessg)
+            if(ios /= 0) call logger(66, 'headline: error=' // trim(iomessg) )
+
+            if(ios /= 0) exit
+            if(get_language() == 'de' .and. index(ucase(text),'#DE#') > 0) exit
+            if((get_language()== 'en' .or. get_language() == 'fr') &
+                .and. index(ucase(text),'#EN#') > 0) exit
+        end do
+        do
+            read(35,'(a)',iostat=ios,iomsg=iomessg) text
+            if(ios /= 0) call logger(66, 'headline: error=' // trim(iomessg))
+
+            if(ios /= 0) exit
+            if(text(1:1) == '#' .and. index(ucase(text),trim(code)) == 2) then
+                nfd = 1
+                do i=1,15
+                    read(35,'(A)',iostat=ios,iomsg=iomessg) text
+                    if(i > 3 .and. (text(1:1) == '#' .or. ios /= 0)) then
+                        imax = i -1
+                        exit
+                    end if
+                    textcode(i)%s = trim(text)
+                    ! write(66,*) textcode(i)%s
+                    if(ios /= 0) then
+
+                        call logger(66, 'error=' //trim(iomessg))
+                        exit
+                    end if
+                end do
+            end if
+            if(nfd == 1) exit
+        end do
+        close (35)
+
+        do i=imax, 3, -1
+            if(len_trim(textcode(i)%s) > 0) then
+                imax = i
+                call CharModA1(textcode,imax)
+                exit
+            end if
+        end do
+        call WDPutTextviewString('textview_InfoFX', textcode)
+
+
+    end subroutine on_change_infofx_topic
+
+    !---------------------------------------------------------------------------------------------!
+    subroutine on_show_dialog(widget, data0) bind(c)
+
+        use gtk, only: gtk_widget_show_all
+        use UR_gtk_globals, only: UR_widgets
+        use file_io, only: logger
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+        !-----------------------------------------------------------------------------------------!
+
+        call gtk_widget_show_all(UR_widgets%dialog_infofx)
+
+
+    end subroutine on_show_dialog
+
+    !---------------------------------------------------------------------------------------------!
+    subroutine on_close_dialog(widget, data0) bind(c)
+
+        use gtk, only: gtk_widget_hide
+        use UR_gtk_globals, only: UR_widgets
+        use file_io, only: logger
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+        !-----------------------------------------------------------------------------------------!
+
+        call gtk_widget_hide(UR_widgets%dialog_infofx)
+
+
+    end subroutine on_close_dialog
+
+    !---------------------------------------------------------------------------------------------!
+
+    subroutine on_show_about_windows(widget, data0) bind(c)
+        use gtk, only: TRUE, GTK_LICENSE_GPL_3_0, GTK_LICENSE_GPL_2_0_ONLY, &
+                       GTK_LICENSE_LGPL_2_1, GTK_LICENSE_BSD_3, &
+                       gtk_get_major_version, gtk_get_minor_version, gtk_get_micro_version
+        use gtk_hl, only: hl_gtk_about_dialog_show, hl_gtk_about_dialog_gtk_fortran
+        use gdk_pixbuf,     only: gdk_pixbuf_new_from_resource_at_scale
+        use ur_general_globals, only: UR_version_tag, UR_git_hash
+        use UR_gtk_globals, only: UR_widgets
+        use UR_params, only: CR
+        use rout, only: get_gladeid_name
+        use file_io, only: logger
+        use translation_module, only: get_language
+
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+        type(c_ptr)               :: logo
+        character(len=128)        :: authors(6)
+        character(len=256)        :: url_str, versgtk
+        character(len=2048)       :: comment_str
+        character(:), allocatable :: idstring
+        !-----------------------------------------------------------------------------------------!
+
+        idstring = get_gladeid_name(widget)
+        select case(idstring)
+        case ('About_UR')
+
+            if (get_language() == 'de') then
+                url_str =  'https://www.thuenen.de/de/fachinstitute/fischereioekologie/arbeitsbereiche/' &
+                    // 'meeresumwelt/leitstelle-umweltradioaktivitaet-in-fisch/uncertradio' // c_null_char
+                comment_str = 'Programm zur Berechnung von Messunsicherheit, ' // CR &
+                    // 'Unsicherheiten-Budget, Erkennungs- und Nachweisgrenze bei' // CR &
+                    // 'Messungen der Umweltradioaktivität ' // CR // CR &
+                    // 'Das Programm steht unter der GNU GPL v3 Lizenz und wurde vom Autor nach derzeitigem Stand von Wissenschaft,' // CR &
+                    // 'Normung und Technik entwickelt und bezüglich der Richtigkeit der ' // CR &
+                    // 'mathematischen Behandlung der eingegebenen Modellgleichungen validiert.' // CR // CR &
+                    // 'E-Mail:    guenter.kanisch(at)hanse.net' // CR  &
+                    // '           florian.ober(at)mri.bund.de' // CR  &
+                    // '           leitstelle-fisch(at)thuenen.de' // c_null_char
+                authors(1) = 'Günter Kanisch, früher Thünen-Institut für Fischereiökologie, Hamburg'
+                authors(2) = '    (Hauptentwickler, Dokumentation und Bereitstellung von Windows-Versionen bis 2024)'
+                authors(3) = 'Florian Ober, Max Rubner-Institut, Kiel'
+                authors(4) = '    (Weiterentwicklung und Betreuung des Github Repositorys)'
+                authors(5) = 'Marc-Oliver Aust, Thünen-Institut für Fischereiökologie, Bremerhaven'
+                authors(6) = '    (Anwenderberatung, Betreuung der Projektseite)'
+            else
+                url_str =  'https://www.thuenen.de/en/institutes/fisheries-ecology/fields-of-activity/' &
+                    // 'marine-environment/coordination-centre-of-radioactivity/uncertradio' // c_null_char
+                comment_str = trim('Software for calculating measurement uncertainty, ' // CR &
+                    // 'uncertainty budget, decision threshold and detection limit for' // CR &
+                    // 'measurement of environmental radioactivity.' // CR // CR &
+                    // 'The software is licensed under GNU GPL3 and was developed by the author following state-of-the-art ' // CR &
+                    // 'of science, standardization and technology and validated with respect' // CR &
+                    // 'to the correct mathematical treatment of the model input equations of' // CR &
+                    // 'the evaluation model.' // CR // CR &
+                    // 'E-Mail:    guenter.kanisch(at)hanse.net' // CR &
+                    // '           florian.ober(at)mri.bund.de' // CR  &
+                    // '           leitstelle-fisch(at)thuenen.de') // c_null_char
+                authors(1) = 'Günter Kanisch, formerly at the Thünen Institute of Fisheries Ecology, Hamburg'
+                authors(2) = '    (Main developer, documentation and provision of Windows versions until 2024)'
+                authors(3) = 'Florian Ober, Max Rubner-Institute, Kiel'
+                authors(4) = '    (Further development and maintenance of the Github repository)'
+                authors(5) = 'Marc-Oliver Aust, Thünen Institute of Fisheries Ecology, Hamburg'
+                authors(6) = '    (User consulting, support of the project site)'
+            end if
+
+            logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/ur2_symbol.png" // c_null_char, &
+                                                        width=30_c_int, height=30_c_int, &
+                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+
+            call hl_gtk_about_dialog_show(    &
+                name='UncertRadio' // c_null_char, &
+                license= 'This program is free software: you can redistribute it and/or modify' // CR &
+                // 'it under the terms of the GNU General Public License as published by' // CR &
+                // 'the Free Software Foundation, either version 3 of the License, or' // CR &
+                // '(at your option) any later version.' // CR // CR &
+                // 'This program is distributed in the hope that it will be useful,' // CR &
+                // 'but WITHOUT ANY WARRANTY; without even the implied warranty of' // CR &
+                // 'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the' // CR &
+                // 'GNU General Public License for more details.' // CR // CR &
+                // 'You should have received a copy of the GNU General Public License' // CR &
+                // 'along with this program.  If not, see <https://www.gnu.org/licenses/>' // CR // CR &
+                // 'The files and libraries from the following Open Source Products: ' // CR // CR &
+                // '   GTK-Fortran' // CR &
+                // '   GTK+ 3' // CR &
+                // '   Glade' // CR &
+                // '   MSYS2' // CR &
+                // '   PLplot ' // CR // CR &
+                // 'being used when working with UncertRadio and which ' // CR &
+                // 'were used for programming it, underly GNU GPL licenses ' &
+                // '(see <https://www.gnu.org/licenses/>). ' // CR  // c_null_char, &
+                license_type=GTK_LICENSE_GPL_3_0, &
+                comments=comment_str, &
+                authors=authors, &
+                website=url_str, &
+                version=trim(UR_version_tag)// CR // trim(UR_git_hash) // c_null_char, &
+                logo=logo,      &
+                parent=UR_widgets%window1)
+
+        case ('About_Glade')
+            logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/glade.png" // c_null_char, &
+                                                        width=30_c_int, height=30_c_int, &
+                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+            call hl_gtk_about_dialog_show(    &
+                name='Glade Interface Designer'//c_null_char, &
+                license_type=GTK_LICENSE_GPL_2_0_ONLY, &
+                comments='A user interface designer for GTK+ and GNOME.'//c_null_char, &
+                website='https://gitlab.gnome.org/GNOME/glade'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                version='3.40.0'//c_null_char, &
+                logo=logo, &
+                parent=UR_widgets%window1)
+
+        case ('About_LAPACK')
+
+            logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/lapack.png" // c_null_char, &
+                                                        width=30_c_int, height=30_c_int, &
+                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+            call hl_gtk_about_dialog_show(    &
+                name='LAPACK - Linear Algebra PACKage'//c_null_char, &
+            ! license_type=GTK_LICENSE_BSD_3, &
+                license='modified BSD license' // CR // &
+                '(see https://raw.githubusercontent.com/Reference-LAPACK/lapack/refs/heads/master/LICENSE )'//c_null_char, &
+                comments='LAPACK is a library of Fortran subroutines for solving the most commonly occurring problems in numerical linear algebra.'//c_null_char, &
+                website='https://www.netlib.org/lapack'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                version='3.12.0'//c_null_char, &
+                logo=logo, &
+                parent=UR_widgets%window1)
+
+        case ('About_FParser')
+            call hl_gtk_about_dialog_show(    &
+                name='FParser'//c_null_char, &
+                copyright='Copyright (c) 2000-2008, Roland Schmehl. All rights reserved.'//c_null_char, &
+                license_type=GTK_LICENSE_BSD_3, &
+                comments='Fortran 95 function parser'//c_null_char, &
+                website='https://fparser.sourceforge.net/'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                version='1.0'//c_null_char, &
+                parent=UR_widgets%window1)
+
+        case ('About_PLPLOT')
+            call hl_gtk_about_dialog_show(    &
+                name='PLplot'//c_null_char, &
+                license_type=GTK_LICENSE_GPL_3_0, &
+                comments='Cross-platform Plotting Library, with Fortran interface.'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                website='http://plplot.sourceforge.net/'//c_null_char, &
+                version='5.15.0'//c_null_char, &
+                parent=UR_widgets%window1)
+
+        case ('About_GTK_Fortran')
+            call hl_gtk_about_dialog_gtk_fortran()
+
+        case ('About_GTK')
+
+            logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/gtk-logo.png" // c_null_char, &
+                                                        width=30_c_int, height=30_c_int, &
+                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+            write(versgtk,'(i0,a1,i0,a1,i0)') gtk_get_major_version(),'.', gtk_get_minor_version(),'.', &
+                gtk_get_micro_version()
+            call hl_gtk_about_dialog_show(    &
+                name='GTK+ Project'//c_null_char, &
+                license_type=GTK_LICENSE_LGPL_2_1, &
+                comments='GTK+, or the GIMP Toolkit, is a multi-platform toolkit for ' // CR &
+                // 'creating graphical user interfaces. Offering a complete set ' // CR &
+                // 'of widgets, GTK+ is suitable for projects ranging from small ' // CR &
+                // 'one-off tools to complete application suites.'//  CR // CR  &
+                // 'GTK+ is a free software cross-platform graphical library ' // CR &
+                // 'available for Linux, Unix, Windows and MacOs X.' // c_null_char, &
+                website='https://www.gtk.org'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                version=trim(versgtk)//c_null_char, &
+                logo=logo, &
+                parent=UR_widgets%window1)
+
+        case ('About_MSYS2')
+            logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/msys2logo.png" // c_null_char, &
+                                                        width=30_c_int, height=30_c_int, &
+                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+            call hl_gtk_about_dialog_show(    &
+                name='MSYS2'//c_null_char, &
+            ! license='The licenses of those tools apply, which are installed by MSYS2' // c_null_char, &
+                license_type=GTK_LICENSE_GPL_3_0, &
+                comments='MSYS2 is a software platform with the aim of better interoperability ' &
+                // 'with native Windows software.' // CR // CR &
+                // 'Actual Windows compatible versions of the gfortran compiler, the' // CR &
+                // ' GTK3 library and the Glade Interface Designer ' &
+                // 'are available as MSYS2 download packages. ' // c_null_char, &
+                website='https://www.msys2.org/wiki/Home/'//c_null_char, &
+                website_label='Homepage'//c_null_char, &
+                logo=logo, &
+                parent=UR_widgets%window1)
+        end select
+    end subroutine on_show_about_windows
+     !---------------------------------------------------------------------------------------------!
 
     subroutine on_show_monitor_info(widget, data0) bind(c)
 
@@ -701,7 +1042,7 @@ contains
         use Rout,               only: WTreeViewSetCursorCell
         use top,                only: idpt, FindItemP
         use file_io,            only: logger
-        use CHF,                only: ucase
+
 
         implicit none
 
@@ -806,60 +1147,51 @@ contains
         type(widget_type), pointer :: UR_widget
         !----------------------------------------------------------------------------
         idstring = get_gladeid_name(widget, error)
-        print *, idstring, ' object'
-        print *, 'result:'
+        if(dialog_on .and. idstring /= 'TBRemoveGridLine') return
 
         call c_f_pointer(gdata, UR_widget)
 
-        print *, idstring, ' data0'
-        call c_f_string_chars(UR_widget%signal, str1)
-        print *, 'is this|', trim(str1), '|working??'
-        call c_f_string_chars(UR_widget%handler, str1)
-        print *, 'is this|', trim(str1), '|even more working??'
-        call c_f_string_chars(UR_widget%gladeid, str1)
-        print *, 'is this|', trim(str1), '|even this even more working??'
+        ! print *, idstring, ' data0'
+        ! call c_f_string_chars(UR_widget%signal, str1)
+        ! print *, 'is this|', trim(str1), '|working??'
+        ! call c_f_string_chars(UR_widget%handler, str1)
+        ! print *, 'is this|', trim(str1), '|even more working??'
+        ! call c_f_string_chars(UR_widget%gladeid, str1)
+        ! print *, 'is this|', trim(str1), '|even this even more working??'
+        ! call c_f_string_chars(UR_widget%classname, str1)
+        ! print *, 'is this|', trim(str1), '|finally even this even more working??'
 
+        FileTyp = 'P'
 
-        ! if(dialog_on) then
-        !     call FindItemP(widget, ncitem)
-        !     idstring = clobj%idd(ncitem)%s
-        !     if(trim(idstring) /= 'TBRemoveGridLine') return
-        ! end if
+        IF (Filetyp == 'P' .AND. SAVEP) then
+            write(str1,*) T("Shall the open project be saved before closing it?")
+            call MessageShow(str1, &
+                             GTK_BUTTONS_YES_NO, &
+                             T("Closing Project:"), &
+                             resp, &
+                             mtype=GTK_MESSAGE_WARNING)
 
+            IF (resp == GTK_RESPONSE_YES) then   !
+                if(len_trim(fname)== 0) then
+                    cheader = 'Choose filename:'
+                    call FOpen(ifehl, .true., cheader )
+                    if(ifehl == 1) return
+                end if
+                call ProjectSave_CB(widget, gdata)
+            ELSE
+                SaveP = .false.         ! 20.9.2024 GK
+                call FieldUpdate()
+            END IF
+        END IF
 
-        ! idstring = get_gladeid_name(widget)
-        ! FileTyp = 'P'
+        ifehl = 0               !  20.9.2024 GK
 
-        ! IF (Filetyp == 'P' .AND. SAVEP) then
-        !     write(str1,*) T("Shall the open project be saved before closing it?")
-        !     call MessageShow(str1, &
-        !                      GTK_BUTTONS_YES_NO, &
-        !                      T("Closing Project:"), &
-        !                      resp, &
-        !                      mtype=GTK_MESSAGE_WARNING)
+        title = 'Open project file:'
 
-        !     IF (resp == GTK_RESPONSE_YES) then   !
-        !         if(len_trim(fname)== 0) then
-        !             cheader = 'Choose filename:'
-        !             call FOpen(ifehl, .true., cheader )
-        !             if(ifehl == 1) goto 9000
-        !         end if
-        !         call ProjectSave_CB(widget,gdata)
-        !     ELSE
-        !         SaveP = .false.         ! 20.9.2024 GK
-        !         call FieldUpdate()
-        !     END IF
-        ! END IF
+        call ProcessLoadPro_new(0, 1)
 
-        ! ifehl = 0               !  20.9.2024 GK
-
-        ! title = 'Open project file:'
-        ! call ProcessLoadPro_new(0, 1)
-
-        ! write(log_str, '(*(g0))') 'ProjectOpen:   after call ProcessLoadPro_new, QuitProg=',QuitProg
-        ! call logger(66, log_str)
-
-! 9000    continue
+        write(log_str, '(*(g0))') 'ProjectOpen:   after call ProcessLoadPro_new, QuitProg=',QuitProg
+        call logger(65, log_str)
 
     end subroutine ProjectOpen_cb
 
@@ -1710,9 +2042,9 @@ contains
             trim(idstring) /= 'CopyGrELI' .and. trim(idstring) /= 'FillDecColumn' .and.   &
             trim(idstring) /= 'combobox_MDselVar' .and. trim(idstring) /= 'MDCalcMean' .and. &
             trim(idstring) /= 'ChooserButton2SE' .and. trim(idstring) /= 'CheckMCSE' .and.  &
-            trim(idstring) /= 'check_contrastmode' .and. trim(idstring) /= 'comboboxtextInfoFX' .and. &
+            trim(idstring) /= 'check_contrastmode' .and. trim(idstring) /= 'comboboxtextinfofx' .and. &
             trim(idstring) /= 'URfunctions' .and. trim(idstring) /= 'ExportToR' .and.    &
-            trim(idstring) /= 'checkAbsTime' .and. trim(idstring) /= 'comboboxtextInfoFX' .and. &
+            trim(idstring) /= 'checkAbsTime' .and. trim(idstring) /= 'comboboxtextinfofx' .and. &
             trim(idstring) /= 'HelpFX' ) then        ! 25.2.2024
             SaveP = .true.
             call FieldUpdate()

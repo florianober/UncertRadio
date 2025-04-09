@@ -15,7 +15,7 @@
 !    along with UncertRadio. If not, see <http://www.gnu.org/licenses/>.
 !
 !-------------------------------------------------------------------------------------------------!
-recursive subroutine ProcMenu(ncitem)
+recursive subroutine ProcMenu(widget)
 
     ! processing user actions in the graphical user interface
     ! called by SelOpt and PrepReport
@@ -68,7 +68,7 @@ recursive subroutine ProcMenu(ncitem)
     use UR_MCC,              only: use_BCI, xLQ, xUQ, rxLQ, rxUQ, &
                                    est1LQ_bci, est1UQ_bci, rxLQ, rxUQ, rx1LQbci, rx1UQbci
     use PLsubs,              only: Replot
-    use UR_interfaces,       only: DisplayHelp, ProcessLoadPro_new
+    use UR_interfaces,       only: ProcessLoadPro_new
     use PSave,               only: ProSave
 
     use RdSubs,              only: rmcformF
@@ -78,7 +78,8 @@ recursive subroutine ProcMenu(ncitem)
 
     implicit none
 
-    integer   ,intent(in)  :: ncitem
+    type(c_ptr), intent(in) :: widget
+    integer                :: ncitem
     integer                :: k, ix, resp, i, j, iwahl, nci2, kpi, &
                               ncurrp, notebook_last_free
     integer(c_int)         :: cmoni, curp, szx, szy
@@ -388,9 +389,9 @@ recursive subroutine ProcMenu(ncitem)
 
             end if
 
-          case ('TBProblems', 'TBInfoDialog')
-            call DisplayHelp(ncitem)
-            goto 9000  !return
+        !   case ('TBProblems', 'TBInfoDialog')
+        !     call DisplayHelp(ncitem)
+        !     goto 9000  !return
 
           case ('MonitorNum')
 
@@ -480,16 +481,16 @@ recursive subroutine ProcMenu(ncitem)
 
         end select
 
-        if(trim(name) == 'GtkButton' .and. HelpButton) then
-            call DisplayHelp(ncitem)
-            goto 9000  ! return
-        end if
+        !Flo  if(trim(name) == 'GtkButton' .and. HelpButton) then
+        !     call DisplayHelp('Help')
+        !     goto 9000  ! return
+        ! end if
         if(trim(idstring) == 'TBmeansMD') then
-            call ProcMainDiag(ncitem)
+            call ProcMainDiag(widget)
             goto 9000  ! return
         end if
         if(trim(idstring) == 'TBRemoveGridLine') then
-            call ProcMainDiag(ncitem)
+            call ProcMainDiag(widget)
             goto 9000  ! return
         end if
 
@@ -500,7 +501,7 @@ recursive subroutine ProcMenu(ncitem)
             trim(name) == '') then
             if(prout) write(66,*) 'PM:   arrived before call ProcMainDiag:   id=',trim(idstring)
             knumold = knumEGr
-            call ProcMainDiag(ncitem)
+            call ProcMainDiag(widget)
             if(ifehl == 0 .and. trim(idstring) == 'SerialEval' .and. QuitProg) goto 9000
             if(ifehl == 1 .or. ifehlp == 1) goto 9000 !return
             if(trim(idstring) == 'NumberOutputQuantities') then
@@ -509,7 +510,7 @@ recursive subroutine ProcMenu(ncitem)
                     loadingPro = .true.
                     ! call FindItemS('button_LoadSymbols', nci2)
                     nci2 = 1
-                    call ProcMainDiag(nci2)
+                    !Flo call ProcMainDiag(widget)
                     loadingPro = .false.
                 end if
             end if

@@ -55,6 +55,8 @@ module UR_gtk_window_types
     type widgets_named
         type(c_ptr) :: window1
         type(c_ptr) :: notebooks(6)
+        type(c_ptr) :: dialog_infofx
+        type(c_ptr) :: comboboxtextinfofx
     end type
 
     type, bind(c) :: widget_type
@@ -62,6 +64,7 @@ module UR_gtk_window_types
         character(kind=c_char) :: signal(32)
         character(1, kind=c_char) :: handler(32)
         character(1, kind=c_char) :: gladeid(32)
+        character(1, kind=c_char) :: classname(32)
     end type
 
     type, bind(c)   :: GdkRGBA

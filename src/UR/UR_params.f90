@@ -18,6 +18,7 @@
 module UR_params
 
     use UR_types, only : rn
+    use iso_c_binding, only: c_new_line
     implicit none
     !---------------------------------------------------------------------------------------------!
     integer, parameter       :: nclmax = 1250
@@ -38,6 +39,13 @@ module UR_params
                                WIN_TITLE  = 'UncertRadio: Calculation ' // &  ! Main window title
                                             'of uncertainty budget and ' // &
                                             'detection limits', &
-                               GLADEORG_FILE = 'UR2_5.glade'                  ! name of the Glade-file
+                               GLADEORG_FILE = 'UR2_5.glade', &               ! name of the Glade-file
+                               CR = c_new_line, &
+                               fxtopics(6) = ['HelpLinfit ', &
+                                              'HelpGspk1  ', &
+                                              'HelpKalib  ', &
+                                              'HelpSumEval', &
+                                              'HelpTextEQ ', &
+                                              'HelpFD     ']
     !---------------------------------------------------------------------------------------------!
 end module UR_params

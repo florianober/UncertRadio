@@ -3072,6 +3072,53 @@ contains
 
     end function
 
+    !---------------------------------------------------------------------------------------------!
+
+    function get_widget_class(widget, error)
+        !-----------------------------------------------------------------------------------------!
+        ! This function retrieves the widget type name of a given GTK widget object.
+        ! In the glade file this is the object class
+        ! Parameters:
+        !   buildable: c_ptr - The GTK buildable object.
+        !   error: character(:), allocatable, optional - Optional error message.
+        ! Returns:
+        !   get_widget_class: character(:), allocatable - The Glade ID of the buildable object.
+        !-----------------------------------------------------------------------------------------!
+        use gtk, only: gtk_widget_get_name
+        use gtk_sup, only: c_f_string
+        !-----------------------------------------------------------------------------------------!
+        implicit none
+        type(c_ptr), intent(in) :: widget
+        character(:), allocatable :: get_widget_class
+        character(:), allocatable, optional, intent(out) :: error
+
+        type(c_ptr) :: c_widget_name
+        character(64) :: widget_name, error_message
+        integer(c_int) :: status
+        integer :: tmp_error
+        !-----------------------------------------------------------------------------------------!
+        tmp_error = 0
+        widget_name = ""
+        c_widget_name  = gtk_widget_get_name(widget)
+        if (c_associated(c_widget_name)) then
+            call c_f_string(c_widget_name, widget_name, status=status)
+            if (status /= 0_c_int) tmp_error = 2
+        else
+            tmp_error = 1
+        end if
+
+        if (present(error)) then
+            error = ""
+            if (tmp_error /= 0) then
+                write(error_message, '(A, I0)') "Error in get_glade_name: ", tmp_error
+                error = trim(error_message)
+            end if
+        end if
+
+        get_widget_class = trim(widget_name)
+
+    end function
+
     subroutine SetTooltipText(wstring,tooltiptext)
 
         use gtk,                 only: gtk_widget_set_tooltip_text

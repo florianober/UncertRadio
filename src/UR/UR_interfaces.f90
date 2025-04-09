@@ -21,12 +21,6 @@ module ur_interfaces
 
     interface
 
-        subroutine displayhelp(ncitem, idstr)
-            implicit none
-            integer, intent(in)                     :: ncitem
-            character(len=*), optional, intent(in)  :: idstr
-        end subroutine displayhelp
-
         recursive subroutine processloadpro_new(iwahl, kegrneu)
             implicit none
             integer, intent(in)             :: iwahl

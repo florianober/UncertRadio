@@ -20,8 +20,8 @@ module PMD
     implicit none
     interface
 
-        module recursive subroutine ProcMainDiag(ncitem)
-            integer, intent(in)            :: ncitem   ! index of widget in the list of clobj
+        module recursive subroutine ProcMainDiag(widget)
+            type(c_ptr), intent(in)            :: widget   ! index of widget in the list of clobj
         end subroutine ProcMainDiag
 
 

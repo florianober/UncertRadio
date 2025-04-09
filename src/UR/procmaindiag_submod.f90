@@ -25,12 +25,12 @@ submodule (PMD) PMDA
 
 contains
 
-    recursive subroutine ProcMainDiag(ncitem)
+    recursive subroutine ProcMainDiag(widget)
 
         !   processing user actions in the graphical user interface
         !   called by Procmenu, ProcessLoadPro_new, UR_NBPage_switched_cb
 
-        !   Copyright (C) 2014-2023  Günter Kanisch
+        !   Copyright (C) 2014-2024  Günter Kanisch
 
         use, intrinsic :: iso_c_binding
         use gtk_hl,           only: gtk_widget_set_sensitive, &
@@ -64,7 +64,7 @@ contains
                                     GTK_LICENSE_BSD_3, &
                                     TRUE
 
-        use gdk_pixbuf,       only: gdk_pixbuf_new_from_resource_at_scale
+
         use pango,            only: pango_renderer_set_color, pango_renderer_get_color
         use gui_functions,    only: lowcase
 
@@ -73,7 +73,7 @@ contains
                                     Gum_restricted,kModelType, MCsim_on, multi_eval,plot_confidoid, &
                                     plot_ellipse,project_loadw,proStartNew,SaveP,top_selrow, &
                                     irowtab,batest_user,frmtres_min1,simul_ProSetup, &
-                                    FileTyp,sDecimalPoint, UR_version_tag, UR_git_hash
+                                    FileTyp,sDecimalPoint
         use UR_gtk_globals, only: clobj, dialogstr, ioption, consoleout_gtk, posx, posy, &
                                   QuitProg, ntvs, tvnames, tv_colwidth_digits, winPL_shown, &
                                   tvcolindex, tvcols, nbook2, UR_widgets
@@ -121,7 +121,8 @@ contains
                                     WTreeViewPutComboCell,WDPutSelRadio,WTreeViewSetColorRow, &
                                     ClearMCfields,EraseNWGfields,WTreeViewGetStrCell,WDGetCheckButton, &
                                     ExpandTV2Col7,WDPutEntryInt,WTreeViewGetDoubleCell, &
-                                    WDPutTextviewString
+                                    WDPutTextviewString, &
+                                    get_gladeid_name, get_widget_class
 
         use Sym1,                only: Symbol1,Readj_kbrutto,Readj_knetto
         use Rw1,                 only: Rechw1,LinCalib
@@ -130,7 +131,7 @@ contains
         use UWB,                 only: CorrectLists,corrmatEGr
         use LSTfillT,            only: WDListstoreFill_table
         use PLsubs,              only: Printplot,Replot
-        use UR_interfaces,       only: DisplayHelp
+
         use CHF,                 only: FindLocT,lowercase,ucase
         use LDN,                 only: Loadsel_diag_new
         use Celli,               only: PrepEli, Confidoid
@@ -145,7 +146,8 @@ contains
 
         implicit none
 
-        integer,    intent(in)   :: ncitem   ! index of widget in the list of clobj
+        !integer,    intent(in)   :: ncitem   ! index of widget in the list of clobj
+        type(c_ptr), intent(in)  :: widget
 
         integer                  :: IDENT1, IDENT2
         integer(c_int), target   :: rootx_l, rooty_l
@@ -158,7 +160,7 @@ contains
         integer                  :: klu, kmin,icp_used(nmumx),irow,kx,ncol,nrow,jj,ii
         integer                  :: iarray(nmumx),ngmax,kEGrSVE,nfd,nci,ns1,nvv,mmvv(6)
         integer                  :: ix, nt, kk
-        character(len=60)       :: ckt, versgtk, cheader
+        character(len=60)       :: ckt, cheader
         logical                 :: unit_ident , sfound,loadProV
         real(rn)                :: ucrel,pSV
         real(rn),allocatable    :: rdummy(:)
@@ -167,31 +169,24 @@ contains
         integer(kind=c_int), allocatable :: rownums_marked(:)
         integer(c_int)          :: numrows_marked,ic
         logical                 :: prout
-        character(len=1), parameter :: CR = c_new_line
+
         integer(kind=c_int)      :: sizewh(2)
         character(:),allocatable :: xstr                    ! 12.8.2023
         type(charv),allocatable  :: SDformel_test(:),FT1(:)
-        type(c_ptr)              :: logo
-        character(len=128)       :: authors(6)
-        character(len=2048)      :: comment_str
+
         character(len=512)       :: log_str
-        character(len=256)       :: url_str
 
         !----------------------------------------------------------------------------
 
         prout = .false.
         ! prout = .true.
 
-        if(prout)  then
-            write(log_str, '(*(g0))') '***** ProcMainDiag:   ncitem=',ncitem
-            call logger(66, log_str)
-        end if
 
-        idstring = clobj%idd(ncitem)%s          ! id string of a widget in Glade, e.g., "AcceptAll"
-        i = clobj%idparent(ncitem)              ! e.g.,  840  (index in the list over 1100 widgets))
+        idstring = get_gladeid_name(widget)         ! id string of a widget in Glade, e.g., "AcceptAll"
+        i = 0 !Flo clobj%idparent(ncitem)              ! e.g.,  840  (index in the list over 1100 widgets))
         if(i > 0) parent = clobj%name(i)%s      ! "GtkWindow"
-        signal = clobj%signal(ncitem)%s         ! "clicked"
-        name = clobj%name(ncitem)%s             ! "GtkButton"
+        signal = ""!clobj%signal(ncitem)%s         ! "clicked"
+        name = get_widget_class(widget)          ! "GtkButton"
 
 !         if(prout) write(66,*) '***** ProcMainDiag:   name=',trim(name),'  idstring=', trim(idstring), &
 !             '  signal=',trim(signal),'  kEgr=',int(kEgr,2)
@@ -1558,180 +1553,7 @@ contains
 
                     end if
                 end if
-              case ('About_UR')
 
-                if (get_language() == 'de') then
-                    url_str =  'https://www.thuenen.de/de/fachinstitute/fischereioekologie/arbeitsbereiche/' &
-                        // 'meeresumwelt/leitstelle-umweltradioaktivitaet-in-fisch/uncertradio' // c_null_char
-                    comment_str = 'Programm zur Berechnung von Messunsicherheit, ' // CR &
-                        // 'Unsicherheiten-Budget, Erkennungs- und Nachweisgrenze bei' // CR &
-                        // 'Messungen der Umweltradioaktivität ' // CR // CR &
-                        // 'Das Programm steht unter der GNU GPL v3 Lizenz und wurde vom Autor nach derzeitigem Stand von Wissenschaft,' // CR &
-                        // 'Normung und Technik entwickelt und bezüglich der Richtigkeit der ' // CR &
-                        // 'mathematischen Behandlung der eingegebenen Modellgleichungen validiert.' // CR // CR &
-                        // 'E-Mail:    guenter.kanisch(at)hanse.net' // CR  &
-                        // '           florian.ober(at)mri.bund.de' // CR  &
-                        // '           leitstelle-fisch(at)thuenen.de' // c_null_char
-                    authors(1) = 'Günter Kanisch, früher Thünen-Institut für Fischereiökologie, Hamburg'
-                    authors(2) = '    (Hauptentwickler, Dokumentation und Bereitstellung von Windows-Versionen bis 2024)'
-                    authors(3) = 'Florian Ober, Max Rubner-Institut, Kiel'
-                    authors(4) = '    (Weiterentwicklung und Betreuung des Github Repositorys)'
-                    authors(5) = 'Marc-Oliver Aust, Thünen-Institut für Fischereiökologie, Bremerhaven'
-                    authors(6) = '    (Anwenderberatung, Betreuung der Projektseite)'
-                else
-                    url_str =  'https://www.thuenen.de/en/institutes/fisheries-ecology/fields-of-activity/' &
-                        // 'marine-environment/coordination-centre-of-radioactivity/uncertradio' // c_null_char
-                    comment_str = trim('Software for calculating measurement uncertainty, ' // CR &
-                        // 'uncertainty budget, decision threshold and detection limit for' // CR &
-                        // 'measurement of environmental radioactivity.' // CR // CR &
-                        // 'The software is licensed under GNU GPL3 and was developed by the author following state-of-the-art ' // CR &
-                        // 'of science, standardization and technology and validated with respect' // CR &
-                        // 'to the correct mathematical treatment of the model input equations of' // CR &
-                        // 'the evaluation model.' // CR // CR &
-                        // 'E-Mail:    guenter.kanisch(at)hanse.net' // CR &
-                        // '           florian.ober(at)mri.bund.de' // CR  &
-                        // '           leitstelle-fisch(at)thuenen.de') // c_null_char
-                    authors(1) = 'Günter Kanisch, formerly at the Thünen Institute of Fisheries Ecology, Hamburg'
-                    authors(2) = '    (Main developer, documentation and provision of Windows versions until 2024)'
-                    authors(3) = 'Florian Ober, Max Rubner-Institute, Kiel'
-                    authors(4) = '    (Further development and maintenance of the Github repository)'
-                    authors(5) = 'Marc-Oliver Aust, Thünen Institute of Fisheries Ecology, Hamburg'
-                    authors(6) = '    (User consulting, support of the project site)'
-                end if
-
-                logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/ur2_symbol.png" // c_null_char, &
-                                                             width=30_c_int, height=30_c_int, &
-                                                             preserve_aspect_ratio=TRUE, error=c_null_ptr)
-
-                call hl_gtk_about_dialog_show(    &
-                    name='UncertRadio' // c_null_char, &
-                    license= 'This program is free software: you can redistribute it and/or modify' // CR &
-                    // 'it under the terms of the GNU General Public License as published by' // CR &
-                    // 'the Free Software Foundation, either version 3 of the License, or' // CR &
-                    // '(at your option) any later version.' // CR // CR &
-                    // 'This program is distributed in the hope that it will be useful,' // CR &
-                    // 'but WITHOUT ANY WARRANTY; without even the implied warranty of' // CR &
-                    // 'MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the' // CR &
-                    // 'GNU General Public License for more details.' // CR // CR &
-                    // 'You should have received a copy of the GNU General Public License' // CR &
-                    // 'along with this program.  If not, see <https://www.gnu.org/licenses/>' // CR // CR &
-                    // 'The files and libraries from the following Open Source Products: ' // CR // CR &
-                    // '   GTK-Fortran' // CR &
-                    // '   GTK+ 3' // CR &
-                    // '   Glade' // CR &
-                    // '   MSYS2' // CR &
-                    // '   PLplot ' // CR // CR &
-                    // 'being used when working with UncertRadio and which ' // CR &
-                    // 'were used for programming it, underly GNU GPL licenses ' &
-                    // '(see <https://www.gnu.org/licenses/>). ' // CR  // c_null_char, &
-                    license_type=GTK_LICENSE_GPL_3_0, &
-                    comments=comment_str, &
-                    authors=authors, &
-                    website=url_str, &
-                    version=trim(UR_version_tag)// CR // trim(UR_git_hash) // c_null_char, &
-                    logo=logo,      &
-                    parent=UR_widgets%window1)
-
-              case ('About_Glade')
-                logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/glade.png" // c_null_char, &
-                                                             width=30_c_int, height=30_c_int, &
-                                                             preserve_aspect_ratio=TRUE, error=c_null_ptr)
-                call hl_gtk_about_dialog_show(    &
-                    name='Glade Interface Designer'//c_null_char, &
-                    license_type=GTK_LICENSE_GPL_2_0_ONLY, &
-                    comments='A user interface designer for GTK+ and GNOME.'//c_null_char, &
-                    website='https://gitlab.gnome.org/GNOME/glade'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    version='3.40.0'//c_null_char, &
-                    logo=logo, &
-                    parent=UR_widgets%window1)
-
-              case ('About_LAPACK')
-
-                logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/lapack.png" // c_null_char, &
-                                                             width=30_c_int, height=30_c_int, &
-                                                             preserve_aspect_ratio=TRUE, error=c_null_ptr)
-                call hl_gtk_about_dialog_show(    &
-                    name='LAPACK - Linear Algebra PACKage'//c_null_char, &
-                ! license_type=GTK_LICENSE_BSD_3, &
-                    license='modified BSD license' // CR // &
-                    '(see https://raw.githubusercontent.com/Reference-LAPACK/lapack/refs/heads/master/LICENSE )'//c_null_char, &
-                    comments='LAPACK is a library of Fortran subroutines for solving the most commonly occurring problems in numerical linear algebra.'//c_null_char, &
-                    website='https://www.netlib.org/lapack'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    version='3.12.0'//c_null_char, &
-                    logo=logo, &
-                    parent=UR_widgets%window1)
-
-              case ('About_FParser')
-                call hl_gtk_about_dialog_show(    &
-                    name='FParser'//c_null_char, &
-                    copyright='Copyright (c) 2000-2008, Roland Schmehl. All rights reserved.'//c_null_char, &
-                    license_type=GTK_LICENSE_BSD_3, &
-                    comments='Fortran 95 function parser'//c_null_char, &
-                    website='https://fparser.sourceforge.net/'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    version='1.0'//c_null_char, &
-                    parent=UR_widgets%window1)
-
-              case ('About_PLPLOT')
-                call hl_gtk_about_dialog_show(    &
-                    name='PLplot'//c_null_char, &
-                    license_type=GTK_LICENSE_GPL_3_0, &
-                    comments='Cross-platform Plotting Library, with Fortran interface.'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    website='http://plplot.sourceforge.net/'//c_null_char, &
-                    version='5.15.0'//c_null_char, &
-                    parent=UR_widgets%window1)
-
-              case ('About_GTK_Fortran')
-                call hl_gtk_about_dialog_gtk_fortran()
-
-              case ('About_GTK')
-
-                logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/gtk-logo.png" // c_null_char, &
-                                                             width=30_c_int, height=30_c_int, &
-                                                             preserve_aspect_ratio=TRUE, error=c_null_ptr)
-                write(versgtk,'(i0,a1,i0,a1,i0)') gtk_get_major_version(),'.', gtk_get_minor_version(),'.', &
-                    gtk_get_micro_version()
-                call hl_gtk_about_dialog_show(    &
-                    name='GTK+ Project'//c_null_char, &
-                    license_type=GTK_LICENSE_LGPL_2_1, &
-                    comments='GTK+, or the GIMP Toolkit, is a multi-platform toolkit for ' // CR &
-                    // 'creating graphical user interfaces. Offering a complete set ' // CR &
-                    // 'of widgets, GTK+ is suitable for projects ranging from small ' // CR &
-                    // 'one-off tools to complete application suites.'//  CR // CR  &
-                    // 'GTK+ is a free software cross-platform graphical library ' // CR &
-                    // 'available for Linux, Unix, Windows and MacOs X.' // c_null_char, &
-                    website='https://www.gtk.org'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    version=trim(versgtk)//c_null_char, &
-                    logo=logo, &
-                    parent=UR_widgets%window1)
-
-              case ('About_MSYS2')
-                logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/msys2logo.png" // c_null_char, &
-                                                             width=30_c_int, height=30_c_int, &
-                                                             preserve_aspect_ratio=TRUE, error=c_null_ptr)
-                call hl_gtk_about_dialog_show(    &
-                    name='MSYS2'//c_null_char, &
-                ! license='The licenses of those tools apply, which are installed by MSYS2' // c_null_char, &
-                    license_type=GTK_LICENSE_GPL_3_0, &
-                    comments='MSYS2 is a software platform with the aim of better interoperability ' &
-                    // 'with native Windows software.' // CR // CR &
-                    // 'Actual Windows compatible versions of the gfortran compiler, the' // CR &
-                    // ' GTK3 library and the Glade Interface Designer ' &
-                    // 'are available as MSYS2 download packages. ' // c_null_char, &
-                    website='https://www.msys2.org/wiki/Home/'//c_null_char, &
-                    website_label='Homepage'//c_null_char, &
-                    logo=logo, &
-                    parent=UR_widgets%window1)
-
-              case ('Help_UR')
-                call DisplayHelp(ncitem)
-
-              case ('HelpExamples')
-                call DisplayHelp(ncitem)
 
               case ('Exchange2Symbols')
                 dialogstr = 'dialog_symbExchg'
@@ -1817,7 +1639,7 @@ contains
                 dialogstr = 'dialog_distributions'
                 ! call FindItemS('dialogBatEval', ncitem2)
                 !call FindItemS('dialog_distributions', ncitem2)
-                call Loadsel_diag_new(1, ncitem)
+                !call Loadsel_diag_new(1, ncitem)
                 goto 9000
 
               case ('URfunctions')

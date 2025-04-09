@@ -1679,7 +1679,7 @@
                 <property name="margin-bottom">4</property>
                 <property name="image">image_ok10</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_close_dialog" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -1743,7 +1743,7 @@
                   <item translatable="yes">uval</item>
                   <item translatable="yes">fd</item>
                 </items>
-                <signal name="changed" handler="doact" swapped="no"/>
+                <signal name="changed" handler="on_change_infofx_topic" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -10363,7 +10363,7 @@
                         <property name="image">image7</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10374,7 +10374,7 @@
                         <property name="image">image8</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10385,7 +10385,7 @@
                         <property name="image">image9</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10396,7 +10396,7 @@
                         <property name="image">image13</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10407,7 +10407,7 @@
                         <property name="image">image11</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10418,7 +10418,7 @@
                         <property name="image">image14</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10429,7 +10429,7 @@
                         <property name="image">image4</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10440,7 +10440,7 @@
                         <property name="image">image5</property>
                         <property name="use-stock">False</property>
                         <property name="always-show-image">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_about_windows" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -10775,7 +10775,7 @@
                     <property name="tooltip-text" translatable="yes">special UR functions</property>
                     <property name="use-underline">True</property>
                     <property name="icon-widget">image27</property>
-                    <signal name="clicked" handler="SelOpt" swapped="no"/>
+                    <signal name="clicked" handler="on_show_dialog" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
