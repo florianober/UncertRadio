@@ -10315,7 +10315,7 @@
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Monitor#: </property>
                         <property name="use-underline">True</property>
-                        <signal name="activate" handler="on_monitor_activated" swapped="no"/>
+                        <signal name="activate" handler="on_show_monitor_info" swapped="no"/>
                       </object>
                     </child>
                   </object>

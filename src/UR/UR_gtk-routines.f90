@@ -2975,7 +2975,7 @@ contains
 
     !#####################################################################################
 
-    subroutine MessageShow(message, button_set, title, resp, mtype, header)
+    subroutine MessageShow(message, button_set, title, resp, mtype, header, parent)
 
         ! Displays a message dialog with the specified parameters.
         ! Uses the hl_gtk_routine, but adds some space
@@ -2996,6 +2996,7 @@ contains
         !
 
         use gtk_hl, only: hl_gtk_message_dialog_show
+        use UR_gtk_globals, only: UR_widgets
 
         implicit none
 
@@ -3005,8 +3006,13 @@ contains
         integer(c_int),intent(out)            :: resp
         integer(c_int),intent(in),optional    :: mtype
         character(len=*),intent(in),optional  :: header
-
+        type(c_ptr), intent(in), optional     :: parent
+        integer(c_int)                        :: tmp_mtype
+        type(c_ptr)                           :: tmp_parent
         character(len(trim(message)))         :: rmessage(3)
+
+        tmp_parent = UR_widgets%window1
+        if (present(parent)) tmp_parent = parent
 
         rmessage(:) = " "
         if (present(header)) rmessage(1) = header
@@ -3016,7 +3022,7 @@ contains
                                           button_set=button_set, &
                                           title=trim(title)//c_null_char, &
                                           type=mtype, &
-                                          parent=idpt('window1'))
+                                          parent=tmp_parent)
 
     end subroutine MessageShow
 
@@ -3042,8 +3048,9 @@ contains
         type(c_ptr) :: c_buildable_id
         character(64) :: buildable_id, error_message
         integer(c_int) :: status
-        integer :: tmp_error = 0
+        integer :: tmp_error
         !-----------------------------------------------------------------------------------------!
+        tmp_error = 0
         buildable_id = ""
         c_buildable_id  = gtk_buildable_get_name(buildable)
         if (c_associated(c_buildable_id)) then

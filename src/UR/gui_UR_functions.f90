@@ -358,7 +358,7 @@ contains
 
         use, intrinsic :: iso_c_binding,    only: c_ptr, c_char, c_int
         use file_io,          only: logger
-        use gtk_sup,          only: c_f_string, f_c_string
+        use gtk_sup,          only: c_f_string, f_c_string, convert_c_string_scalar
         use gtk,              only: g_signal_connect, gtk_builder_get_type, gtk_widget_get_name, &
                                     gtk_buildable_get_name
         use Rout,             only: get_gladeid_name
@@ -375,7 +375,7 @@ contains
         type(c_ptr), value               :: c_Win             !user data
 
         character(len=25), target        :: h_name, h_signal, galdeid
-        character(kind=c_char), allocatable :: test(:)
+        character(kind=c_char), allocatable :: tmp_str(:)
         type(widget_type), pointer       :: ur_widget
         !--------------------------------------------------------------------------------------------------------------
 
@@ -383,6 +383,26 @@ contains
         call c_f_string_chars(signal_name, h_signal)
 
         allocate(widget_type :: ur_widget)
+
+        ur_widget%id_ptr = object
+        call f_c_string(h_signal, tmp_str)
+        ur_widget%signal(1:size(tmp_str)) = tmp_str
+        call f_c_string(h_name, tmp_str)
+        ur_widget%handler(1:size(tmp_str)) = tmp_str
+
+        ! don't get the glade id and class, if the objects are no buildable
+        ! flo: better
+        ur_widget%gladeid(:) = ''
+        if (h_name /= 'edit_table' .and. h_name /= 'edit_t_toggle') then
+            call f_c_string(get_gladeid_name(object), tmp_str)
+            ! print *, h_signal, h_name, 'STILL'
+            ur_widget%gladeid(1:size(tmp_str)) = tmp_str
+        else
+            call f_c_string(get_gladeid_name(object), tmp_str)
+            ! print *, h_signal, h_name, 'NOT'
+        end if
+
+        c_Win = c_loc(ur_widget)
         select case (h_name)
 
         ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
@@ -394,23 +414,6 @@ contains
         case ("SelOpt")
             call g_signal_connect (object, signal_name, c_funloc(SelOpt), c_Win)
         case ("LoadProjectFile")
-
-            ur_widget%id_ptr = object
-            if (h_signal == 'activate') then
-                ur_widget%myint = 15
-            else
-                ur_widget%myint = 98
-            end if
-
-            call f_c_string(h_signal, test)
-            ur_widget%signal(1:size(test)) = test
-            call f_c_string(h_name, test)
-            ur_widget%handler(1:size(test)) = test
-            call f_c_string(get_gladeid_name(object), test)
-            ur_widget%gladeid(1:size(test)) = test
-
-            c_Win = c_loc(ur_widget)
-
             call g_signal_connect (object, signal_name, c_funloc(ProjectOpen_cb), c_Win)
         case ("SavePro")
             call g_signal_connect (object, signal_name, c_funloc(ProjectSave_cb), c_Win)
@@ -433,8 +436,8 @@ contains
         case("on_destroy_selected")
             call g_signal_connect (object, signal_name, c_funloc(on_destroy_selected), c_Win)
 
-        case("on_monitor_activated")
-            call g_signal_connect (object, signal_name, c_funloc(on_destroy_selected), c_Win)
+        case("on_show_monitor_info")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), c_Win)
 
         case ("keyPress")
             call g_signal_connect (object, signal_name, c_funloc(UR_keyPress_cb), c_Win)
@@ -618,6 +621,7 @@ contains
         !-----------------------------------------------------------------------------------------!
 
         button_id = get_gladeid_name(widget, error)
+        print *, button_id, error, len(error)
         if (len(error) == 0) then
             call DisplayHelp(button_id)
         else
@@ -627,7 +631,7 @@ contains
     end subroutine on_help_button_clicked
 
     !---------------------------------------------------------------------------------------------!
-    subroutine on_destroy_selected(widget) bind(c)
+    subroutine on_destroy_selected(widget, data0) bind(c)
 
         use Rout, only: get_gladeid_name
         use gtk, only: gtk_widget_destroy, gtk_main_quit
@@ -635,20 +639,52 @@ contains
         use file_io, only: logger
 
         implicit none
-        type(c_ptr), value, intent(in) :: widget
+        type(c_ptr), value, intent(in) :: widget, data0
         character(:), allocatable :: button_id, error
         !-----------------------------------------------------------------------------------------!
 
-        button_id = get_gladeid_name(widget, error)
-        if (len(error) == 0) then
-            call gtk_widget_destroy(UR_widgets%window1)
-            call gtk_main_quit()
-        else
-            call logger(65, 'Error: on_destroy_selected: widget is not associated!')
-        end if
+        call gtk_widget_destroy(UR_widgets%window1)
+        call gtk_main_quit()
+
 
     end subroutine on_destroy_selected
     !---------------------------------------------------------------------------------------------!
+
+    subroutine on_show_monitor_info(widget, data0) bind(c)
+
+        use Rout, only: get_gladeid_name, MessageShow
+        use gtk, only: gtk_widget_destroy, gtk_main_quit, &
+                       gtk_window_get_position, &
+                       GTK_BUTTONS_OK, GTK_MESSAGE_INFO
+
+        use gdk, only: gdk_screen_get_monitor_at_point
+        use UR_gtk_globals, only: UR_widgets, gscreen, &
+                                  scrwidth_min, scrwidth_max, &
+                                  scrheight_min, scrheight_max
+        use file_io, only: logger
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+
+        character(128)                 :: msg_string
+        integer(c_int), target         :: rtx, rty
+        integer(c_int)                 :: cmoni, resp
+        !-----------------------------------------------------------------------------------------!
+
+        call gtk_window_get_position(UR_widgets%window1, c_loc(rtx),c_loc(rty))
+
+
+        cmoni = gdk_screen_get_monitor_at_point(gscreen,rtx+10_c_int, rty+10_c_int)
+        write(msg_string,'(a,i0,a1,a,i0,a,i0,a1,a,i0,a,i0)') ' Monitor#= ',cmoni+1_c_int,char(13), &
+            ' width : ',scrwidth_min,' - ',scrwidth_max,char(13), &
+            ' height: ',scrheight_min,' - ',scrheight_max
+        call logger(65, msg_string)
+        call MessageShow('  '//trim(msg_string)//'  ', GTK_BUTTONS_OK, &
+                         "Monitor#:", resp, mtype=GTK_MESSAGE_INFO, parent=UR_widgets%window1)
+
+    end subroutine on_show_monitor_info
+    !---------------------------------------------------------------------------------------------!
+
 
     recursive function UR_keyPress_cb(widget, event, gdata) result(ret) bind(c)
 
@@ -767,21 +803,20 @@ contains
         character(len=512)    :: log_str
         character(len=120)    :: str1
         character(:), allocatable :: idstring, error
-        type(widget_type), pointer :: data_ptr
+        type(widget_type), pointer :: UR_widget
         !----------------------------------------------------------------------------
         idstring = get_gladeid_name(widget, error)
         print *, idstring, ' object'
         print *, 'result:'
-        !print *, gdata
-        call c_f_pointer(gdata, data_ptr)
-        print *, data_ptr%myint
-        idstring = get_gladeid_name(data_ptr%id_ptr, error)
+
+        call c_f_pointer(gdata, UR_widget)
+
         print *, idstring, ' data0'
-        call c_f_string_chars(data_ptr%signal, str1)
+        call c_f_string_chars(UR_widget%signal, str1)
         print *, 'is this|', trim(str1), '|working??'
-        call c_f_string_chars(data_ptr%handler, str1)
+        call c_f_string_chars(UR_widget%handler, str1)
         print *, 'is this|', trim(str1), '|even more working??'
-        call c_f_string_chars(data_ptr%gladeid, str1)
+        call c_f_string_chars(UR_widget%gladeid, str1)
         print *, 'is this|', trim(str1), '|even this even more working??'
 
 
@@ -2229,7 +2264,7 @@ subroutine c_f_string_chars(c_string, f_string)
     ! Helper function
     use, intrinsic :: iso_c_binding
     implicit none
-    character(len=1,kind=c_char), intent(in) :: c_string(*)
+    character(len=1, kind=c_char), intent(in) :: c_string(*)
     character(len=*), intent(out) :: f_string
     integer    :: i
     i=1

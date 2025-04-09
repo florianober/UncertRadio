@@ -59,10 +59,6 @@ module UR_gtk_window_types
 
     type, bind(c) :: widget_type
         type(c_ptr) :: id_ptr
-
-        integer(c_int) :: myint
-        type(c_ptr) :: string_pointer
-
         character(kind=c_char) :: signal(32)
         character(1, kind=c_char) :: handler(32)
         character(1, kind=c_char) :: gladeid(32)

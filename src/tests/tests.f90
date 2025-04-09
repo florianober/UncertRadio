@@ -44,9 +44,11 @@ contains
 
         call test_lowercase()
 
+        call test_gtk_get_buildable_id()
+
         call Batest_no_gui()
 
-        call test_gtk_get_buildable_id()
+
 
         write(*,'(2X,A)') "All tests done"
 
