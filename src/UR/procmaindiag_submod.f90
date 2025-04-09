@@ -66,7 +66,6 @@ contains
 
 
         use pango,            only: pango_renderer_set_color, pango_renderer_get_color
-        use gui_functions,    only: lowcase
 
         use ur_general_globals, only: charv,actual_grid,actual_plot,automode,autoreport,bat_serial,batest_on, &
                                     batf,Confidoid_activated,bottom_selrow,frmtres, &
@@ -602,7 +601,7 @@ contains
                 ! MDused = .false.
                 nvv = 0
                 do i=1,ngrs
-                    if(trim(lowcase(symtyp(i)%s)) == 'm') then
+                    if(trim(lowercase(symtyp(i)%s)) == 'm') then
                         nvv = nvv + 1
                         mmvv(nvv) = i
                     end if

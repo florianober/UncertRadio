@@ -28,7 +28,6 @@ module gui_functions
     private
     public :: create_window, &
               show_window, &
-              lowcase, &
               UR_field_edit_cb, &
               SetColors
 
@@ -418,8 +417,8 @@ contains
         case("on_help_button_clicked")
             call g_signal_connect (object, signal_name, c_funloc(on_help_button_clicked), c_Win)
 
-        case("on_destroy_selected")
-            call g_signal_connect (object, signal_name, c_funloc(on_destroy_selected), c_Win)
+        case("on_destroy_UR")
+            call g_signal_connect (object, signal_name, c_funloc(on_destroy_UR), c_Win)
 
         case("on_show_monitor_info")
             call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), c_Win)
@@ -534,14 +533,8 @@ contains
         if(trim(parentstr) == 'GtkWindow' .or. trim(idstring) == 'window1'    &
             .or. trim(idstring) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
 
-            ! call ProcMenu(ncitem)
-            if( .not. QuitProg) call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
-            if(QuitProg) then
-                ! if(c_associated(gdkcursor)) call g_object_unref(gdkcursor)
-
-                call gtk_widget_destroy(UR_widgets%window1)
-                call gtk_main_quit()
-            end if
+            call ProcMenu(widget)
+            call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
         end if
 
     end subroutine Selopt
@@ -558,8 +551,8 @@ contains
 
         use, intrinsic :: iso_c_binding, only: c_null_char, c_ptr, c_int, c_int16_t
 
-        use UR_gtk_globals,    only: HelpButton, str_item_clicked, &
-                                     ButtonClicked, ncitemClicked
+        use UR_gtk_globals,    only: str_item_clicked, &
+                                     ButtonClicked
         use gtk, only: gtk_buildable_get_name
         use gtk_sup, only: c_f_string
         use UR_Gleich_globals, only: loadingpro
@@ -574,15 +567,7 @@ contains
         item_clicked = widget
 
         str_item_clicked = get_gladeid_name(widget)
-
-        if(trim(str_item_clicked) == 'LoadWithCalc') goto 10
-        if(trim(str_item_clicked) == 'LoadWithoutCalc') goto 10
-        if(trim(str_item_clicked) == 'BinPoiOK' .or. trim(str_item_clicked) == 'BinPoiCancel') goto 10
-
         if(loadingpro) return
-10      continue
-
-        ! stritem = ucase(str_item_clicked)
 
 
         ! write(66,*) 'button_clicked:   HelpButton=',HelpButton
@@ -625,7 +610,7 @@ contains
     end subroutine on_help_button_clicked
 
     !---------------------------------------------------------------------------------------------!
-    subroutine on_destroy_selected(widget, data0) bind(c)
+    subroutine on_destroy_UR(widget, data0) bind(c)
 
         use gtk, only: gtk_widget_destroy, gtk_main_quit
         use UR_gtk_globals, only: UR_widgets
@@ -640,11 +625,12 @@ contains
         call gtk_main_quit()
 
 
-    end subroutine on_destroy_selected
+    end subroutine on_destroy_UR
 
     !---------------------------------------------------------------------------------------------!
     subroutine on_change_infofx_topic(widget, data0) bind(c)
-
+        ! subroutine to update the infofx dialog when the combobox changes"
+        !
         use gtk,                 only: gtk_widget_show_all, gtk_image_set_from_resource, gtk_image_clear
         use gtk_hl_combobox,     only: hl_gtk_combo_box_get_active
 
@@ -674,8 +660,8 @@ contains
         call gtk_image_clear(idpt('InfoFX_image2'))
         call gtk_image_clear(idpt('InfoFX_image3'))
 
-        select case (i_fx + 1)
-            case (2)
+        select case (i_fx)
+            case (1)
             code = 'LINFIT'
             call gtk_image_set_from_resource(idpt('InfoFX_image1'), &
                                                 '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
@@ -685,23 +671,23 @@ contains
                                                 '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
 
-            case (3)
+            case (2)
             code = 'GAMSPK1'
             call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
                                                 '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
             call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
                                                 '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
-            case (4)
+            case (3)
             code = 'KALFIT'
 
-            case (5)
+            case (4)
             code = 'SUMEVAL'
 
-            case (6)
+            case (5)
             code = 'UVAL'
 
-            case (7)
+            case (6)
             code = 'FD'
 
         end select
@@ -2381,6 +2367,7 @@ contains
         character(len=128)  :: log_str
 
         cerror = c_null_ptr
+        ! Flo: rework the complete colortheming. For now, just stick with the standard values
 
         ! Problem with css: I have not been very successful in applying :not() selectors
         ! for excluding more than one entry from coloring. The only successful way was to
@@ -2421,9 +2408,9 @@ contains
         ! write(log_str, '(A,I0)') "load css from data: res= ", res
         ! call logger(66, log_str)
 
-        ! if(c_associated(cerror)) then
-        !     call EvalGerror('Load css from data:  errormessage=', cerror)
-        ! end if
+        if(c_associated(cerror)) then
+            call EvalGerror('Load css from data:  errormessage=', cerror)
+        end if
 
         ! do i=1, nclobj
 
@@ -2564,26 +2551,6 @@ contains
 
     end subroutine SetColors
 
-    !#############################################################################################
-
-    elemental function lowcase(string)
-
-        ! turns all characters in the string to lower case.
-
-        implicit none
-        character(len=*), intent(in) :: string
-        character(len=len(string))   :: lowcase
-
-        integer   , parameter :: ucmin = iachar('A'), ucmax = iachar('Z')
-        integer   , parameter :: case_diff = iachar('A') - iachar('a')
-        integer    :: i, ic
-
-        lowcase = string
-        do i = 1, len(string)
-            ic = iachar(string(i:i))
-            if (ic >= ucmin .and. ic <= ucmax) lowcase(i:i) = achar(ic-case_diff)
-        end do
-    end function lowcase
 
 !#############################################################################################
 

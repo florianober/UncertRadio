@@ -66,7 +66,7 @@ contains
         use UR_gtk_globals,     only: ioption,dialogstr,consoleout_gtk
         use gtk,                only: gtk_widget_set_sensitive, GTK_BUTTONS_OK,GTK_MESSAGE_WARNING, &
                                       gtk_text_view_set_cursor_visible,gtk_text_view_place_cursor_onscreen
-        use gui_functions,      only: lowcase
+
         use top,                only: idpt, WrStatusbar, CharModA1, CharModStr
         use Rout,               only: MessageShow, WDPutTextviewString, WDSetCheckMenuItem,  &
                                       WDGetTextviewString, WDPutSelRadio
@@ -75,7 +75,7 @@ contains
         use UR_Loadsel,         only: klfrename, Sname, Soldname
 
         use UWB,                only: TextReplace, ChangeSname
-        use CHF,                only: ucase, FindlocT, IndexArr
+        use CHF,                only: ucase, FindlocT, IndexArr, lowercase
         use translation_module, only: T => get_translation
 
 
