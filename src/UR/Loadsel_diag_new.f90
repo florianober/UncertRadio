@@ -58,7 +58,7 @@ contains
 ! gtk_NOTEBOOK_TAB_LAST     The last gtk.Notebook tab
 
 ! Values of ioption:
-!         1 : options dilaog
+!         1 : options dialog
 !         2 : DecayFit model (Linf)
 !         3 : decay curve data input
 !         4 : not used
@@ -80,9 +80,7 @@ contains
 !        72 : dialog for QC batch test
 !        73 : dialog for batch evaluation
 !        74 : dialog for distributions
-!        75 : dialog for InfoFX
 !
-
 
     subroutine Loadsel_diag_new(mode, ncitem)
 
@@ -127,15 +125,15 @@ contains
 
         use g,                  only:   g_value_set_string,g_object_set_property
 
-        use UR_gtk_globals,   only:   clobj, dialogstr,FieldDoActCB,FieldEditCB, &
-                                        ncitemClicked,PageSwitchedCB,ButtonClicked,ioption,HelpButton,CloseDialogCB, &
+        use UR_gtk_globals,     only:   clobj, dialogstr, FieldDoActCB, FieldEditCB, &
+                                        ncitemClicked,PageSwitchedCB,ButtonClicked,ioption,CloseDialogCB, &
                                         dialogloop_on,Settings,fontname,colorname,kcolortype,dialog_leave, &
                                         WinMC_resized,dialog_on,ntvs,tvcolindex, &
                                         tvnames,pixel_per_char,tvcols, pstring
 
-        use UR_gtk_window_types,      only:   GdkRGBA
+        use UR_gtk_window_types, only:   GdkRGBA
 
-        use top,                only:   idpt,WrStatusbar,FieldUpdate,MDcalc, &
+        use top,                 only:  idpt, WrStatusbar,FieldUpdate,MDcalc, &
                                         PixelPerString,RealModA1,CharModa1,IntModA1,InitVarsTV5,InitVarsTV5_CP, &
                                         InitVarsTV6_CP,LogModA1,CharModStr
         use ur_general_globals,       only:   actual_plot,Confidoid_activated, plot_confidoid,plot_ellipse, &
@@ -664,7 +662,7 @@ contains
                 end if
             end do
 
-          case (64)       ! filechooser dialog
+          case (64)      ! filechooser dialog
 
           case (65)      ! windowELI
 
@@ -943,7 +941,7 @@ contains
         ncitem2 = 0
         resp_id = 0_c_Int
 
-! show the dialog
+        ! show the dialog
         call gtk_widget_show_all(dialog)
 
         if(nt > 0) then
@@ -2036,9 +2034,6 @@ contains
                 call WDPutEntryString('FilenameSE',serial_csvinput(i1:))
                 goto 1010
 
-              case ('HelpFX')
-                call DisplayHelp(trim(buthelp))
-                goto 1010
 
               case default
 

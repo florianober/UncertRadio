@@ -73,7 +73,7 @@ contains
                                     plot_ellipse,project_loadw,proStartNew,SaveP,top_selrow, &
                                     irowtab,batest_user,frmtres_min1,simul_ProSetup, &
                                     FileTyp,sDecimalPoint
-        use UR_gtk_globals, only: clobj, dialogstr, ioption, consoleout_gtk, posx, posy, &
+        use UR_gtk_globals, only: dialogstr, ioption, consoleout_gtk, posx, posy, &
                                   QuitProg, ntvs, tvnames, tv_colwidth_digits, winPL_shown, &
                                   tvcolindex, tvcols, nbook2, UR_widgets
         use plplot_code_sub1,  only: windowPL,width_da,height_da,drawing,hl_gtk_drawing_area_resize
@@ -164,7 +164,7 @@ contains
         real(rn)                :: ucrel,pSV
         real(rn),allocatable    :: rdummy(:)
         real                    :: stt1, stp1
-        character(len=64)       :: idstring,signal,parent,name
+        character(len=64)       :: idstring, parent, classname
         integer(kind=c_int), allocatable :: rownums_marked(:)
         integer(c_int)          :: numrows_marked,ic
         logical                 :: prout
@@ -183,20 +183,11 @@ contains
 
         idstring = get_gladeid_name(widget)         ! id string of a widget in Glade, e.g., "AcceptAll"
         i = 0 !Flo clobj%idparent(ncitem)              ! e.g.,  840  (index in the list over 1100 widgets))
-        if(i > 0) parent = clobj%name(i)%s      ! "GtkWindow"
-        signal = ""!clobj%signal(ncitem)%s         ! "clicked"
-        name = get_widget_class(widget)          ! "GtkButton"
+        if(i > 0) parent = "GtkWindow" !Flo clobj%name(i)%s      ! "GtkWindow"
+        !signal = ""!clobj%signal(ncitem)%s         ! "clicked"
+        classname = get_widget_class(widget)          ! "GtkButton"
 
-!         if(prout) write(66,*) '***** ProcMainDiag:   name=',trim(name),'  idstring=', trim(idstring), &
-!             '  signal=',trim(signal),'  kEgr=',int(kEgr,2)
-        if(prout)  then
-            write(log_str, '(*(g0))') '***** ProcMainDiag:   name=',trim(name),'  idstring=', trim(idstring), &
-            '  signal=',trim(signal),'  kEgr=',int(kEgr,2)
-            call logger(66, log_str)
-        end if
-        if(consoleout_gtk) write(0,*) '##### PMD  Begin:  id=',trim(idstring),',  signal=',trim(signal)
-
-        select case (trim(name))
+        select case (trim(classname))
 
           case ('GtkButton')
 
@@ -613,11 +604,11 @@ contains
 
                 do ii=1,nvv
                     i = mmvv(ii)
-                    name = symbole(i)%s // '_data'
+                    classname = symbole(i)%s // '_data'
                     if(nvarsMD == 0) then
                         nvarsMD = 1
 
-                        meanID(nvarsMD)%s = trim(name)
+                        meanID(nvarsMD)%s = trim(classname)
                         k_datvar = 1
                         MDpoint(k_datvar) = i
                         MDpointrev(i) = k_datvar
@@ -628,7 +619,7 @@ contains
                     else
                         call gtk_widget_set_sensitive(idpt('TBmeansMD'), 1_c_int)
                         nfd = 0
-                        k = findlocT(meanID,name)
+                        k = findlocT(meanID,classname)
                         if(k > 0) then
                             k_datvar = k
                             nfd = 1
@@ -640,7 +631,7 @@ contains
                         else
                             nvarsMD = nvarsMD + 1
                             ix = ubound(meanID,dim=1)
-                            meanID(nvarsMD)%s = trim(name)
+                            meanID(nvarsMD)%s = trim(classname)
                             k_datvar = nvarsMD
                             MDpoint(k_datvar) = i
                             MDpointrev(i) = k_datvar
@@ -1653,22 +1644,12 @@ contains
               case default
             end select
             goto 9000
-!---------------------------------------------------------------------
+         !---------------------------------------------------------------------
 
           case ('GtkNotebook')
-!             if(prout) write(66,*) 'PMD: GtkNotebook:   arrived.    Signal=',trim(signal), &
-!                 '   NBprevious=',nbpreviousPage, &
-!                 '  NBcurrent=',nbcurrentpage
-            if(prout)  then
-                write(log_str, '(*(g0))') 'PMD: GtkNotebook:   arrived.    Signal=',trim(signal), &
-                '   NBprevious=',nbpreviousPage, &
-                '  NBcurrent=',nbcurrentpage
-                call logger(66, log_str)
-            end if
+            ! select case (trim(signal))
 
-            select case (trim(signal))
-
-              case ('switch-page', 'change-current-page')
+            !   case ('switch-page', 'change-current-page')
 
                 Ident1 = NBpreviousPage
                 Ident2 = NBcurrentpage
@@ -2484,9 +2465,9 @@ contains
 
 110             continue
 
-                !+++++++++++++++++++++++++++++++
-              case default
-            end select
+            !     !+++++++++++++++++++++++++++++++
+            !   case default
+            ! end select
 
         !+++++++++++++++++++++++++++++++
           case ('GtkTreeView')

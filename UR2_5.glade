@@ -944,9 +944,12 @@
     <property name="can-focus">False</property>
     <property name="title" translatable="yes">Self-testing</property>
     <property name="window-position">center-on-parent</property>
-    <property name="type-hint">dialog</property>
     <property name="gravity">center</property>
-    <signal name="key-press-event" handler="keyPress" swapped="no"/>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="destroy-with-parent">True</property>
+    <property name="type-hint">dialog</property>
+    <signal name="delete-event" handler="on_close_dialog" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="BTBox1">
         <property name="can-focus">False</property>
@@ -985,7 +988,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_cancel2</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_close_dialog" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -1655,7 +1658,7 @@
     <property name="window-position">center-on-parent</property>
     <property name="destroy-with-parent">True</property>
     <property name="type-hint">dialog</property>
-    <property name="deletable">False</property>
+    <signal name="delete-event" handler="on_close_dialog" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox">
         <property name="can-focus">False</property>
@@ -10298,7 +10301,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Auswahl Farbe</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_dialog" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -10306,7 +10309,7 @@
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">QC-Batch-Test</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_dialog" swapped="no"/>
                       </object>
                     </child>
                     <child>

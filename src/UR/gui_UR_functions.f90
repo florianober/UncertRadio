@@ -22,6 +22,7 @@ module gui_functions
 
     use, intrinsic :: iso_c_binding
     use UR_types, only: rn
+    use gtk,      only: TRUE, FALSE
 
     implicit none
 
@@ -152,7 +153,7 @@ contains
         call logger(66, log_str)
 
 
-        ! get references to some GUI elements
+        ! get references to some often used GUI elements
         ! The name passed to the gtk_builder_get_object function has to match the name
         ! of the objects in the Glade file
         !
@@ -165,6 +166,7 @@ contains
         UR_widgets%notebooks(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
         UR_widgets%dialog_infofx = gtk_builder_get_object(builder, "dialog_infoFX"//c_null_char)
         UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
+        UR_widgets%dialog_batest = gtk_builder_get_object(builder, "dialog_Batest"//c_null_char)
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
@@ -246,9 +248,8 @@ contains
         call gtk_window_set_transient_for(idpt('dialogSerEval'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_BinPoi'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_distributions'), UR_widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_Batest'), UR_widgets%window1)
+        call gtk_window_set_transient_for(UR_widgets%dialog_batest, UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialogBatEval'), UR_widgets%window1)
-        call gtk_window_set_transient_for(UR_widgets%dialog_infofx, UR_widgets%window1)
 
         call gtk_widget_grab_focus(idpt('textview1'))
 
@@ -743,56 +744,87 @@ contains
         end do
         call WDPutTextviewString('textview_InfoFX', textcode)
 
-
     end subroutine on_change_infofx_topic
 
     !---------------------------------------------------------------------------------------------!
     subroutine on_show_dialog(widget, data0) bind(c)
 
-        use gtk, only: gtk_widget_show_all
+        use gtk,            only: gtk_widget_show_all
+        use rout,           only: get_gladeid_name
         use UR_gtk_globals, only: UR_widgets
-        use file_io, only: logger
-
+        use file_io,        only: logger
+        !-----------------------------------------------------------------------------------------!
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
+        character(:), allocatable      :: gladeid
+        type(c_ptr)                    :: dialog_ptr
         !-----------------------------------------------------------------------------------------!
+        gladeid = get_gladeid_name(widget)
 
-        call gtk_widget_show_all(UR_widgets%dialog_infofx)
+        select case(gladeid)
+        case ('URfunctions')
+            dialog_ptr = UR_widgets%dialog_infofx
+
+        case('BatestUser')
+            dialog_ptr = UR_widgets%dialog_batest
+        case default
+            dialog_ptr = c_null_ptr
+            call logger(65, "could not show dialog: " // gladeid, stdout=.true.)
+        end select
+
+        call gtk_widget_show_all(dialog_ptr)
 
 
     end subroutine on_show_dialog
 
     !---------------------------------------------------------------------------------------------!
-    subroutine on_close_dialog(widget, data0) bind(c)
+    function on_close_dialog(widget, data0) result(ret) bind(c) !
 
-        use gtk, only: gtk_widget_hide
+        use gtk,            only: gtk_widget_hide
         use UR_gtk_globals, only: UR_widgets
-        use file_io, only: logger
-
+        use rout,           only: get_gladeid_name
+        use file_io,        only: logger
+        !-----------------------------------------------------------------------------------------!
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
+        character(:), allocatable      :: gladeid
+        type(c_ptr)                    :: dialog_ptr
+        integer(c_int)                 :: ret
         !-----------------------------------------------------------------------------------------!
+        gladeid = get_gladeid_name(widget)
 
-        call gtk_widget_hide(UR_widgets%dialog_infofx)
+        select case(gladeid)
+        case ('InfoFXOK', "dialog_infoFX")
+            dialog_ptr = UR_widgets%dialog_infofx
+        case('BTCancel', 'dialog_Batest')
+            dialog_ptr = UR_widgets%dialog_batest
+        case default
+            dialog_ptr = c_null_ptr
+            call logger(65, "could not hide dialog: " // gladeid, stdout=.true.)
+        end select
+        call gtk_widget_hide(dialog_ptr)
 
+        ret = TRUE ! to prevent default behavior like destroying the widget
 
-    end subroutine on_close_dialog
+    end function on_close_dialog
 
     !---------------------------------------------------------------------------------------------!
 
     subroutine on_show_about_windows(widget, data0) bind(c)
-        use gtk, only: TRUE, GTK_LICENSE_GPL_3_0, GTK_LICENSE_GPL_2_0_ONLY, &
-                       GTK_LICENSE_LGPL_2_1, GTK_LICENSE_BSD_3, &
-                       gtk_get_major_version, gtk_get_minor_version, gtk_get_micro_version
-        use gtk_hl, only: hl_gtk_about_dialog_show, hl_gtk_about_dialog_gtk_fortran
-        use gdk_pixbuf,     only: gdk_pixbuf_new_from_resource_at_scale
+        use gtk,                only: GTK_LICENSE_GPL_3_0, GTK_LICENSE_GPL_2_0_ONLY, &
+                                      GTK_LICENSE_LGPL_2_1, GTK_LICENSE_BSD_3, &
+                                      gtk_get_major_version, &
+                                      gtk_get_minor_version, &
+                                      gtk_get_micro_version
+        use gtk_hl,             only: hl_gtk_about_dialog_show, hl_gtk_about_dialog_gtk_fortran
+        use gdk_pixbuf,         only: gdk_pixbuf_new_from_resource_at_scale
         use ur_general_globals, only: UR_version_tag, UR_git_hash
-        use UR_gtk_globals, only: UR_widgets
-        use UR_params, only: CR
-        use rout, only: get_gladeid_name
-        use file_io, only: logger
+        use UR_gtk_globals,     only: UR_widgets
+        use UR_params,          only: CR
+        use rout,               only: get_gladeid_name
+        use file_io,            only: logger
         use translation_module, only: get_language
-
+        !-----------------------------------------------------------------------------------------!
 
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
@@ -932,7 +964,7 @@ contains
                 parent=UR_widgets%window1)
 
         case ('About_GTK_Fortran')
-            call hl_gtk_about_dialog_gtk_fortran()
+            call hl_gtk_about_dialog_gtk_fortran(UR_widgets%window1)
 
         case ('About_GTK')
 
