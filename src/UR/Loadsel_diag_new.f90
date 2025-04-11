@@ -213,7 +213,7 @@ contains
         use plplot_code_sub1,   only: scalable
 
         use file_io,            only: logger, read_config
-        use gui_functions,      only: SetColors
+        use gtk_handler,      only: SetColors
         use UR_params,          only: BATEST_OUT, BATEST_REF_FILE, UR2_CFG_FILE
         use color_theme
         use translation_module, only: T => get_translation, set_language, get_language

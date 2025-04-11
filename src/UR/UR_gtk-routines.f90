@@ -106,30 +106,24 @@ contains
         character(len=*), intent(in)        :: string             ! Ausgabetext
 
         type(c_ptr)                         :: widget, name_ptr
-        integer                             :: ncitem
         character(len=len_trim(string)+20)  :: str
-        character(32)                       :: tmp_name_widget
+        character(:), allocatable           :: tmp_classname
         !------------------------------------------------------------
 
         widget = idpt(wstr)
         str = string
-        name_ptr = gtk_widget_get_name(widget)
-        if ( c_associated(name_ptr) ) then
-            call c_f_string(name_ptr, tmp_name_widget)
-        else
-            print *, 'Error finding the widget_class'
-        end if
+        tmp_classname = get_widget_class(widget)
 
-        if(trim(tmp_name_widget) == 'GtkButton' .or.   &
-            trim(tmp_name_widget) == 'GtkCheckButton'  .or.  &
-            trim(tmp_name_widget) == 'GtkRadioButton'   ) then
+        if(trim(tmp_classname) == 'GtkButton' .or.   &
+            trim(tmp_classname) == 'GtkCheckButton'  .or.  &
+            trim(tmp_classname) == 'GtkRadioButton'   ) then
 
             call gtk_button_set_label(widget, trim(str) // c_null_char)
-            if(trim(tmp_name_widget) == 'GtkCheckButton') &
+            if(trim(tmp_classname) == 'GtkCheckButton') &
             call WDPutLabelColorF(wstr, GTK_STATE_FLAG_NORMAL, get_color_string('label_fg'))
 
-        elseif(trim(tmp_name_widget) == 'GtkRadioMenuItem' .or. trim(tmp_name_widget) == 'GtkMenuItem' .or. &
-            trim(tmp_name_widget) == 'GtkCheckMenuItem' .or. trim(tmp_name_widget) == 'GtkImageMenuItem'  ) then
+        elseif(trim(tmp_classname) == 'GtkRadioMenuItem' .or. trim(tmp_classname) == 'GtkMenuItem' .or. &
+            trim(tmp_classname) == 'GtkCheckMenuItem' .or. trim(tmp_classname) == 'GtkImageMenuItem'  ) then
             call gtk_menu_item_set_label(widget, trim(str) // c_null_char)
         else
             call gtk_label_set_text(widget, trim(str) // c_null_char)
@@ -142,38 +136,38 @@ contains
 
     subroutine WDGetLabelString(wstr, string)
 
-        use gtk,                only: gtk_label_get_text,gtk_menu_item_get_label,gtk_button_get_label
+        use gtk, only: gtk_label_get_text, gtk_menu_item_get_label, gtk_button_get_label
 
         implicit none
 
         character(len=*),intent(in)     :: wstr               ! widget-string
         character(len=*),intent(out)    :: string             ! Ausgabetext
 
-        integer             :: ncitem
-        type(c_ptr)         :: cptxt
-        type(c_ptr)         :: widget
+        type(c_ptr)                     :: cptxt
+        type(c_ptr)                     :: widget
+        character(:), allocatable       :: tmp_classname
 
         !------------------------------------------------------------
 
-        !call FindItemS(wstr, ncitem)
 
         widget = idpt(wstr)
-        ! if(trim(tmp_name_widget) == 'GtkButton' .or.   &
-        !     trim(tmp_name_widget) == 'GtkCheckButton'  .or.  &
-        !     trim(tmp_name_widget) == 'GtkRadioButton'   ) then
+        tmp_classname = get_widget_class(widget)
+        if(trim(tmp_classname) == 'GtkButton' .or.   &
+            trim(tmp_classname) == 'GtkCheckButton'  .or.  &
+            trim(tmp_classname) == 'GtkRadioButton'   ) then
 
-        !     cptxt = gtk_button_get_label(widget)
+            cptxt = gtk_button_get_label(widget)
 
-        ! elseif(trim(tmp_name_widget) == 'GtkRadioMenuItem' .or. trim(tmp_name_widget) == 'GtkMenuItem' .or. &
-        !     trim(tmp_name_widget) == 'GtkCheckMenuItem'  ) then
-        !     cptxt = gtk_menu_item_get_label(widget)
-        ! else
-        cptxt = gtk_label_get_text(widget)
-        ! end if
+        elseif(trim(tmp_classname) == 'GtkRadioMenuItem' .or. trim(tmp_classname) == 'GtkMenuItem' .or. &
+            trim(tmp_classname) == 'GtkCheckMenuItem'  ) then
+            cptxt = gtk_menu_item_get_label(widget)
+        else
+            cptxt = gtk_label_get_text(widget)
+        end if
 
         string = ' '
         if(c_associated(cptxt)) then
-            call c_f_string(cptxt,string)
+            call c_f_string(cptxt, string)
         end if
 
     end subroutine WDGetLabelString
@@ -1826,12 +1820,12 @@ contains
                                 gtk_RESPONSE_CANCEL, &
                                 GTK_RESPONSE_APPLY, &
                                 GTK_MESSAGE_WARNING
-        USE ur_general_globals
-        use UR_MCC,       only: iopt_copygr
+        USE ur_general_globals,   only: FileTyp, fname, Savep, saveas, EditorFileName
+        use UR_MCC,               only: iopt_copygr
         use UR_Gleich_globals,    only: GrFormat
-        use Top,          only: FieldUpdate
-        use CHF,          only: ucase
-        use translation_module, only: T => get_translation
+        use Top,                  only: FieldUpdate
+        use CHF,                  only: ucase
+        use translation_module,   only: T => get_translation
 
         implicit none
 
@@ -1852,7 +1846,7 @@ contains
         ifehl = 0
 
         !// IF (Filetyp == 'P' .AND. SAVEP .and. .not.saveas) THEN
-        IF (Filetyp == 'P' .AND. SAVEP .and. .not.saveas .and. len_trim(fname) > 0) THEN
+        IF (Filetyp == 'P' .AND. SAVEP .and. .not. saveas .and. len_trim(fname) > 0) THEN
             fstr1 = T("The present file is yet unsaved!") // CHAR(13) // &
                     T("Do you wish to continue anyhow?")
             call MessageShow(trim(fstr1), GTK_BUTTONS_Yes_NO, T("Open file:"), &
@@ -1866,7 +1860,7 @@ contains
                 call MessageShow(trim(fstr1), GTK_BUTTONS_OK, T("Open file:"), resp, &
                                  mtype=GTK_MESSAGE_WARNING)
                 ifehl = 1
-                goto 9000
+                return
             end select
 
         end if
@@ -1926,7 +1920,7 @@ contains
         CALL WSelectFile(Hinweis, create, nfilt, filtergtk, filternames, okay)
         if ( .not. okay) then
             ifehl = 1
-            goto 9000
+            return
         end if
 
         CALL FieldUpdate()
@@ -1969,8 +1963,6 @@ contains
         end if
 
         ifehl = 0
-
-9000    continue
 
     END SUBROUTINE FOpen
 

@@ -16,9 +16,15 @@
 !
 !-------------------------------------------------------------------------------------------------!
 
-module gui_functions
+module gtk_handler
 
-    !   Copyright (C) 2014-2025  Günter Kanisch
+    ! This module is responsible for creating the GTK window and connecting signals to handler routines.
+    ! Given the complexities of using GTK3 with Fortran, it is acceptable to use global module variables
+    ! within the callback functions/subroutines. These routines can be identified by the "on_"
+    ! prefix in their names.
+    !
+    !   Copyright (C) 2014-2025  Günter Kanisch, Florian Ober
+    !
 
     use, intrinsic :: iso_c_binding
     use UR_types, only: rn
@@ -653,31 +659,39 @@ contains
         character(len=100)         :: iomessg
         character(len=400)         :: text, textfile
         character(len=15)          :: code
+        type(c_ptr), SAVE          :: image1 = c_null_ptr , &
+                                      image2 = c_null_ptr , &
+                                      image3 = c_null_ptr
         !-----------------------------------------------------------------------------------------!
         i_fx = hl_gtk_combo_box_get_active(UR_widgets%comboboxtextinfofx)
+
+        ! if "select" is selected then return
         if ( i_fx == 0 ) return
 
-        call gtk_image_clear(idpt('InfoFX_image1'))
-        call gtk_image_clear(idpt('InfoFX_image2'))
-        call gtk_image_clear(idpt('InfoFX_image3'))
+        if (.not. c_associated(image1)) image1 = idpt('InfoFX_image1')
+        if (.not. c_associated(image2)) image2 = idpt('InfoFX_image2')
+        if (.not. c_associated(image3)) image3 = idpt('InfoFX_image3')
+
+        call gtk_image_clear(image1)
+        call gtk_image_clear(image2)
+        call gtk_image_clear(image3)
 
         select case (i_fx)
             case (1)
             code = 'LINFIT'
-            call gtk_image_set_from_resource(idpt('InfoFX_image1'), &
-                                                '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
-                                                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
-                                                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
-
+            call gtk_image_set_from_resource(image1, &
+                                             '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
+            call gtk_image_set_from_resource(image2, &
+                                             '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+            call gtk_image_set_from_resource(image3, &
+                                             '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
             case (2)
             code = 'GAMSPK1'
-            call gtk_image_set_from_resource (idpt('InfoFX_image2'), &
-                                                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
-            call gtk_image_set_from_resource (idpt('InfoFX_image3'), &
-                                                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
+            call gtk_image_set_from_resource (image2, &
+                                              '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+            call gtk_image_set_from_resource (image3, &
+                                              '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
             case (3)
             code = 'KALFIT'
@@ -748,11 +762,19 @@ contains
 
     !---------------------------------------------------------------------------------------------!
     subroutine on_show_dialog(widget, data0) bind(c)
+        ! This handler provides a general mechanism to open the desired dialog.
+        ! The dialog is identified using the gladeid of the widget that emits the signal
+        ! connected to this handler. If the dialog requires more than simple preparation,
+        ! the corresponding subroutine is called.
+        !
+        ! @param widget The widget that emitted the signal.
+        ! @param data0 Additional data passed to the handler (not used in this context).
+        !
 
-        use gtk,            only: gtk_widget_show_all
-        use rout,           only: get_gladeid_name
-        use UR_gtk_globals, only: UR_widgets
-        use file_io,        only: logger
+        use gtk,                       only: gtk_widget_show_all
+        use rout,                      only: get_gladeid_name
+        use UR_gtk_globals,            only: UR_widgets
+        use file_io,                   only: logger
         !-----------------------------------------------------------------------------------------!
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
@@ -760,15 +782,21 @@ contains
         type(c_ptr)                    :: dialog_ptr
         !-----------------------------------------------------------------------------------------!
         gladeid = get_gladeid_name(widget)
+        dialog_ptr = c_null_ptr
 
         select case(gladeid)
         case ('URfunctions')
             dialog_ptr = UR_widgets%dialog_infofx
 
         case('BatestUser')
+
+            resp = gtk_file_chooser_set_filename(idpt('BTchooserButton_1'), &
+                trim(work_path) // trim(Batest_ref_file)//c_null_char)
+            resp = gtk_file_chooser_set_filename(idpt('BTchooserButton_2'), &
+                trim(results_path) // trim(Batest_out)//c_null_char)
             dialog_ptr = UR_widgets%dialog_batest
+
         case default
-            dialog_ptr = c_null_ptr
             call logger(65, "could not show dialog: " // gladeid, stdout=.true.)
         end select
 
@@ -792,14 +820,16 @@ contains
         integer(c_int)                 :: ret
         !-----------------------------------------------------------------------------------------!
         gladeid = get_gladeid_name(widget)
+        dialog_ptr = c_null_ptr
 
         select case(gladeid)
         case ('InfoFXOK', "dialog_infoFX")
             dialog_ptr = UR_widgets%dialog_infofx
         case('BTCancel', 'dialog_Batest')
+
             dialog_ptr = UR_widgets%dialog_batest
         case default
-            dialog_ptr = c_null_ptr
+
             call logger(65, "could not hide dialog: " // gladeid, stdout=.true.)
         end select
         call gtk_widget_hide(dialog_ptr)
@@ -1007,11 +1037,11 @@ contains
                 parent=UR_widgets%window1)
         end select
     end subroutine on_show_about_windows
-     !---------------------------------------------------------------------------------------------!
+    !---------------------------------------------------------------------------------------------!
 
     subroutine on_show_monitor_info(widget, data0) bind(c)
 
-        use Rout, only: get_gladeid_name, MessageShow
+
         use gtk, only: gtk_widget_destroy, gtk_main_quit, &
                        gtk_window_get_position, &
                        GTK_BUTTONS_OK, GTK_MESSAGE_INFO
@@ -1020,8 +1050,9 @@ contains
         use UR_gtk_globals, only: UR_widgets, gscreen, &
                                   scrwidth_min, scrwidth_max, &
                                   scrheight_min, scrheight_max
+        use Rout, only: get_gladeid_name, MessageShow
         use file_io, only: logger
-
+        !-----------------------------------------------------------------------------------------!
         implicit none
         type(c_ptr), value, intent(in) :: widget, data0
 
@@ -1181,7 +1212,7 @@ contains
 
         FileTyp = 'P'
 
-        IF (Filetyp == 'P' .AND. SAVEP) then
+        IF (Filetyp == 'P' .AND. SaveP) then
             write(str1,*) T("Shall the open project be saved before closing it?")
             call MessageShow(str1, &
                              GTK_BUTTONS_YES_NO, &
@@ -2088,7 +2119,7 @@ contains
 
         implicit none
 
-        type(c_ptr), value :: renderer, path, gdata
+        type(c_ptr), value, intent(in) :: renderer, path, gdata
 
         ! Default call back for a toggle button in a list
         !
@@ -2586,7 +2617,7 @@ contains
 
 !#############################################################################################
 
-end module gui_functions
+end module gtk_handler
 
 !#############################################################################################
 
