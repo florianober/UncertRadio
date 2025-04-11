@@ -7929,7 +7929,7 @@
     <property name="destroy-with-parent">True</property>
     <property name="type-hint">dialog</property>
     <property name="deletable">False</property>
-    <signal name="key-press-event" handler="keyPress" swapped="no"/>
+    <signal name="delete-event" handler="on_close_dialog" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog_vbox1">
         <property name="can-focus">False</property>
@@ -7948,7 +7948,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_apply7</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_close_dialog" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -7964,7 +7964,7 @@
                 <property name="receives-default">True</property>
                 <property name="image">image_cancel11</property>
                 <property name="always-show-image">True</property>
-                <signal name="clicked" handler="clickbut" swapped="no"/>
+                <signal name="clicked" handler="on_close_dialog" swapped="no"/>
                 <style>
                   <class name="button"/>
                 </style>
@@ -8063,7 +8063,7 @@
                                 <property name="valign">start</property>
                                 <property name="invisible-char">●</property>
                                 <property name="width-chars">15</property>
-                                <signal name="changed" handler="edit_field" swapped="no"/>
+                                <signal name="changed" handler="on_change_quantiles" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left-attach">1</property>
@@ -8076,7 +8076,7 @@
                                 <property name="can-focus">True</property>
                                 <property name="invisible-char">●</property>
                                 <property name="width-chars">15</property>
-                                <signal name="changed" handler="edit_field" swapped="no"/>
+                                <signal name="changed" handler="on_change_quantiles" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left-attach">1</property>
@@ -8115,7 +8115,7 @@
                                 <property name="can-focus">True</property>
                                 <property name="invisible-char">●</property>
                                 <property name="width-chars">15</property>
-                                <signal name="changed" handler="edit_field" swapped="no"/>
+                                <signal name="changed" handler="on_change_quantiles" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left-attach">3</property>
@@ -8128,7 +8128,7 @@
                                 <property name="can-focus">True</property>
                                 <property name="invisible-char">●</property>
                                 <property name="width-chars">15</property>
-                                <signal name="changed" handler="edit_field" swapped="no"/>
+                                <signal name="changed" handler="on_change_quantiles" swapped="no"/>
                               </object>
                               <packing>
                                 <property name="left-attach">3</property>
@@ -10166,7 +10166,7 @@
                         <property name="can-focus">False</property>
                         <property name="label" translatable="yes">Pre-settings</property>
                         <property name="use-underline">True</property>
-                        <signal name="activate" handler="SelOpt" swapped="no"/>
+                        <signal name="activate" handler="on_show_dialog" swapped="no"/>
                       </object>
                     </child>
                     <child>

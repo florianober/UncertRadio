@@ -158,7 +158,8 @@ target_sources(UncertRadio PRIVATE
     src/UR/auxdrg.f90
     src/UR/brentX.f90
     src/UR/fparserW.f90
-    src/UR/gui_UR_functions.f90
+    src/UR/gtk_handler.f90
+    src/UR/gtk_prepare_dialog.f90
     src/UR/mtx_rout.f90
     src/UR/mtx_rout_submod.f90
     src/UR/plot3fig.f90

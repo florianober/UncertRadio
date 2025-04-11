@@ -410,10 +410,6 @@ contains
         end if
 
         W1minusG = 0.95_rn
-        call WDPutEntryDouble('entryOptKalpha', kalpha, '(f8.6)')
-        call WDPutEntryDouble('entryOptKbeta', kbeta, '(f8.6)')
-        call WDPutEntryDouble('entryOptAlpha', alpha, '(f8.6)')
-        call WDPutEntryDouble('entryOptBeta', beta, '(f8.6)')
 
         ifit = 1
         nit_detl_max = 120

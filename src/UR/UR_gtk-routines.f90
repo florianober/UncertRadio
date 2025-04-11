@@ -39,6 +39,7 @@ module Rout
     use gtk_sup,            only: convert_c_string, c_f_string, clear_gtktreeiter
     use top,                only: idpt!, FindItemP, FindItemS
 
+
     ! logical item_setintern: if set .true. in a routine xxx:
     ! helps to prevent from reacting to the signal just emitted by xxx
 
@@ -212,7 +213,7 @@ contains
 
     !-----------------------------------------------------------------------------------------
 
-    subroutine WDPutEntryDouble(wstr, value, dform)
+    recursive subroutine WDPutEntryDouble(wstr, value, dform)
 
         use gtk,                  only: gtk_entry_set_text
         use CHF,                  only: FormatNumStr

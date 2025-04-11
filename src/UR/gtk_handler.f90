@@ -173,10 +173,11 @@ contains
         UR_widgets%dialog_infofx = gtk_builder_get_object(builder, "dialog_infoFX"//c_null_char)
         UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
         UR_widgets%dialog_batest = gtk_builder_get_object(builder, "dialog_Batest"//c_null_char)
+        UR_widgets%dialog_options = gtk_builder_get_object(builder, "dialog_options"//c_null_char)
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
-
+        print *, 'GOOO'
         call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('KalFit'), 0_c_int)
@@ -204,6 +205,7 @@ contains
         call cpu_time(start)
         call TranslateUR()
         call cpu_time(finish)
+
 
         write(log_str, '(*(g0))') 'TranslateUR: cpu-time= ', sngl(finish-start)
         call logger(66, log_str)
@@ -246,7 +248,7 @@ contains
         call gtk_window_set_transient_for(idpt('dialog_gspk1'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_kalfit'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_numegr'), UR_widgets%window1)
-        call gtk_window_set_transient_for(idpt('dialog_options'), UR_widgets%window1)
+        call gtk_window_set_transient_for(UR_widgets%dialog_options, UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_symbExchg'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_symbchg'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialog_symbchg'), UR_widgets%window1)
@@ -258,7 +260,6 @@ contains
         call gtk_window_set_transient_for(idpt('dialogBatEval'), UR_widgets%window1)
 
         call gtk_widget_grab_focus(idpt('textview1'))
-
 
         call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
 
@@ -426,6 +427,9 @@ contains
 
         case("on_destroy_UR")
             call g_signal_connect (object, signal_name, c_funloc(on_destroy_UR), c_Win)
+
+        case("on_change_quantiles")
+            call g_signal_connect (object, signal_name, c_funloc(on_change_options_quantiles), c_Win)
 
         case("on_show_monitor_info")
             call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), c_Win)
@@ -635,6 +639,66 @@ contains
     end subroutine on_destroy_UR
 
     !---------------------------------------------------------------------------------------------!
+    recursive function on_change_options_quantiles(widget, data0) result(ret) bind(c)
+
+        use gtk,                       only:
+
+        use UR_params,                 only: rn
+
+        use brandt,                    only: pnorm
+        use rout,                      only: get_gladeid_name, wdgetentrydouble, wdputentrydouble
+        use file_io,                   only: logger
+
+        implicit none
+        type(c_ptr), value, intent(in) :: widget, data0
+        integer(c_int)                 :: ret
+
+        real(rn)                 :: changed_val
+        real(rn)                 :: calc_value
+
+        character(:), allocatable :: gladeid
+        !-----------------------------------------------------------------------------------------!
+        calc_value = 0.0_rn
+        changed_val = 0.0_rn
+
+
+        gladeid = get_gladeid_name(widget)
+        select case (gladeid)
+            case('entryOptKalpha')
+                ! update entryOptAlpha
+                call wdgetentrydouble(gladeid, changed_val)
+                calc_value =  1.0_rn - pnorm(changed_val)
+                print *, 'kalpha'
+                call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
+            case('entryOptAlpha')
+                call wdgetentrydouble(gladeid, changed_val)
+                calc_value =  1.64_rn
+                print *, 'alpha'
+                call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
+
+            case('entryOptKbeta')
+                ! update entryOptBeta
+
+            case ('entryOptBeta')
+                ! entryOptKbeta
+
+        end select
+
+        ! call WDPutEntryDouble('entryOptKalpha', kalpha,'(f10.8)')
+        ! call WDPutEntryDouble('entryOptKbeta', kbeta,'(f10.8)')
+        ! if (kalpha > ZERO) then
+        !     alpha =  ONE - pnorm(kalpha)
+        !     call WDPutEntryDouble('entryOptAlpha', alpha,'(f10.8)')
+        ! end if
+        ! if (kbeta > ZERO) then
+        !     beta =  ONE - pnorm(kbeta)
+        !     call WDPutEntryDouble('entryOptBeta', beta,'(f10.8)')
+        ! end if
+        ret = TRUE
+
+    end function on_change_options_quantiles
+
+    !---------------------------------------------------------------------------------------------!
     subroutine on_change_infofx_topic(widget, data0) bind(c)
         ! subroutine to update the infofx dialog when the combobox changes"
         !
@@ -664,7 +728,6 @@ contains
                                       image3 = c_null_ptr
         !-----------------------------------------------------------------------------------------!
         i_fx = hl_gtk_combo_box_get_active(UR_widgets%comboboxtextinfofx)
-
         ! if "select" is selected then return
         if ( i_fx == 0 ) return
 
@@ -760,6 +823,8 @@ contains
 
     end subroutine on_change_infofx_topic
 
+
+
     !---------------------------------------------------------------------------------------------!
     subroutine on_show_dialog(widget, data0) bind(c)
         ! This handler provides a general mechanism to open the desired dialog.
@@ -773,6 +838,7 @@ contains
 
         use gtk,                       only: gtk_widget_show_all
         use rout,                      only: get_gladeid_name
+        use gtk_prepare_dialog,        only: prepare_batest_dialog, prepare_options_dialog
         use UR_gtk_globals,            only: UR_widgets
         use file_io,                   only: logger
         !-----------------------------------------------------------------------------------------!
@@ -785,15 +851,16 @@ contains
         dialog_ptr = c_null_ptr
 
         select case(gladeid)
+
+        case('PreSettings')
+            call prepare_options_dialog()
+            dialog_ptr = UR_widgets%dialog_options
         case ('URfunctions')
             dialog_ptr = UR_widgets%dialog_infofx
 
         case('BatestUser')
 
-            resp = gtk_file_chooser_set_filename(idpt('BTchooserButton_1'), &
-                trim(work_path) // trim(Batest_ref_file)//c_null_char)
-            resp = gtk_file_chooser_set_filename(idpt('BTchooserButton_2'), &
-                trim(results_path) // trim(Batest_out)//c_null_char)
+            call prepare_batest_dialog()
             dialog_ptr = UR_widgets%dialog_batest
 
         case default
@@ -823,10 +890,16 @@ contains
         dialog_ptr = c_null_ptr
 
         select case(gladeid)
+
+        case('dialog_options', 'DOptionsCancel', 'DOptionsOK')
+            dialog_ptr = UR_widgets%dialog_options
+            if (gladeid == 'DOptionsOK') then
+                print *, 'call do action'
+            end if
+
         case ('InfoFXOK', "dialog_infoFX")
             dialog_ptr = UR_widgets%dialog_infofx
         case('BTCancel', 'dialog_Batest')
-
             dialog_ptr = UR_widgets%dialog_batest
         case default
 
