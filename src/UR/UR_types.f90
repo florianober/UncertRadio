@@ -58,6 +58,7 @@ module UR_gtk_window_types
         type(c_ptr) :: dialog_infofx
         type(c_ptr) :: dialog_batest
         type(c_ptr) :: dialog_options
+        type(c_ptr) :: box_wgraphs
         type(c_ptr) :: comboboxtextinfofx
     end type
 

@@ -219,26 +219,6 @@ contains
 
         call WrStatusbar(3,' ')
 
-        if(.false.) then
-
-            write(log_str, '(*(g0))') 'Page 1: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('box2'))+1
-            call logger(66, log_str)
-
-            write(log_str, '(*(g0))') 'Page 2: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('box3'))+1
-            call logger(66, log_str)
-
-            write(log_str, '(*(g0))') 'Page 3: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('box4'))+1
-            call logger(66, log_str)
-
-            write(log_str, '(*(g0))') 'Page 4: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('box5'))+1
-            call logger(66, log_str)
-
-            write(log_str, '(*(g0))') 'Page 5: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('grid5'))+1
-            call logger(66, log_str)
-
-            write(log_str, '(*(g0))') 'Page 6: has number=',gtk_notebook_page_num(idpt('notebook1'),idpt('box7'))+1
-            call logger(66, log_str)
-        end if
         call gtk_window_set_transient_for(idpt('dialogDecayModel'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialogColB'), UR_widgets%window1)
         call gtk_window_set_transient_for(idpt('dialogELI'), UR_widgets%window1)
@@ -266,7 +246,7 @@ contains
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         nbook2 = c_null_ptr
         nbook2 = hl_gtk_notebook_new()
-        call hl_gtk_box_pack(idpt('box_wgraphs'), nbook2,expand=TRUE)
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, nbook2, expand=TRUE)
 
         ! Re-scaling with the ratios between stadndard size and another monitor size
 
@@ -293,9 +273,9 @@ contains
         pno = hl_gtk_notebook_add_page(nbook2, drawing(3),label="LinF"//c_null_char)
 
         qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(quit_cb))
-        call hl_gtk_box_pack(idpt('box_wgraphs'), qbut, expand=FALSE)
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, expand=FALSE)
 
-        call gtk_notebook_set_current_page(nbook2,0_c_int)
+        call gtk_notebook_set_current_page(nbook2, 0_c_int)
 
         height_da(4) = int(438._rn*0.938_rn)
         width_da(4) = 458
@@ -380,7 +360,7 @@ contains
         ur_widget%handler(1:size(tmp_str)) = tmp_str
 
         ! don't get the glade id and class, if the objects are no buildable
-        ! flo: better
+        ! flo: better and not sure if needed anyhow
         ur_widget%gladeid(:) = ''
         if (h_name /= 'edit_table' .and. h_name /= 'edit_t_toggle') then
             call f_c_string(get_gladeid_name(object), tmp_str)
@@ -516,6 +496,7 @@ contains
         if(item_setintern) return
 
         idstring = get_gladeid_name(widget, error)
+        print *, 'SELOPT'
 
         if(len(error) == 0) then
             ioption = 1000
@@ -639,14 +620,16 @@ contains
     end subroutine on_destroy_UR
 
     !---------------------------------------------------------------------------------------------!
-    recursive function on_change_options_quantiles(widget, data0) result(ret) bind(c)
+    function on_change_options_quantiles(widget, data0) result(ret) bind(c)
 
         use gtk,                       only:
+        use g,                         only: g_signal_stop_emission_by_name
 
         use UR_params,                 only: rn
 
         use brandt,                    only: pnorm
         use rout,                      only: get_gladeid_name, wdgetentrydouble, wdputentrydouble
+        use top,                       only: idpt
         use file_io,                   only: logger
 
         implicit none
@@ -668,6 +651,8 @@ contains
                 ! update entryOptAlpha
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  1.0_rn - pnorm(changed_val)
+                !call g_signal_stop_emission_by_name(idpt('entryOptAlpha'), 'changed' // c_null_char )
+                call g_signal_stop_emission_by_name(widget, 'changed' // c_null_char )
                 print *, 'kalpha'
                 call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
             case('entryOptAlpha')
