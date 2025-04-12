@@ -92,14 +92,15 @@ contains
 
         call WDPutEntryDouble('entryOptKalpha', kalpha,'(f10.8)')
         call WDPutEntryDouble('entryOptKbeta', kbeta,'(f10.8)')
-        if (kalpha > ZERO) then
-            alpha =  ONE - pnorm(kalpha)
-            call WDPutEntryDouble('entryOptAlpha', alpha,'(f10.8)')
-        end if
-        if (kbeta > ZERO) then
-            beta =  ONE - pnorm(kbeta)
-            call WDPutEntryDouble('entryOptBeta', beta,'(f10.8)')
-        end if
+        ! if (kalpha > ZERO) then
+        !     alpha =  ONE - pnorm(kalpha)
+        !     call WDPutEntryDouble('entryOptAlpha', alpha,'(f10.8)')
+        ! end if
+        ! if (kbeta > ZERO) then
+        !     beta =  ONE - pnorm(kbeta)
+        !     call WDPutEntryDouble('entryOptBeta', beta,'(f10.8)')
+        ! end if
+
         call WDPutEntryDouble('entryOptCoverf', coverf,'(f5.2)')
         call WDPutEntryDouble('entryOptCoverIn', coverin,'(f5.2)')
         call WDPutEntryDouble('entryOpt1minusG', W1minusG,'(f5.3)')

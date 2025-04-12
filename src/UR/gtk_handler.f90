@@ -620,14 +620,13 @@ contains
     end subroutine on_destroy_UR
 
     !---------------------------------------------------------------------------------------------!
-    function on_change_options_quantiles(widget, data0) result(ret) bind(c)
+    recursive function on_change_options_quantiles(widget, data0) result(ret) bind(c)
 
         use gtk,                       only:
-        use g,                         only: g_signal_stop_emission_by_name
 
         use UR_params,                 only: rn
 
-        use brandt,                    only: pnorm
+        use brandt,                    only: pnorm, qnorm
         use rout,                      only: get_gladeid_name, wdgetentrydouble, wdputentrydouble
         use top,                       only: idpt
         use file_io,                   only: logger
@@ -640,46 +639,55 @@ contains
         real(rn)                 :: calc_value
 
         character(:), allocatable :: gladeid
+        logical, SAVE             :: is_updating = .false.
         !-----------------------------------------------------------------------------------------!
         calc_value = 0.0_rn
         changed_val = 0.0_rn
-
-
+        ret = TRUE
         gladeid = get_gladeid_name(widget)
+
+        ! the variable "is_updating" is used to prevent endless resursive updates
+        ! -> maybe it's a better approach to add handlers for the
+        ! "insert-text" and "delete-text" signals and prevent the resursive calls there by preventing
+        ! to emmit the "changed" signal if the update comes from the calculation here
+        !
+        if (is_updating) then
+            return
+        end if
+
         select case (gladeid)
             case('entryOptKalpha')
                 ! update entryOptAlpha
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  1.0_rn - pnorm(changed_val)
-                !call g_signal_stop_emission_by_name(idpt('entryOptAlpha'), 'changed' // c_null_char )
-                call g_signal_stop_emission_by_name(widget, 'changed' // c_null_char )
-                print *, 'kalpha'
+                is_updating = .true.
                 call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
+                is_updating = .false.
+
             case('entryOptAlpha')
                 call wdgetentrydouble(gladeid, changed_val)
-                calc_value =  1.64_rn
-                print *, 'alpha'
-                call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
+                calc_value =  qnorm(1.0_rn - changed_val)
+                is_updating = .true.
+                call wdputentrydouble('entryOptKalpha', calc_value,'(f10.8)')
+                is_updating = .false.
 
             case('entryOptKbeta')
                 ! update entryOptBeta
+                call wdgetentrydouble(gladeid, changed_val)
+                calc_value =  1.0_rn - pnorm(changed_val)
+                is_updating = .true.
+                call wdputentrydouble('entryOptBeta', calc_value,'(f10.8)')
+                is_updating = .false.
 
             case ('entryOptBeta')
                 ! entryOptKbeta
+                call wdgetentrydouble(gladeid, changed_val)
+                calc_value =  qnorm(1.0_rn - changed_val)
+                is_updating = .true.
+                call wdputentrydouble('entryOptKbeta', calc_value,'(f10.8)')
+                is_updating = .false.
 
         end select
-
-        ! call WDPutEntryDouble('entryOptKalpha', kalpha,'(f10.8)')
-        ! call WDPutEntryDouble('entryOptKbeta', kbeta,'(f10.8)')
-        ! if (kalpha > ZERO) then
-        !     alpha =  ONE - pnorm(kalpha)
-        !     call WDPutEntryDouble('entryOptAlpha', alpha,'(f10.8)')
-        ! end if
-        ! if (kbeta > ZERO) then
-        !     beta =  ONE - pnorm(kbeta)
-        !     call WDPutEntryDouble('entryOptBeta', beta,'(f10.8)')
-        ! end if
-        ret = TRUE
 
     end function on_change_options_quantiles
 

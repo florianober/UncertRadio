@@ -213,7 +213,7 @@ contains
 
     !-----------------------------------------------------------------------------------------
 
-    subroutine WDPutEntryDouble(wstr, value, dform)
+    recursive subroutine WDPutEntryDouble(wstr, value, dform)
 
         use gtk,                  only: gtk_entry_set_text
         use CHF,                  only: FormatNumStr
