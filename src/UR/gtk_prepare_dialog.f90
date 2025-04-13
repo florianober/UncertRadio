@@ -64,16 +64,18 @@ contains
 
     end subroutine prepare_batest_dialog
 
+    !---------------------------------------------------------------------------------------------!
+
     subroutine prepare_options_dialog()
         !
         ! external
         use gtk,                    only: gtk_widget_set_sensitive
 
         ! UR parameters
-        use UR_params,              only: zero, one
+        ! use UR_params,              only: zero, one
 
         ! UR globals
-        use UR_DLIM,                only: kalpha, kbeta, alpha, beta, GamDistAdd, &
+        use UR_DLIM,                only: kalpha, kbeta, GamDistAdd, &
                                           W1minusG, NWGMethode
         use UR_Gleich_globals,      only: coverf, coverin
         use ur_general_globals,     only: sListSeparator
@@ -90,16 +92,10 @@ contains
 
         !-----------------------------------------------------------------------------------------!
 
+        ! when updateing these entryfields, the handler to calculate alpha and beta are called
         call WDPutEntryDouble('entryOptKalpha', kalpha,'(f10.8)')
         call WDPutEntryDouble('entryOptKbeta', kbeta,'(f10.8)')
-        ! if (kalpha > ZERO) then
-        !     alpha =  ONE - pnorm(kalpha)
-        !     call WDPutEntryDouble('entryOptAlpha', alpha,'(f10.8)')
-        ! end if
-        ! if (kbeta > ZERO) then
-        !     beta =  ONE - pnorm(kbeta)
-        !     call WDPutEntryDouble('entryOptBeta', beta,'(f10.8)')
-        ! end if
+
 
         call WDPutEntryDouble('entryOptCoverf', coverf,'(f5.2)')
         call WDPutEntryDouble('entryOptCoverIn', coverin,'(f5.2)')
@@ -124,8 +120,7 @@ contains
             call WDSetCheckButton('check_contrastmode', 0)
         end if
 
-        !call gtk_widget_set_sensitive(idpt('DOptionsLoadVals'), 0_c_int)   ! 13.4.2023
-        !call gtk_widget_set_sensitive(idpt('DOptionsOK'), 1_c_int)   ! 13.4.2023
+        call gtk_widget_set_sensitive(idpt('DOptionsOK'), FALSE)   ! 13.4.2023
 
 
     end subroutine prepare_options_dialog

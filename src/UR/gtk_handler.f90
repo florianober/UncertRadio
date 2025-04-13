@@ -490,19 +490,19 @@ contains
         type(c_ptr)           :: ctext
 
         character(len=64)     :: signal, parentstr, f_text
-        character(:), allocatable :: error, idstring
+        character(:), allocatable :: error, gladeid
         integer               :: ncitem, i
         !---------------------------------------------------------------------
         if(item_setintern) return
 
-        idstring = get_gladeid_name(widget, error)
-        print *, 'SELOPT'
+        gladeid = get_gladeid_name(widget, error)
+        print *, 'SELOPT, called by: ' // gladeid
 
         if(len(error) == 0) then
             ioption = 1000
             dialogstr = ''
 
-            if(trim(idstring) /= 'TBRemoveGridLine' .and. trim(idstring) /= 'TBRemoveGridLine') return
+            if(trim(gladeid) /= 'TBRemoveGridLine' .and. trim(gladeid) /= 'TBRemoveGridLine') return
 
 
             ! i = clobj%idparent(ncitem)
@@ -522,8 +522,8 @@ contains
             return
         end if
 
-        if(trim(parentstr) == 'GtkWindow' .or. trim(idstring) == 'window1'    &
-            .or. trim(idstring) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
+        if(trim(parentstr) == 'GtkWindow' .or. trim(gladeid) == 'window1'    &
+            .or. trim(gladeid) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
 
             call ProcMenu(widget)
             call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
@@ -649,53 +649,50 @@ contains
         ! the variable "is_updating" is used to prevent endless resursive updates
         ! -> maybe it's a better approach to add handlers for the
         ! "insert-text" and "delete-text" signals and prevent the resursive calls there by preventing
-        ! to emmit the "changed" signal if the update comes from the calculation here
+        ! to emmit the "changed" signal if the update comes from the calculation here, on the other
+        ! hand here we just have one local variable
         !
         if (is_updating) then
             return
         end if
 
+        is_updating = .true.
         select case (gladeid)
             case('entryOptKalpha')
                 ! update entryOptAlpha
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  1.0_rn - pnorm(changed_val)
-                is_updating = .true.
                 call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
-                is_updating = .false.
 
             case('entryOptAlpha')
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  qnorm(1.0_rn - changed_val)
-                is_updating = .true.
                 call wdputentrydouble('entryOptKalpha', calc_value,'(f10.8)')
-                is_updating = .false.
 
             case('entryOptKbeta')
                 ! update entryOptBeta
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  1.0_rn - pnorm(changed_val)
-                is_updating = .true.
                 call wdputentrydouble('entryOptBeta', calc_value,'(f10.8)')
-                is_updating = .false.
 
             case ('entryOptBeta')
                 ! entryOptKbeta
                 call wdgetentrydouble(gladeid, changed_val)
                 calc_value =  qnorm(1.0_rn - changed_val)
-                is_updating = .true.
                 call wdputentrydouble('entryOptKbeta', calc_value,'(f10.8)')
-                is_updating = .false.
 
         end select
+        is_updating = .false.
 
     end function on_change_options_quantiles
 
     !---------------------------------------------------------------------------------------------!
+
     subroutine on_change_infofx_topic(widget, data0) bind(c)
         ! subroutine to update the infofx dialog when the combobox changes"
         !
-        use gtk,                 only: gtk_widget_show_all, gtk_image_set_from_resource, gtk_image_clear
+        use gtk,                 only: gtk_widget_show_all, gtk_image_set_from_resource, &
+                                       gtk_image_clear
         use gtk_hl_combobox,     only: hl_gtk_combo_box_get_active
 
         use UR_gtk_globals,      only: UR_widgets
