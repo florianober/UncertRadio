@@ -52,7 +52,7 @@ contains
                                           sd0zrate,fixedrateMC,ykalib,ykalibSV,nkalpts,SumEval_fit
         USE UR_Gspk1Fit,            only: Gamspk1_Fit,GNetRate,GNetRateSV,SDGNetRate,SDGNetRateSV,RateCB, &
                                           RateBG,SDRateBG,Effi,pgamm,fatt,fcoinsu
-        USE UR_DLIM,                only: RblTot,alpha,beta,fconst,flinear,GamDist_Zr,kalpha,kbeta, &
+        USE UR_DLIM,                only: RblTot,fconst,flinear,GamDist_Zr,kalpha,kbeta, &
                                           iteration_on,W1minusG,GamDistAdd,uflinear, &
                                           var_brutto_auto
         USE UR_MCC
@@ -72,7 +72,7 @@ contains
                                           UR_random_seed,random_t
         use PLsubs
         use LF1,                    only: Linf,linfout
-        use Brandt,                 only: mean,sd
+        use Brandt,                 only: mean,sd, pnorm
 
         use RdSubs,                 only: rmcformF
         use UR_MCSR
@@ -665,7 +665,7 @@ contains
 
                     if(.not.Gum_restricted) call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,'red')
 
-                    UQprob = (ONE - alpha)
+                    UQprob = (pnorm(kalpha))
                     RDlast = ZERO
                     xmit1last = ZERO
                     DTbracketed = .false.
@@ -747,7 +747,7 @@ contains
                     !---
 
                     ! First value for the decision threshold:
-                    DT_anf = quantileM(ONE-alpha,arraymc(1:imctrue,kqtyp),imctrue)
+                    DT_anf = quantileM(pnorm(kalpha),arraymc(1:imctrue,kqtyp),imctrue)
 
                     write(63,*) 'xmit1 Anf=',sngl(xmit1),'  SD=',sngl(xsdv),'  DT_anf=',sngl(DT_anf)
 
@@ -787,7 +787,7 @@ contains
 
                     ! derive decision threshold value as (1-alpha) quantile:
                     call Quick_Sort_r(arraymc(1:imctrue,kqtyp),indx)
-                    xxDT(kr) = quantileM(ONE-alpha,arraymc(1:imctrue,kqtyp),imctrue)
+                    xxDT(kr) = quantileM(pnorm(kalpha), arraymc(1:imctrue,kqtyp), imctrue)
 
                     if(batf_mc) write(168,*) 'DT('//trim(itmeth)//'): ',sngl(xxDT(kr)),'  DTanf=',sngl(DT_anf), &
                         '  xmit1_final=',sngl(xmit1), &
@@ -817,7 +817,7 @@ contains
                         goto 9000
                     end if
 
-                    LQprob = beta
+                    LQprob = 1.0_rn - pnorm(kbeta)
                     IF(kbrutto(kEGr) > 0 .AND. kbrutto(kEGr) <= nab) iteration_on = .TRUE.
                     IF(kbrutto(kEGr) > 0 .AND. kbrutto(kEGr) > nab) iteration_on = .TRUE.
 
@@ -1120,7 +1120,7 @@ contains
                 call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
 
                 call Xfit (xzmit, sx, kcrun, 0, xxmit2, sigmam, rxmit2)
-                uqt = SDQt((ONE-alpha), imctrue, xxmit2, xDT/kalpha)
+                uqt = SDQt((pnorm(kalpha)), imctrue, xxmit2, xDT/kalpha)
                 uxxDT(1) = uqt
                 write(63,*) 'estimated SD of xDT: absolut: ',sngl(uqt),' ,  in %: ',sngl(uqt/xDT*100._rn)
                 if(kcrun == 1) rxDT = uqt/xDT*100._rn
@@ -1143,7 +1143,7 @@ contains
 
                 call Xfit (xzmit, sx, kcrun, 0, xxmit3, sigmam, rxmit3)
                 call Xfit (xzsdv, sx, kcrun, 0, xxsdv3, sigmam, dummy)
-                uqt = SDQt(beta, imctrue, xxmit3, xxsdv3)
+                uqt = SDQt(1.0_rn - pnorm(kbeta), imctrue, xxmit3, xxsdv3)
                 uxxDL(1) = sqrt( uxxDT(1)**TWO + uqt**TWO )
                 write(63,*) 'estimated SD of xDL:  absolut:',sngl(uxxDL(1)),' ,   in %: ',sngl(uxxDL(1)/xDL*100._rn), &
                     '  sigma=',sngl(xxsdv),'  xDL=',sngl(xDL)

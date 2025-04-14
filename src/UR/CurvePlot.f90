@@ -36,6 +36,7 @@ recursive subroutine CurvePlot()
     use Rout,                only: pending_events
     use UR_params,           only: ZERO
     use ur_general_globals,  only: actual_plot, results_path
+    use UR_gtk_globals,      only: UR_widgets
     use PLsubs,              only: CairoPlplotPrepare
     use gtk_draw_hl,         only: hl_gtk_drawing_area_get_gdk_pixbuf,hl_gtk_drawing_area_cairo_destroy
     use gdk_pixbuf_hl,       only: hl_gdk_pixbuf_save
@@ -61,7 +62,7 @@ recursive subroutine CurvePlot()
 
     yshift = 0.0
     allocate(character(len=10) :: plfile, str1, ylab)
-    call gtk_notebook_set_current_page(nbook2,2_c_int)
+    call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 2_c_int)
     nval = numd
 
 
@@ -173,7 +174,7 @@ recursive subroutine CurvePlot()
     endif
 
 
-    call gtk_notebook_set_current_page(nbook2,1_c_int)
+    call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 1_c_int)
 
     xfakt = 1._rn     !  Plplot can handle the xfakt issue completely internally
 

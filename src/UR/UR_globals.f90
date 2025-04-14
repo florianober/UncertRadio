@@ -625,7 +625,6 @@ module UR_gtk_globals
     integer                  :: scrwidth_min, scrwidth_max, scrheight_min, scrheight_max  ! screen parameter
     type(c_ptr), target      :: gscreen
 
-    type(c_ptr)             :: nbook2
     type(c_ptr)             :: provider
     type(c_ptr)             :: builder
 
@@ -646,7 +645,7 @@ MODULE UR_DLIM
     real(rn)                 :: decthresh             ! decision threshold value (DT)
     real(rn)                 :: detlim                ! detection limit value (DL)
     real(rn)                 :: kalpha,kbeta          ! Quantils of the normal distribution
-    real(rn)                 :: alpha,beta            ! related probabilities
+
     LOGICAL                  :: iteration_on          ! =T during DL iterations, otherwise =F
     integer                  :: limit_typ             ! 1: DT;   2: DL
     LOGICAL                  :: iterat_passed         ! for LsqLincov2

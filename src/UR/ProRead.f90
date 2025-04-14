@@ -52,7 +52,7 @@ contains
                                           xdataMD,MDpoint,MDpointrev,MDused,k_MDtyp,nvalsMD,CovarVal,CorrVal, &
                                           ncov,SymboleX,symtypX,knetto,kbrutto,kbrutto_name,knetto_name, &
                                           CVFormel,covarvalSV,fBayMD, umeanMD,nvMD,smeanMD,meanMD,MDtyp,nmodf
-        USE UR_DLIM,                only: kalpha,kbeta,alpha,beta,GamDistAdd,W1minusG
+        USE UR_DLIM,                only: kalpha, kbeta, GamDistAdd, W1minusG
         USE UR_Linft,               only: ifit,nwei,nkovzr,kfitmeth,ndefall,CCtitle,CFaelldatum,CStartzeit, &
                                           d0impulse,d0messzeit,dbimpulse,dbzrate,defineallxt,dmesszeit, &
                                           dnetrate,export_r,FitCalCurve,FitDecay,fitmeth,kal_Polgrad,kfitmeth, &
@@ -1093,11 +1093,6 @@ contains
         else
             READ(text,*) coverf
         END IF
-
-        alpha =  1.0_rn - pnorm(kalpha)
-        beta =  1.0_rn - pnorm(kbeta)
-        write(66,'(a,2f9.5,2f8.5)') 'ProRead:  kalpha,kbeta,alpha,beta=',  &
-            kalpha,kbeta,alpha,beta
 
         call DRead(25,text,ios)
 

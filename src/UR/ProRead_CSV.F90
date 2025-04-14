@@ -361,9 +361,6 @@ contains
         BACKSPACE 25
         BACKSPACE 25
 
-        alpha =  ONE - pnorm(kalpha)                       ! , zero, one)
-        beta =  ONE - pnorm(kbeta)                         ! , zero, one)
-
         !WRITE(55,*) 'Options: kalpha,kbeta,w1minusg: ',kalpha,kbeta,w1minusg
         !WRITE(55,*) 'Search for project parameters:'
 
@@ -1109,8 +1106,6 @@ contains
         end do
         !------------------------------------------------------------------------
 
-        alpha =  ONE - pnorm(kalpha)
-        beta =  ONE - pnorm(kbeta)
         deallocate(cell,cellk)
         deallocate(ttext,text)
 

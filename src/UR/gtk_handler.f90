@@ -73,7 +73,7 @@ contains
         !
         ! Significant parts are taken from GTK-Fortran.
 
-        use UR_gtk_globals,       only: Notebook_labeltext, nbook2,  &
+        use UR_gtk_globals,       only: Notebook_labeltext,  &
                                         consoleout_gtk, &
                                         scrwidth_min, scrwidth_max, scrheight_min, scrheight_max, &
                                         gscreen, provider, builder
@@ -164,12 +164,12 @@ contains
         ! of the objects in the Glade file
         !
         UR_widgets%window1 = gtk_builder_get_object(builder, "window1"//c_null_char)
-        UR_widgets%notebooks(1) = gtk_builder_get_object(builder, "NBProcedure"//c_null_char)
-        UR_widgets%notebooks(2) = gtk_builder_get_object(builder, "NBEquations"//c_null_char)
-        UR_widgets%notebooks(3) = gtk_builder_get_object(builder, "NBValUnc"//c_null_char)
-        UR_widgets%notebooks(4) = gtk_builder_get_object(builder, "NBBudget"//c_null_char)
-        UR_widgets%notebooks(5) = gtk_builder_get_object(builder, "NBResults"//c_null_char)
-        UR_widgets%notebooks(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
+        UR_widgets%main_notebook(1) = gtk_builder_get_object(builder, "NBProcedure"//c_null_char)
+        UR_widgets%main_notebook(2) = gtk_builder_get_object(builder, "NBEquations"//c_null_char)
+        UR_widgets%main_notebook(3) = gtk_builder_get_object(builder, "NBValUnc"//c_null_char)
+        UR_widgets%main_notebook(4) = gtk_builder_get_object(builder, "NBBudget"//c_null_char)
+        UR_widgets%main_notebook(5) = gtk_builder_get_object(builder, "NBResults"//c_null_char)
+        UR_widgets%main_notebook(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
         UR_widgets%dialog_infofx = gtk_builder_get_object(builder, "dialog_infoFX"//c_null_char)
         UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
         UR_widgets%dialog_batest = gtk_builder_get_object(builder, "dialog_Batest"//c_null_char)
@@ -213,7 +213,7 @@ contains
         project_loadw = .TRUE.
 
         do i=1,6
-            cptr = gtk_label_get_text(UR_widgets%notebooks(i))
+            cptr = gtk_label_get_text(UR_widgets%main_notebook(i))
             call c_f_string(cptr, Notebook_labeltext(i))
         end do
 
@@ -244,9 +244,9 @@ contains
         call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
 
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-        nbook2 = c_null_ptr
-        nbook2 = hl_gtk_notebook_new()
-        call hl_gtk_box_pack(UR_widgets%box_wgraphs, nbook2, expand=TRUE)
+        UR_widgets%plot_notebook = c_null_ptr
+        UR_widgets%plot_notebook = hl_gtk_notebook_new()
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, UR_widgets%plot_notebook, expand=TRUE)
 
         ! Re-scaling with the ratios between stadndard size and another monitor size
 
@@ -255,7 +255,7 @@ contains
         width_da(1) = int( width_da(1) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(1) = int( height_da(1) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         drawing(1) = hl_gtk_drawing_area_new(size=(/width_da(1),height_da(1)/), has_alpha=FALSE)
-        pno = hl_gtk_notebook_add_page(nbook2, drawing(1), label="MC"//c_null_char)
+        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(1), label="MC"//c_null_char)
 
 
         !width_da(2) = 580
@@ -263,19 +263,19 @@ contains
         !  width_da(2) = int( width_da(2) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         !  height_da(2) = int( height_da(2) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         !drawing(2) = hl_gtk_drawing_area_new(size=(/width_da(2),height_da(2)/),has_alpha=FALSE)
-        !pno = hl_gtk_notebook_add_page(nbook2, drawing(2),label="MCMC"//c_null_char)
+        !pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(2),label="MCMC"//c_null_char)
 
         width_da(3) = 580    ! 561       ! 580:
         height_da(3) = 540   ! 440
         width_da(3) = int( width_da(3) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(3) = int( height_da(3) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         drawing(3) = hl_gtk_drawing_area_new(size=(/width_da(3),height_da(3)/),has_alpha=FALSE)
-        pno = hl_gtk_notebook_add_page(nbook2, drawing(3),label="LinF"//c_null_char)
+        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(3),label="LinF"//c_null_char)
 
         qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(quit_cb))
         call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, expand=FALSE)
 
-        call gtk_notebook_set_current_page(nbook2, 0_c_int)
+        call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 0_c_int)
 
         height_da(4) = int(438._rn*0.938_rn)
         width_da(4) = 458
@@ -622,7 +622,7 @@ contains
     !---------------------------------------------------------------------------------------------!
     recursive function on_change_options_quantiles(widget, data0) result(ret) bind(c)
 
-        use gtk,                       only:
+        use gtk,                       only: gtk_widget_set_sensitive
 
         use UR_params,                 only: rn
 
@@ -656,6 +656,7 @@ contains
             return
         end if
 
+
         is_updating = .true.
         select case (gladeid)
             case('entryOptKalpha')
@@ -683,6 +684,8 @@ contains
 
         end select
         is_updating = .false.
+        ! make ok button clickable
+        call gtk_widget_set_sensitive(idpt('DOptionsOK'), TRUE)
 
     end function on_change_options_quantiles
 

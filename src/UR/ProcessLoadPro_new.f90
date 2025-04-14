@@ -28,12 +28,14 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     !
     !  called by various routines
 
-    !     Copyright (C) 2014-2023  Günter Kanisch
+    !     Copyright (C) 2014-2025  Günter Kanisch
+
+    use iso_c_binding,       only: c_int
 
     use gtk,                 only: gtk_widget_set_sensitive,gtk_widget_show,gtk_widget_hide, &
                                    gtk_widget_set_visible, gtk_widget_get_sensitive, &
                                    GTK_MESSAGE_WARNING,GTK_BUTTONS_OK,gtk_widget_show_all
-    use UR_types
+
     use top,                 only: idpt,FieldUpdate,WrStatusbar
     use UR_gtk_globals,      only: consoleout_gtk,NBsoftSwitch,item_setintern, UR_widgets
     USE Rout,                only: Fopen,WDNotebookSetCurrPage,pending_events, &
@@ -42,17 +44,16 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
                                    ExpandTV2Col7,WDSetComboboxAct
 
     use PMD,                 only: ProcMainDiag
-    use ur_general_globals,        only: FileTyp,SAVEP, project_loadw, fname, fname_getarg, &
+    use ur_general_globals,  only: FileTyp,SAVEP, project_loadw, fname, fname_getarg, &
                                    batest_on,autoreport,bat_serial,batf,batest_user,simul_ProSetup, &
                                    done_simul_ProSetup
 
-    USE UR_Gleich_globals,           only: loadingPro,kEgr,ifehl,symlist_modified,kbrutto,knetto, &
+    USE UR_Gleich_globals,   only: loadingPro,kEgr,ifehl,symlist_modified,kbrutto,knetto, &
                                    refresh_but,kEGr_old,nvarsMD
-    USE UR_perror
+    USE UR_perror,           only: ifehlp
     USE UR_Linft,            only: ifit,FitDecay,SumEval_fit,FitCalCurve
     use UR_Gspk1Fit,         only: Gamspk1_fit
-    use UR_loadsel
-    use gtk_sup
+    use UR_loadsel,          only: NBpreviousPage, NBcurrentPage
     use URinit,              only: UncW_Init
     use Pread,               only: ProRead
     use translation_module,  only: T => get_translation
@@ -171,7 +172,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     call gtk_widget_hide(idpt('grid5'))
 
 
-    call ProcMainDiag(idpt('notebook1'))
+    call ProcMainDiag(UR_widgets%main_notebook(1))
 
 
     IF(ifehl == 1) GOTO 100
@@ -287,7 +288,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
             if(prout) write(66,*) 'PLoadpronew: 2 -> 3:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
             !call FindItemS('notebook1', ncitem)
             if(prout) write(66,*) ' PLPnew:  ncitem=',int(ncitem,2)
-            call ProcMainDiag(idpt('notebook1'))
+            call ProcMainDiag(UR_widgets%main_notebook(1))
             if(prout) write(66,*) 'PLoadpronew: step finished.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
             IF(ifehl == 1 .OR. ifehlp == 1) GOTO 100
             ! ---------------------------------
@@ -311,7 +312,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(prout) write(66,*) 'PLoadpronew: 2 -> 3:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
     ! call FindItemS('notebook1', ncitem)
     if(prout) write(66,*) ' PLPnew:  ncitem=',int(ncitem,2)
-    call ProcMainDiag(UR_widgets%notebooks(1))
+    call ProcMainDiag(UR_widgets%main_notebook(1))
     if(prout) write(66,*) 'PLoadpronew: step finished.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
     IF(ifehl == 1 .OR. ifehlp == 1) GOTO 100
 
@@ -347,7 +348,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(prout) write(66,*) 'PLoadpronew: 3 -> 4:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
 
     !Flo clobj%signal(ncitem)%s = 'switch-page'
-    call ProcMainDiag(UR_widgets%notebooks(1))
+    call ProcMainDiag(UR_widgets%main_notebook(1))
     if(ifehl == 1 .or. ifehlp == 1) goto 100
 
     call gtk_widget_set_sensitive(idpt('NBBudget'), 1_c_int)
@@ -368,7 +369,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     call WDNotebookSetCurrPage('notebook1', 5)
     ! call FindItemS('notebook1', ncitem)
     !Flo clobj%signal(ncitem)%s = 'switch-page'
-    call ProcMainDiag(UR_widgets%notebooks(1))
+    call ProcMainDiag(UR_widgets%main_notebook(1))
 
     call gtk_widget_set_visible(idpt('TRButtonHelp'), 1_c_int)
     call gtk_widget_set_visible(idpt('TRbuttonSavecsv'), 1_c_int)

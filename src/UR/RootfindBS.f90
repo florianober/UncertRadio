@@ -29,9 +29,9 @@ real(rn) function PrFunc(mode, xx)
     !     Copyright (C) 2014-2023  Günter Kanisch
     use UR_types
     use UR_params,    only: ZERO
-    use Brandt,       only: mean, sd
+    use Brandt,       only: mean, sd, pnorm
 
-    use UR_DLIM,      only: kbeta, beta, Fconst, Flinear
+    use UR_DLIM,      only: kbeta, Fconst, Flinear
     use UR_Gleich_globals,    only: Ucomb, kEGr, Messwert, klinf, kgspk1, ifehl, Messwert, &
                             knetto, use_bipoi, ksumeval, apply_units
 
@@ -39,7 +39,7 @@ real(rn) function PrFunc(mode, xx)
     use Rw2,          only: rnetval
     use UR_Linft,     only: kfitp,FitDecay,SumEval_fit
     use UR_Gspk1Fit,  only: Gamspk1_Fit
-    use UR_MCC,       only: kqtyp, arraymc, imctrue, xmit1, xxDT
+    use UR_MCC,       only: kqtyp, arraymc, imctrue, xmit1
     use Num1,         only: Quick_sort_r
     use UR_MCSR,      only: RD
     use MCSr,         only: MCsingRun, quantile
@@ -59,8 +59,8 @@ real(rn) function PrFunc(mode, xx)
     !   RD denotes a value of an iterated net counting rate, calculated by the
     !   function RnetVal(activity.
 
-    integer                 :: kk, i, klu, jj, jjt, n0, jx
-    real(rn)                :: Prob, Prob2
+    integer                 :: klu
+    real(rn)                :: prob
     real(rn)                :: meanxx
     real(rn),allocatable    :: arrsort(:)
     logical                 :: apply_SV
@@ -119,36 +119,9 @@ real(rn) function PrFunc(mode, xx)
         ! call QSort3(arrsort,ifehl)
         allocate(indx(1))
         call Quick_sort_r(arrsort,indx)
-        Prob = quantileM(beta,arrsort,imctrue)
+        Prob = quantileM(1.0_rn - pnorm(kbeta), arrsort,imctrue)
         meanxx = mean(arrsort)
 
-        if(.false.) then
-            call quantile(beta,1,imctrue,arrsort,Prob2,jx,ZERO,zero)
-            kk = 0
-            jj = 0
-            jjt = 0
-            n0 = 0
-            do i=1,size(Arrsort)
-                if(Arrsort(i) > ZERO .and. Arrsort(i) <= xxDT(1)) then
-                    jjt = jjt + 1
-                end if
-                if(Arrsort(i) > ZERO .and. Arrsort(i) <= xx) then
-                    kk = kk + 1
-                end if
-                if(Arrsort(i) <= ZERO) n0 = n0 + 1
-                if(Arrsort(i) > ZERO .and. Arrsort(i) <= meanxx) then
-                    jj = jj + 1
-                else
-                    if(jj > imctrue/10) exit
-                end if
-            end do
-            write(63,*) 'RD=',real(RD),' P(xx=RD)=',real(real(kk,rn)/real(imctrue,rn)),'  meanxx=',real(meanxx), &
-                ' P(meanxx)=',real(real(jj,rn)/real(imctrue,rn)),' Prob=',real(Prob), &
-                ' DT=',real(xxDT(1)),' P(DT)=',real(real(jjt,rn)/real(imctrue,rn)),' beta=',real(beta)
-            write(63,*) 'begin: fraction of <= zero: ',real(real(n0,rn)/real(imctrue,rn)), &
-                ' minval(Arrsort)=',real(minval(arrsort,dim=1)),'  Probe2=',real(Prob2), &
-                ' jx=',jx
-        end if
         deallocate(arrsort)
 
       case (3)

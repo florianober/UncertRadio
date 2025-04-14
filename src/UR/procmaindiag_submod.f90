@@ -57,13 +57,7 @@ contains
                                     gtk_widget_set_visible, &
                                     gtk_widget_show, &
                                     gtk_widget_show_all, &
-                                    gtk_window_get_position, &
-                                    GTK_LICENSE_GPL_3_0, &
-                                    GTK_LICENSE_GPL_2_0_ONLY, &
-                                    GTK_LICENSE_LGPL_2_1, &
-                                    GTK_LICENSE_BSD_3, &
-                                    TRUE
-
+                                    gtk_window_get_position
 
         use pango,            only: pango_renderer_set_color, pango_renderer_get_color
 
@@ -75,7 +69,7 @@ contains
                                     FileTyp,sDecimalPoint
         use UR_gtk_globals, only: dialogstr, ioption, consoleout_gtk, posx, posy, &
                                   QuitProg, ntvs, tvnames, tv_colwidth_digits, winPL_shown, &
-                                  tvcolindex, tvcols, nbook2, UR_widgets
+                                  tvcolindex, tvcols, UR_widgets
         use plplot_code_sub1,  only: windowPL,width_da,height_da,drawing,hl_gtk_drawing_area_resize
         use UR_Gleich_globals, only: Symbole,symbole_CP,symtyp,symtyp_CP,einheit,einheit_CP,bedeutung, &
                                     bedeutung_CP,Messwert,Messwert_CP,IVTL,ivtl_CP,SDFormel,SDFormel_CP, &
@@ -1336,7 +1330,7 @@ contains
 
               case ('copyBS1')
                 call WDGetComboboxAct('comboboxBS1',iopt_copygr)
-                ic = gtk_notebook_get_current_page(nbook2)
+                ic = gtk_notebook_get_current_page(UR_widgets%plot_notebook)
                 i = ic + 1
                 if(i == 1) actual_plot = 'MCplot'
                 ! if(i == 2) actual_plot = 'BSplot'

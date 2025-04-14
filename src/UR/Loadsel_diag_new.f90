@@ -162,7 +162,7 @@ contains
                                         nwei,kpearson,fpa,sfpa,dmesszeit,sd0zrate,igsel,xkalib,ykalib,mfrbg, &
                                         singlenuk,use_absTimeStart,use_WTLS_kal,mac
 
-        USE UR_DLIM,            only:   alpha,beta,GamDistAdd,kalpha,kbeta,NWGMethode,W1minusG
+        USE UR_DLIM,            only:   GamDistAdd, kalpha, kbeta, NWGMethode, W1minusG
         USE UR_Loadsel
         USE UR_Gspk1Fit
         use Rout,               only:   MessageShow, &
@@ -230,13 +230,13 @@ contains
         character(len=100)         :: hinweis
         type(charv),allocatable    :: FTF(:)
         character(len=10)          :: chcol
-        character(len=15)          :: buthelp
+
         character(len=:), allocatable :: langg, langgSV
 
         type(c_ptr)                :: dialog, pfontname, pfd2_ptr, pfd_ptr
         integer(c_int)             :: indx, answer,res
         integer(c_int)             :: resp_id
-        integer                    :: resp,ncitem2,k1lang,ifitXX(3),nn,kcmx,nvals,ifx
+        integer                    :: resp,ncitem2,k1lang,ifitXX(3),nn,kcmx,nvals
         type(c_ptr)                :: ctext, pcolor, cp1, cp2
         integer(c_int),allocatable :: indices(:)
 
@@ -249,9 +249,9 @@ contains
         integer(c_int)             :: ikenn,kcolls(4),i11,i11max,rowtv2,ifitSV(3),knt,mfit2
         integer(c_int)             :: numd_old,ijh,nijh,fijh(4),kfm1,nwei1,nkovzr1,ndefall1,nch1,kbaseX
 
-        real(rn)                   :: zfact, xxs1,xx,dummy,vvar,exx,aa,bb
-        real(rn), save             :: kalpha1,kbeta1,coverf1,W1minusG1,alpha1,beta1,GDA1,entival(4),coverin1
-        LOGICAL                    :: lpass,prout,SaveP_sv,dnew,test1,test2,selvar
+        real(rn)                   :: zfact, xx,dummy,vvar,exx,aa,bb
+        real(rn), save             :: kalpha1,kbeta1,coverf1,W1minusG1,GDA1,entival(4),coverin1
+        LOGICAL                    :: prout,SaveP_sv,dnew,test1,test2,selvar
         character(len=150)         :: text
         character(len=25)          :: psym(4), enti(4), cfdatx
         real(rn),allocatable       :: rdummy(:),xdat(:)
@@ -314,63 +314,9 @@ contains
         ! ioption defines which dialog will be shown
 
         select case (ioption)
-            case (1)        ! options dialog
+          case (1)        ! options dialog
+            print *, 'not here anymore'
 
-!             if(prout) WRITE(66,'(a,4f8.5)') 'Option-Dialog, on entry: kalpha, kbeta, alpha, beta= ',kalpha, kbeta, alpha, beta
-            if(prout)  then
-                write(log_str, '(a,4f8.5)') 'Option-Dialog, on entry: kalpha, kbeta, alpha, beta= ',kalpha, kbeta, alpha, beta
-                call logger(66, log_str)
-            end if
-            call WDPutEntryDouble('entryOptKalpha',kalpha,'(f10.8)')
-            call WDPutEntryDouble('entryOptKbeta',kbeta,'(f10.8)')
-            IF(kalpha > ZERO) THEN
-                alpha =  ONE - pnorm(kalpha)            ! , zero, one)
-                call WDPutEntryDouble('entryOptAlpha',alpha,'(f10.8)')
-            end if
-            IF(kbeta > ZERO) THEN
-                beta =  ONE - pnorm(kbeta)          ! , zero, one)
-                call WDPutEntryDouble('entryOptBeta',beta,'(f10.8)')
-            end if
-            if(prout) then
-
-                write(log_str, '(a,4f8.5)') 'Option dialog, after Put: kalpha, kbeta, alpha, beta= ',kalpha, kbeta, alpha, beta
-                call logger(66, log_str)
-            end if
-            call WDPutEntryDouble('entryOptCoverf',coverf,'(f5.2)')
-            call WDPutEntryDouble('entryOptCoverIn',coverin,'(f5.2)')
-            call WDPutEntryDouble('entryOpt1minusG',W1minusG,'(f5.3)')
-            call WDPutEntryString('entryOptDLMethod',trim(NWGMethode))
-            kalpha1 = kalpha
-
-            kbeta1 = kbeta
-            alpha1 = alpha
-            beta1 = beta
-            coverf1   = coverf
-            coverin1 = coverin
-            W1minusG1 = W1minusG
-            GDA1 = GamDistAdd
-            call WDPutEntryDouble('entryOptGamDistAdd',GamDistAdd,'(f3.1)')
-            if(sListSeparator == ';') call WDSetComboboxAct('comboboxtextListSep',1)
-            if(sListSeparator == ',') call WDSetComboboxAct('comboboxtextListSep',2)
-
-
-            if(get_language() == 'de') then
-                i = 1
-            else if(get_language() == 'fr') then
-                i = 3
-            else
-                i = 2
-            end if
-            call WDSetComboboxAct('comboboxLangg', i)
-
-            if (get_theme_name() == "contrast") then
-                call WDSetCheckButton('check_contrastmode', 1)
-            else
-                call WDSetCheckButton('check_contrastmode', 0)
-            end if
-
-            call gtk_widget_set_sensitive(idpt('DOptionsLoadVals'), 0_c_int)   ! 13.4.2023
-            call gtk_widget_set_sensitive(idpt('DOptionsOK'), 1_c_int)   ! 13.4.2023
 
           case (2)
             ifitXX = ifit
@@ -1096,45 +1042,15 @@ contains
                   case (1)
                     call WDGetEntryDouble('entryOptKalpha',kalpha)
                     call WDGetEntryDouble('entryOptKbeta',kbeta)
-                    call WDGetEntryDouble('entryOptAlpha',alpha)
-                    call WDGetEntryDouble('entryOptBeta',beta)
                     call WDGetEntryDouble('entryOptCoverf',coverf)
                     call WDGetEntryDouble('entryOptCoverIn',coverin)
                     call WDGetEntryDouble('entryOpt1minusG',W1minusG)
                     call WDGetEntryString('entryOptDLMethod',NWGMethode)
                     call WDGetEntryDouble('entryOptGamDistAdd',GamDistAdd)
 
-                    ! Check consistency of quantiles and probabilities:
-                    lpass = .TRUE.
-                    xxs1 = ONE - pnorm(kalpha)
-                    str1 = ' '
-                    IF(ABS(xxs1-alpha) > 1.E-6_rn) THEN
-                        lpass = .FALSE.
-                        str1 = TRIM(str1) // &
-                               T('alpha and k_alpha do not fit together!')
-
-                    end if
-                    xxs1 = ONE - pnorm(kbeta)
-                    IF(ABS(xxs1-beta) > 1.E-6_rn) then
-                        lpass = .FALSE.
-                        str1 = trim(str1) // CHAR(13) // &
-                               T('beta and k_beta do not fit together!')
-                    end if
-                    if( .not. lpass) then
-
-                        str1 = trim(str1) // CHAR(13) // &
-                               T("Press button 'load values'!")
-
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, "LoadSel:", resp,mtype=0_c_int)
-                        dialog_on = .false.
-                        call gtk_widget_set_sensitive(idpt('menubar1'), 1_c_int)
-                        goto 9000
-                    end if
-
                     IF(abs(kalpha1-kalpha)/kalpha1 > 1.E-5_rn .OR. abs(kbeta1-kbeta)/kbeta1 > 1.E-5_rn .OR.  &
                         abs(coverf1-coverf)/coverf1 > 1.E-5_rn .OR. abs(coverin1-coverin)/coverin1 > 1.E-5_rn .or. &
                         abs(W1minusG1-W1minusG)/W1minusG1 > 1.E-5_rn .OR. &
-                        abs(alpha1-alpha)/alpha1 > 1.E-5_rn .OR. abs(beta1-beta)/beta1 > 1.E-5_rn .or. &
                         abs(GDA1-GamDistAdd) > 1.E-5_rn   )  THEN
                         SaveP = .TRUE.
                         MCsim_on = .FALSE.
@@ -1836,42 +1752,6 @@ contains
               case ('entryOptKalpha')
 
               case ('DOptionsLoadVals')
-
-                !                 if(prout) write(66,*) ' Loadsel:  at DOptionsLoadVals arrived!'
-                if(prout)  then
-                    write(log_str, '(*(g0))') ' Loadsel:  at DOptionsLoadVals arrived!'
-                    call logger(66, log_str)
-                end if
-                if(nijh > 0) then
-                    do i=1, 4
-                        if(fijh(i) == 1) then
-                            call WDGetEntryDouble('entryOptKalpha',kalpha)
-                            alpha =  ONE - pnorm(kalpha)
-                            call WDPutEntryDouble('entryOptAlpha',alpha,'(f10.8)')
-                            call gtk_widget_set_sensitive(idpt('entryOptAlpha'), 1_c_int)
-                        elseif(fijh(i) == 2) then
-                            call WDGetEntryDouble('entryOptKbeta',kbeta)
-                            beta =  ONE - pnorm(kbeta)
-                            call WDPutEntryDouble('entryOptBeta',beta,'(f10.8)')
-                            call gtk_widget_set_sensitive(idpt('entryOptBeta'), 1_c_int)
-                        elseif(fijh(i) == 3) then
-                            call WDGetEntryDouble('entryOptAlpha',alpha)
-                            kalpha =  qnorm(ONE - alpha)
-                            call WDPutEntryDouble('entryOptKalpha',kalpha,'(f10.8)')
-                            call gtk_widget_set_sensitive(idpt('entryOptKalpha'), 1_c_int)
-                        elseif(fijh(i) == 4) then
-                            call WDGetEntryDouble('entryOptBeta',beta)
-                            kbeta =  qnorm(ONE - beta)
-                            call WDPutEntryDouble('entryOptKbeta',kbeta,'(f10.8)')
-                            call gtk_widget_set_sensitive(idpt('entryOptKbeta'), 1_c_int)
-                        end if
-                    end do
-                end if
-                nijh = 0
-                fijh(:) = 0
-                call gtk_widget_set_sensitive(idpt('DOptionsLoadVals'), 0_c_int)   ! 13.4.2023
-                call gtk_widget_set_sensitive(idpt('DOptionsOK'), 1_c_int)   ! 13.4.2023
-                goto 1010
 
               case ('CalcCountRates')
                 call NetRatesCalc(ikenn)

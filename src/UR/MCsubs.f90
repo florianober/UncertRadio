@@ -42,7 +42,7 @@ module common_sub1
 
 
     use cairo,          only: cairo_get_reference_count,cairo_destroy
-    use UR_gtk_globals, only: nbook2
+
 
     integer(kind=c_int) :: height_wlast=0, width_wlast=0,width_da(4),height_da(4)
     type(c_ptr)         :: windowPL
@@ -385,8 +385,8 @@ contains
     ! PLplot code derived from PLplot's example 1 by Alan W. Irwin
 
         use, intrinsic :: iso_c_binding
-        use handlers_sub1
-        use plplot_code_sub1
+        ! use handlers_sub1
+        ! use plplot_code_sub1
         use g,               only: g_value_init
         use gtk,             only: gtk_widget_set_vexpand_set, &
                                    gtk_widget_set_size_request, &
@@ -396,19 +396,17 @@ contains
                                    gtk_notebook_set_current_page,GDK_GRAVITY_NORTH_EAST,gtk_window_set_gravity, &
                                    gtk_window_get_position,gtk_window_move,gtk_widget_get_allocation
 
-        use gtk_sup,         only: gvalue,G_TYPE_LONG
+        use gtk_sup,         only: gvalue, G_TYPE_LONG
 
-        use common_sub1,     only: drawboxpackedMC,  &
-                                   drawboxpackedELI, drawboxpackedBS, drawboxpackedCP
 
         use UR_gtk_window_types,    only: GdkRGBA
 
-        use UR_gtk_globals, only: consoleout_gtk, winPL_shown, posx, posy, &
-                                    scrwidth_min,scrwidth_max,scrheight_min,monitorUR, &
-                                    zoomf,nbook2
-        use Top,             only: idpt, FindItemP
+        use UR_gtk_globals,  only: consoleout_gtk, winPL_shown, posx, posy, &
+                                   scrwidth_min,scrwidth_max,scrheight_min,monitorUR, &
+                                   zoomf, UR_widgets
+        use Top,             only: idpt
 
-        use UR_params,       only: rn
+        use UR_types,        only: rn
         use file_io,         only: logger
         use gtk_draw_hl,     only: hl_gtk_drawing_area_get_size,hl_gtk_drawing_area_new,gtkallocation
 
@@ -438,7 +436,7 @@ contains
         if(trim(actual_plot)== 'ELIplot') then
             goto 90
         else
-            if(c_associated(nbook2)) goto 25
+            if(c_associated(UR_widgets%main_notebook(2))) goto 25
         end if
 
         widthp = c_loc(gint4a)
@@ -465,7 +463,7 @@ contains
             URcolor%green = dble(i2)/dble(256)
             URcolor%blue = dble(i3)/dble(256)
             URcolor%alpha = dble(1.)
-            call gtk_widget_override_background_color(nbook2, GTK_STATE_FLAG_NORMAL, c_loc(URColor))
+            call gtk_widget_override_background_color(UR_widgets%main_notebook(2), GTK_STATE_FLAG_NORMAL, c_loc(URColor))
             if(.false.) then
                 colorname = "#FFFFFF"
                 read(colorname,'(1x,z2.2,z2.2,z2.2)') i1,i2,i3
@@ -516,9 +514,9 @@ contains
         ! Note: selecting pages under nbook2 only works after having called
         ! show_all (windowPL)
 
-        if(ipind == 1 ) call gtk_notebook_set_current_page(nbook2,0_c_int)
-        if(ipind == 2 ) call gtk_notebook_set_current_page(nbook2,1_c_int)
-        if(ipind == 3 ) call gtk_notebook_set_current_page(nbook2,2_c_int)
+        if(ipind == 1 ) call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 0_c_int)
+        if(ipind == 2 ) call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 1_c_int)
+        if(ipind == 3 ) call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 2_c_int)
 
         if(ipind == 4) then
             sizewh = (/ width_da(4), height_da(4) /)

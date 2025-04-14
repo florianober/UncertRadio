@@ -51,7 +51,7 @@ contains
 
         USE UR_Gspk1Fit,            only: Gamspk1_Fit,GNetRateSV,varadd_Rn,GNetRate,SDGNetRate, &
                                           effi,sdeffi,pgamm,sdpgamm,fatt,sdfatt,fcoinsu,sdfcoinsu
-        USE UR_DLIM,                only: alpha,beta,GamDistAdd,nit_detl_max,W1minusG,RblTot
+        USE UR_DLIM,                only: kalpha,kbeta,GamDistAdd,nit_detl_max,W1minusG,RblTot
         USE UR_MCC
 
 
@@ -69,7 +69,7 @@ contains
                                           ran_Erlang,scan_bipoi2, ignpoi
         use PLsubs
         use LF1,                    only: Linf
-        use Brandt,                 only: mean, sd, MatRand
+        use Brandt,                 only: mean, sd, MatRand, pnorm
         use UR_params,              only: EPS1MIN,ONE,ZERO,TWO
 
         use UR_MCSR
@@ -1472,14 +1472,14 @@ contains
             call SearchBCI3(1,imcmax2,kqtyp)
 
           case (2)
-            prob = ONE - alpha
-            call quantile(prob,1,imctrue,arraymc(1:imctrue,kqtyp),qt,qtindex,meanmc(kqtyp),sdmc(kqtyp))
+            prob = pnorm(kalpha)
+            call quantile(prob, 1, imctrue, arraymc(1:imctrue,kqtyp),qt,qtindex,meanmc(kqtyp),sdmc(kqtyp))
             xxDT(kr) = qt
             estUQ = qt
             medianqt(2) = arraymc(imctrue/2,kqtyp)
 
           case (3)
-            prob = beta
+            prob = 1.0_rn - pnorm(kbeta)
             kmin = 1
             do i=1,imctrue
                 kmin = i

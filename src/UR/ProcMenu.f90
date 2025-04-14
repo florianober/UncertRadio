@@ -45,7 +45,7 @@ recursive subroutine ProcMenu(widget)
     use UR_gtk_globals,      only: clobj, ioption, QuitProg, HelpButton, consoleout_gtk, &
                                    dialog_leave, item_setintern, gscreen, scrwidth_min, &
                                    scrwidth_max, scrheight_min, scrheight_max, plot_setintern, &
-                                   zoomf, replot_on, nbook2, zoomf_prev
+                                   zoomf, replot_on, zoomf_prev, UR_widgets
     use UR_Linft,            only: FitDecay, export_case, klincall, ifit, dmodif, SumEval_fit, export_r
     use UR_Gspk1Fit,         only: Gamspk1_Fit, gmodif
     use ur_general_globals
@@ -433,7 +433,7 @@ recursive subroutine ProcMenu(widget)
                 if(i == 2) Zoomf = 1.1_rn
                 if(i == 3) Zoomf = 1.2_rn
                 zoomfSV = zoomf
-                curp = gtk_notebook_get_current_page(nbook2)
+                curp = gtk_notebook_get_current_page(UR_widgets%plot_notebook)
                 kpi = curp + 1
                 write(66,*) 'kpi=',int(kpi,2)
                 alloc%width = int(width_da(kpi)*zoomf)

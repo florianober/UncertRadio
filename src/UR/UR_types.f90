@@ -54,7 +54,8 @@ module UR_gtk_window_types
 
     type widgets_named
         type(c_ptr) :: window1
-        type(c_ptr) :: notebooks(6)
+        type(c_ptr) :: main_notebook(6)
+        type(c_ptr) :: plot_notebook
         type(c_ptr) :: dialog_infofx
         type(c_ptr) :: dialog_batest
         type(c_ptr) :: dialog_options

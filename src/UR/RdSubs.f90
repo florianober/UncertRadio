@@ -46,7 +46,7 @@ contains
                                           bedeutung,symbole,symboleG,knetto,kbrutto,MDpoint,SDFormel, &
                                           refdataMD,rinflu_known,ncov,coverf
 
-        USE UR_DLIM,                only: alpha,beta,GamDistAdd,kalpha,kbeta,W1minusG,nwgmeth, &
+        USE UR_DLIM,                only: GamDistAdd,kalpha,kbeta,W1minusG,nwgmeth, &
                                           NWGMethode
         USE UR_Linft,               only: ifit,cctitle,CFaelldatum,FitCalCurve,kal_Polgrad,kfitmeth, &
                                           nchannels,ndefall,nkovzr,numd,nwei,use_UfitKal, &
@@ -96,8 +96,7 @@ contains
 
         call WDPutEntryDouble('entryOptKalpha', kalpha, '(f8.6)')
         call WDPutEntryDouble('entryOptKbeta', kbeta, '(f8.6)')
-        call WDPutEntryDouble('entryOptAlpha', alpha, '(f8.6)')
-        call WDPutEntryDouble('entryOptBeta', beta, '(f8.6)')
+
         call WDPutEntryDouble('entryOptCoverf',coverf,'(f5.2)')
         call WDPutEntryDouble('entryOpt1minusG',W1minusG,'(f5.3)')
         call WDPutEntryString('entryOptDLMethod',trim(NWGMethode))

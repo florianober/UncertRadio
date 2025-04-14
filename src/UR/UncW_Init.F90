@@ -110,7 +110,7 @@ contains
                                     kbrutto_double,ndep,use_sdf_brutto, &
                                     var_rbtot,FP_for_units,Formeltext_out,defined_RSY, nmumx
 
-        use UR_DLIM,          only: alpha,beta,decthresh,detlim,gamdistadd,kalpha,kbeta,limit_typ, &
+        use UR_DLIM,          only: decthresh,detlim,gamdistadd,kalpha,kbeta,limit_typ, &
                                     nit_detl_max,w1minusG,var_brutto_auto,k_autoform
         use UR_Linft,         only: numd, ifit, kfitmeth, UcombLinf, UcombLinf_kqt1, &
                                     KPearson, kPMLE, fitmeth, FitDecay, FitCalCurve, &
@@ -378,19 +378,11 @@ contains
         UcombLinf = 0._rn
         UcombLinf_kqt1 = 0._rn
 
-        alpha = 0.05_rn
-        beta = 0.05_rn
-        kalpha =  qnorm(ONE - alpha)
-        kbeta =  qnorm(ONE - beta)
+        kalpha =  qnorm(ONE - 0.05_rn)
+        kbeta =  qnorm(ONE - 0.05_rn)
 
         coverf = ONE
         coverin = ONE
-
-        if(incall == 1)  then
-            write(log_str, '(a,4(f0.7,2x))') 'kalpha, kbeta, alpha, beta= ',real(kalpha,8), &
-                real(kbeta,8), real(alpha,8), real(beta,8)
-            call logger(66, log_str)
-        end if
 
         if(incall == 1) then
             ! test variables for numerical precision and limits:

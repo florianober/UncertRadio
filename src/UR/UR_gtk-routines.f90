@@ -275,7 +275,7 @@ contains
     subroutine WDPutEntryInt(wstr, ivalue, dform)
 
         use gtk,                only:   gtk_entry_set_text
-        use UR_gtk_globals,   only:   item_setintern
+        use UR_gtk_globals,     only:   item_setintern
 
         implicit none
 
@@ -2218,16 +2218,16 @@ contains
         use gtk,                   only: gtk_notebook_set_current_page,gtk_notebook_get_current_page, &
                                          gtk_label_set_markup,gtk_widget_show,gtk_notebook_get_nth_page, &
                                          gtk_widget_show_all,gtk_notebook_prev_page
-        use UR_gtk_globals,      only: NBsoftSwitch, Nbook2
+        use UR_gtk_globals,        only: NBsoftSwitch, UR_widgets
 
         implicit none
 
-        character(len=*),intent(in)    :: nbstring       ! GUI name of the notebook
-        integer   ,intent(in)          :: ipage
+        character(len=*),intent(in) :: nbstring       ! GUI name of the notebook
+        integer   ,intent(in)       :: ipage
 
-        type(c_ptr)                :: widget
-        integer(c_int)             :: curp
-        integer                    :: ncp
+        type(c_ptr)                 :: widget
+        integer(c_int)              :: curp
+        integer                     :: ncp
 
 
         NBsoftSwitch = .true.
@@ -2235,10 +2235,10 @@ contains
         if(trim(nbstring) == 'notebook1') ncp = NBcurrentPage
         curp = ipage
         curp = curp - 1_c_int
-        if(trim(nbstring) == 'notebook1') widget = idpt(trim(nbstring))
-        if(trim(nbstring) == 'notebook2') widget = nbook2
+        if(trim(nbstring) == 'notebook1') widget = UR_widgets%main_notebook(1)
+        if(trim(nbstring) == 'notebook2') widget = UR_widgets%plot_notebook
         ! call gtk_notebook_set_current_page(widget,curp)         !
-        if(c_associated(widget)) call gtk_notebook_set_current_page(widget,curp)    ! 2025.01.23 GK
+        if(c_associated(widget)) call gtk_notebook_set_current_page(widget, curp)
 
         NBcurrentPage = ipage
 
@@ -2308,12 +2308,12 @@ contains
         NBsoftSwitch = .true.
 
         i = NBcurrentPage
-        ptr = UR_widgets%notebooks(i)
+        ptr = UR_widgets%main_notebook(i)
 
         call gtk_label_set_markup(ptr,  &
             '<span foreground="blue">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
         i = NBpreviousPage
-        ptr = UR_widgets%notebooks(i)
+        ptr = UR_widgets%main_notebook(i)
         call gtk_label_set_markup(ptr,  &
             '<span foreground="black">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
 

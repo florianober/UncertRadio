@@ -22,15 +22,33 @@ subroutine PrepReport()
     ! Report.txt
     ! uses WriteTitelTExt
 
-    !     Copyright (C) 2014-2024  Günter Kanisch
-    use UR_types
+    !     Copyright (C) 2014-2025  Günter Kanisch
+    use UR_types,                 only: rn
     use ur_general_globals,       only: fname, results_path
 
-    use UR_Gleich_globals
-    use ur_linft
-    use ur_dlim
-    use ur_gspk1fit
-    use ur_mcc
+    use UR_Gleich_globals,  only: knumEGr, ngrs, ifehl, kEGr, Titeltext, Formeltext, &
+                                  Formeltextfit, symbole, bedeutung, symtyp, einheit, &
+                                  knetto, kbrutto, kbrutto_gl, rseite, nvarsMD, &
+                                  Messwert, missingval, vdopt, ivtl, SDWert, &
+                                  HBreite, iar, STDUnc, SDFormel, ncov, icovtyp, CovarVal, &
+                                  CovarvalSV, ISymbA, ISymbB, SymboleA, SymboleB, CVFormel, &
+                                  kfitcal, Ucontyp, sensi, perc, Ucontrib, coverf, Ucomb, &
+                                  klinf
+    use ur_linft,           only: FitDecay, nchannels, fitmeth, KPearson, kPMLE, use_WTLS, &
+                                  numd, SumEval_fit, CFaelldatum, CStartzeit, d0messzeit, &
+                                  d0impulse, d0zrate, sd0zrate, dmesszeit, dbimpulse, &
+                                  dbzrate, sdbzrate, dnetrate, FitCalCurve, SDnetrate, &
+                                  nkalpts, xkalib, uxkalib, ykalib, uykalib, ifit, &
+                                  Chisqr, kfitp
+    use ur_dlim,            only: GamDistAdd, WertBayes, UcombBayes, KBgrenzu, KBgrenzo, &
+                                  KBgrenzoSH, KBgrenzuSH, W1minusG, decthresh, nit_decl, &
+                                  nit_detl, detlim, nit_detl_max, kalpha, kbeta, NWGmeth
+    use ur_gspk1fit,        only: Gamspk1_Fit
+    use ur_mcc,             only: kcmx, kcrun, xmit1, xsdv, rxmit1, rxsdv, use_BCI, xxmit1, &
+                                  xxmit1PE, rxmit1PE, xxsdv, xxsdvPE, rxsdvPE, &
+                                  xLQ, rxLQ, xuq, rxuq, est1LQ_BCI, rx1LQbci, &
+                                  rx1uQbci, est1UQ_BCI, xDT, rxdt, xdl, rxdl
+
 
     use rout,               only: wdgettextviewstring, wtreeviewgetdoublearray, wdgetlabelstring,  &
                                   wdgetentryint, wdgetcheckbutton, wdgetentrydouble
@@ -46,7 +64,7 @@ subroutine PrepReport()
 
     implicit none
 
-    integer   , parameter   :: izlen = 105       ! maximum length of a written row
+    integer, parameter      :: izlen = 105       ! maximum length of a written row
 
     integer                 :: i,i1,i2,izeil,izeilmax,j,ios,ii
     integer                 :: k,klinx,filen,ker,ncitem,unit,nsymaxlen
@@ -693,7 +711,6 @@ subroutine PrepReport()
                                                 trim(NWGMeth)
 
 
-    write(unit,'(3x,a,f8.6,2x,a,f8.6,2x,a,a)') 'alpha=', alpha,', beta=', beta
 
     call WDGetEntryInt('TRentryMCanzM', kcmx)
     call WDGetEntryInt('TRentryMCanzR', kcrun)
