@@ -113,6 +113,9 @@ contains
         case(30)
             full_file_name = log_path // 'char_limits.txt'
 
+        case(55)
+            full_file_name = log_path // 'equations.txt'
+
         case(65)
             full_file_name = log_path // 'gtk_output.txt'
 
