@@ -16,19 +16,18 @@
 !
 !-------------------------------------------------------------------------------------------------!
 
-subroutine DisplayHelp(idstr, UR_widgets)
+subroutine DisplayHelp(idstr, window1_widget)
 
     ! This subroutine is called when a user clicks on various Help buttons throughout the application.
     ! It displays the appropriate help content by opening the corresponding URL in the system's default web browser.
     ! If the specific help topic is not found, it defaults to the main help index page.
     !
 
-    use, intrinsic :: iso_c_binding,       only: c_int, c_null_ptr, c_null_char, c_new_line
+    use, intrinsic :: iso_c_binding,       only: c_int, c_null_ptr, c_null_char, c_new_line, c_ptr
     use gtk,                               only: GTK_BUTTONS_OK, &
                                                  GTK_MESSAGE_WARNING, &
                                                  gtk_show_uri_on_window
 
-    use UR_types,                          only: widgets_named
     use ur_general_globals,                only: help_path
     use file_io,                           only: logger
 
@@ -39,8 +38,8 @@ subroutine DisplayHelp(idstr, UR_widgets)
 
     implicit none
 
-    character(len=*), intent(in)           :: idstr
-    type(widgets_named), intent(in)        :: UR_widgets
+    character(len=*), intent(in) :: idstr
+    type(c_ptr), intent(in)      :: window1_widget
 
     logical                                :: ex
     integer                                :: i, pos
@@ -89,7 +88,8 @@ subroutine DisplayHelp(idstr, UR_widgets)
                          GTK_BUTTONS_OK, &
                          "DisplayHelp:", &
                          resp, &
-                         mtype=GTK_MESSAGE_WARNING)
+                         mtype=GTK_MESSAGE_WARNING, &
+                         parent=window1_widget)
         call logger(66, "Help: Could find the help files: '" // home_url // "'")
         return
     end if
@@ -121,7 +121,7 @@ subroutine DisplayHelp(idstr, UR_widgets)
     end if
 
     ! finally open the help file using the systems browser
-    resp = gtk_show_uri_on_window(UR_widgets%window1, &
+    resp = gtk_show_uri_on_window(window1_widget, &
                                   'file:///' // url // c_null_char, 0, c_null_ptr)
 
 end subroutine DisplayHelp

@@ -352,8 +352,10 @@ contains
         call c_f_string_chars(handler_name, h_name)
         call c_f_string_chars(signal_name, h_signal)
 
-        ! allocate(widget_type :: ur_widget)
 
+        ! Flo: Example how to use create user data
+        !
+        ! allocate(widget_type :: ur_widget)
         ! ur_widget%id_ptr = object
         ! call f_c_string(h_signal, tmp_str)
         ! ur_widget%signal(1:size(tmp_str)) = tmp_str
@@ -374,8 +376,8 @@ contains
         !     call f_c_string(get_gladeid_name(object), tmp_str)
         !     ! print *, h_signal, h_name, 'NOT'
         ! end if
-
         ! c_Win = c_loc(ur_widget)
+
         select case (h_name)
 
         ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
@@ -575,7 +577,7 @@ contains
 
             end if
 
-            call DisplayHelp(topic, UR_widgets)
+            call DisplayHelp(topic, UR_widgets%window1)
         else
             call logger(65, 'Error: on_help_button_clicked: widget is not associated!')
         end if
@@ -1220,7 +1222,7 @@ contains
         use gtk,                only: GTK_BUTTONS_YES_NO,gtk_response_yes,GTK_MESSAGE_WARNING
 
         use gtk_sup, only: c_f_string
-        use UR_gtk_globals,     only: Quitprog,dialog_on
+        use UR_gtk_globals,     only: dialog_on
         use ur_general_globals, only: FileTyp, fname, Savep
         use UR_interfaces,      only: ProcessLoadPro_new
         use UR_Gleich_globals,  only: ifehl
@@ -1233,9 +1235,8 @@ contains
         implicit none
 
         type(c_ptr), value    :: widget, gdata
-        integer(c_int)        :: resp     ! ret
+        integer(c_int)        :: resp
 
-        integer               :: ncitem, status
         character(len=60)     :: title,cheader
         character(len=512)    :: log_str
         character(len=120)    :: str1
@@ -1285,9 +1286,6 @@ contains
         title = 'Open project file:'
 
         call ProcessLoadPro_new(0, 1)
-
-        write(log_str, '(*(g0))') 'ProjectOpen:   after call ProcessLoadPro_new, QuitProg=',QuitProg
-        call logger(65, log_str)
 
     end subroutine ProjectOpen_cb
 
@@ -2335,7 +2333,8 @@ contains
         character(len=512)           :: log_str
         integer                      :: numrows_marked,krow
         !------------------------------------------------------------------------------------
-        ! When using GTK+ directly, keep in mind that only functions can be connected to signals, not methods.
+        ! When using GTK+ directly, keep in mind that only functions can be connected to signals,
+        ! not methods.
         ! So you will need to use global functions or "static" class functions for signal connections.
 
         !   path is expected to be a colon separated list of numbers.
@@ -2390,57 +2389,42 @@ contains
 
         ! this routine identfies which treeview column was clicked
         !  - and does not do any more significant
+        ! Flo: this routine does nothing??
 
         use file_io,        only: logger
         use gtk_sup,        only: convert_c_string
+        use Rout,           only: get_gladeid_name
 
         implicit none
 
         type(c_ptr), value    :: renderer, path, text
+        character(len=32)     :: gladeid
+        ! integer               :: i, ncitem
 
-        integer               :: i, ncitem
-        character(len=60)     :: idstring, signal, parentstr, name, fpath, ftext
-        character(len=512)    :: log_str
-        logical               :: pout
+        ! character(len=60)     :: idstring, signal, parentstr, name, fpath, ftext
+        ! character(len=512)    :: log_str
 
-    !     pout = .false.
-    !     pout = .true.
+        gladeid = get_gladeid_name(renderer)
+        print *, '!## UR_TV_column_clicked, called by: ' // gladeid
+        ! call FindItemP(renderer, ncitem)
+        ! if(ncitem > 0) then
+        !     idstring = clobj%idd(ncitem)%s
+        !     i = clobj%idparent(ncitem)
+        !     parentstr = clobj%name(i)%s
+        !     signal = clobj%signal(ncitem)%s
+        !     name = clobj%name(ncitem)%s
+        ! else
+        !     return
+        ! end if
 
-    !     if(pout)  then
-    !         write(log_str, '(*(g0))') 'UR_TV_column_clicked_cb  arrived at'
-    !         call logger(66, log_str)
-    !     end if
-    !     call FindItemP(renderer, ncitem)
-    !     if(ncitem > 0) then
-    !         idstring = clobj%idd(ncitem)%s
-    !         i = clobj%idparent(ncitem)
-    !         parentstr = clobj%name(i)%s
-    !         signal = clobj%signal(ncitem)%s
-    !         name = clobj%name(ncitem)%s
-    !         ! if(pout)  then
-    !         !     write(log_str, '(*(g0))') '****** UR_TV_column_clicked_cb : idstring=',trim(idstring),'  path=',path,' text=',text
-    !         !     call logger(66, log_str)
-    !         ! end if
-    !     else
-    !         if(pout)  then
-    !             write(log_str, '(*(g0))') '****** UR_TV_column_clicked_cb :  nicht zugeordnetes widget:'     ! ,renderer
-    !             call logger(66, log_str)
-    !         end if
-    !         return
-    !     end if
+        ! call convert_c_string(path, fpath)
+        ! if(pout)  then
+        !     write(log_str, '(*(g0))') '****** UR_TV_column_clicked_cb : fpath=', trim(fpath)
+        !     call logger(66, log_str)
+        ! end if
 
-    !     call convert_c_string(path, fpath)
-    !     if(pout)  then
-    !         write(log_str, '(*(g0))') '****** UR_TV_column_clicked_cb : fpath=', trim(fpath)
-    !         call logger(66, log_str)
-    !     end if
+        ! call convert_c_string(text, ftext)
 
-    !     call convert_c_string(text, ftext)
-
-    !     if(pout)  then
-    !         write(log_str, '(*(g0))') '****** UR_TV_column_clicked_cb : ftext=', trim(ftext)
-    !         call logger(66, log_str)
-    !     end if
 
     end subroutine UR_TV_column_clicked_cb
 

@@ -18,27 +18,27 @@
 subroutine Save(mode, cnote)
 
     ! Saves or saves as file; calls ProSave for saving a txp project
-    !     Copyright (C) 2014-2023  Günter Kanisch
+    !     Copyright (C) 2014-2025  Günter Kanisch
 
     use UR_Gleich_globals,       only: ifehl
-    use ur_general_globals
+    use ur_general_globals,      only: fname, FileTyp, savep
     use PSave,           only: ProSave
     use Rout,            only: UpdateProName, FOpen
     use CHF,             only: ucase
 
     implicit none
 
-    integer(4),intent(in)          :: mode         ! 0:  save;   1: save as;
+    integer, intent(in)            :: mode         ! 0:  save;   1: save as;
     character(len=*),intent(inout) :: cnote
 
-    integer(4)                     :: mift
+    integer                        :: mift
     !--------------------------------------------------------------------------
     ! FileTyp = 'P'
 
     mift = 0
-    if (LEN_TRIM(FNAME) == 0 .OR. Mode == 1) then
+    if (len_trim(fname) == 0 .OR. Mode == 1) then
 
-        call FOpen(ifehl,.true., cnote)
+        call FOpen(ifehl, .true., cnote)
         if(ifehl == 0) then
             IF(FileTyp == 'P') then      ! if the extension ".txp" is missing, it will attached
                 ! fnameUcase = ucase(FNAME)
@@ -67,7 +67,7 @@ subroutine Save(mode, cnote)
 
     end if
 
-    if (Mode == 0 .and. LEN_TRIM(FNAME) > 0) then
+    if (Mode == 0 .and. len_trim(fname) > 0) then
         !  Place save code here
         call ProSave()
     end if

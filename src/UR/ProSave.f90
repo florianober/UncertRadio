@@ -33,13 +33,29 @@ contains
         !
         ! For saving, all data values are to be read from the various dialog fields!
 
-        !     Copyright (C) 2014-2023  Günter Kanisch
-        use, intrinsic :: iso_c_binding,       only: c_ptr,c_null_ptr,c_null_char
-        use ur_general_globals
-        use UR_Gleich_globals
-        use ur_dlim
-        use ur_linft
-        use ur_gspk1fit
+        !     Copyright (C) 2014-2025  Günter Kanisch
+        use, intrinsic :: iso_c_binding, only: c_ptr,c_null_ptr,c_null_char
+        use ur_general_globals,          only: fname
+        use UR_Gleich_globals,           only: ifehl, Titeltext, Formeltext, Formeltextfit, &
+                                               knumEGr, ngrs, nab, nmu, symbole, symtyp, &
+                                               einheit, bedeutung, knetto, kbrutto, &
+                                               Messwert, ivtl, SDFormel, SDwert, HBreite, &
+                                               iar, STDUnc, coverin, missingval, ncov, &
+                                               ISymbA, ISymbB, icovtyp, CVFormel, CovarVal, &
+                                               coverf, nvarsMD, k_MDtyp, refdataMD, nvalsMD, &
+                                               kbgv_binom, ip_binom, itm_binom, ilam_binom
+        use ur_dlim,                     only: kalpha, kbeta, W1minusG, GamDistAdd
+        use ur_linft,                    only: FitDecay, ifit, nwei, nkovzr, ndefall, kfitmeth, &
+                                               nchannels, SumEval_fit, CFaelldatum, numd, &
+                                               CStartzeit, dmesszeit, dbimpulse, sdbzrate, &
+                                               d0messzeit, dbzrate, d0impulse, d0zrate, &
+                                               sd0zrate, dnetrate, SDnetrate, FitCalCurve, &
+                                               use_UfitKal, nkalpts, kal_Polgrad, CCtitle, &
+                                               xkalib, uxkalib, ykalib, uykalib
+        use ur_gspk1fit,                 only: Gamspk1_Fit, unitradio, kmwtyp, fbt, ecorruse, &
+                                               guse, erg, GNetRate, RateCB, RateBG, SDRateBG, &
+                                               effi, SDEffi, pgamm, SDpgamm, fatt, sdfatt, &
+                                               fcoinsu, SDfcoinsu
 
 
         use Rout,                 only: WDGetTextviewString,WDGetComboboxAct,WDGetCheckButton, &
@@ -56,13 +72,13 @@ contains
 
         implicit none
 
-        integer             :: k,i,imenu1,kxy,i1,m1,j,kk,nk,maxi                   ! ,kmwtyp
+        integer             :: k,i,imenu1,kxy,i1,m1,j,kk,nk,maxi      ! ,kmwtyp
         integer             :: error_str_conv
-        character(len=2000) :: text                                   ! 12.8.2023
+        character(len=2096) :: text                                   ! 12.8.2023
         character(len=len(fname)+ 32) :: fname_tmp
 
         character(len=2)    :: cdm
-        character(len=20)   :: cheader
+        character(len=32)   :: cheader
         logical             :: prot
 !-----------------------------------------------------------------------
         prot = .false.

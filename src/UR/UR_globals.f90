@@ -137,7 +137,7 @@ end module ur_general_globals
 
 
 module UR_Gleich_globals
-    use UR_types,       only: rn
+    use UR_types,             only: rn
     use UR_gtk_window_types,  only: charv
 
     implicit none

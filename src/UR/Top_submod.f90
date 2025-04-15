@@ -131,12 +131,11 @@ contains
                     call gtk_widget_set_sensitive(idpt('TBSaveProject'), 1_c_int)
                     call gtk_widget_set_sensitive(idpt('TBSaveProjectAs'), 1_c_int)
                     call WrStatusbar(3, T("unsaved") // "!")
-
                 end if
             else
                 call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 0_c_int)
                 call gtk_widget_set_sensitive(idpt('TBSaveProject'), 0_c_int)
-                call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 0_c_int)   ! 13.4.2023
+                call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 0_c_int)
                 call WrStatusbar(3,' ')
             end if
         end select
