@@ -184,8 +184,6 @@ subroutine TranslateUR()
     integer                    :: i, k
     character(len=25)          :: dbox(4)
     character(len=300)         :: str1
-    character(len=100)         :: str
-    character(len=60)          :: idstr
     type(c_ptr)                :: widget
     integer(c_int)             :: ic
 

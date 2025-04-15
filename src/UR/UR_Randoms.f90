@@ -488,7 +488,7 @@ contains
         ! Before using it, execute first scan_bipoi2(p,N,Rb,tg) to find the
         ! parameters bipoi2_maxk,bipoi2_hgt
         !
-        !     Copyright (C) 2019-2023  Günter Kanisch
+        !     Copyright (C) 2019-2025  Günter Kanisch
 
         use UR_params,   only: rn
         use pdfs,        only: BinPoi_2_PDF

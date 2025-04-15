@@ -173,7 +173,7 @@ contains
 
         integer               :: i,i1,nxx,nn4,iwh,k,nundf,j,ix,ii,i2,i3,j0,j2,i0,igl,m,nn
         integer               :: i11,ios,nhh,ifehlps,ios2,kngross,istep,ix1,nng,klu,knetx
-        integer               :: k1,nhg,nst,k2,jj,nwh,mfit2,knt,nvh,mpi,m1,ncitem2,nn2,ii2
+        integer               :: k1,nhg,nst,k2,jj,nwh,mfit2,knt,nvh,mpi,m1,nn2,ii2
         integer               :: ksq1,ksq2,ksqlast,imax
         real(rn)              :: res,xnn,xnueg,xg0,varg0,fBay_g
         character(len=50)     :: kusetext
@@ -185,7 +185,7 @@ contains
         LOGICAL               :: istdatum, Rw1pro
         real(rn)              :: dpi1,dpi2,d0zsum,d0zsumq,dummy,af1,af2,afunc(ma)
         character(len=4)      :: ch1
-        integer               :: resp,ncitem,ifb,IVTL7
+        integer               :: resp,ifb,IVTL7
         type(c_ptr)           :: tree
         character(:),allocatable :: str1,RseiteG,cxkb,sdfSave,sdfG,crsG,rst
         character(len=512)       :: log_str
@@ -580,7 +580,7 @@ contains
                     dialogstr = 'dialog_BinPoi'
                     ioption = 71
                     !call FindItemS(trim(dialogstr), ncitem2)
-                    call Loadsel_diag_new(1, ncitem2)
+                    call Loadsel_diag_new(1, idpt(dialogstr))
                     iptr_cnt(i) = i
 !                     write(66,'(a,4(i0,1x))') 'itm_binom,ip_binom,ilam_binom=',itm_binom,ip_binom,ilam_binom
                     write(log_str, '(a,4(i0,1x))') 'itm_binom,ip_binom,ilam_binom=',itm_binom,ip_binom,ilam_binom
@@ -752,8 +752,7 @@ contains
                 ioption = 3
                 ifehlx = 0
                 dialogstr = 'dialog_decayvals'
-                !call FindItemS(dialogstr, ncitem)
-                call Loadsel_diag_new(1, ncitem)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 if(ifehl == 1) then
 !                     write(66,'(a,i0)') 'After Laodsel (3):  ifehl=',ifehl
                     write(log_str, '(a,i0)') 'After Laodsel (3):  ifehl=',ifehl
@@ -851,8 +850,8 @@ contains
                 ! read gamma peak data by invokling the dialog:
                 ioption = 5
                 dialogstr = 'dialog_gspk1'
-                ! call FindItemS(dialogstr, ncitem)
-                call Loadsel_diag_new(1, ncitem)               !, c_null_ptr)
+
+                call Loadsel_diag_new(1, idpt(dialogstr))               !, c_null_ptr)
                 if(ifehl == 1) then
 !                     write(66,*) 'RW1_706:  Error in input of gamma peak data: stopped!'
                     call logger(66, 'RW1_706:  Error in input of gamma peak data: stopped!')
@@ -2300,16 +2299,16 @@ contains
         ! matrix is not positive definite, but this does not matter here,
         ! because the matrix generated here will not be inverted.
         !
-        !     Copyright (C) 2014-2023  Günter Kanisch
+        !     Copyright (C) 2014-2025  Günter Kanisch
 
         use UR_Gleich_globals,  only: Messwert,StdUnc,covarval,dep_unc_done,nab,ncov,SymboleG, &
-                              SymboleA,SymboleB,Symbole
+                                      SymboleA,SymboleB,Symbole
         use UR_Linft,   only: mpfx, mpfx_extern,covpp,nhp,cauchy_failed1,mpfxfixed
         USE fparser,    ONLY: initf, parsef, evalf, EvalErrMsg
         use UR_Mcc,     only: covpmc
         use UR_params,  only: EPS1MIN,ZERO,ONE,TWO
         use CHF,        only: ucase
-        use file_io,           only: logger
+        use file_io,    only: logger
         use Num1,       only: matwrite
 
         implicit none
@@ -2477,11 +2476,10 @@ contains
         !     Copyright (C) 2014-2023  Günter Kanisch
 
         use, intrinsic :: iso_c_binding,    only: c_null_ptr,c_ptr
-        use UR_Linft
         use UR_Loadsel
         use UR_Gleich_globals, only: loadingpro
         use UR_gtk_globals,    only: dialogstr,ioption
-        use Rout,              only: WDGetCheckButton
+        use Rout,              only: WDGetCheckButton, idpt
         use LDN,               only: Loadsel_diag_new
         use file_io,           only: logger
         use KLF,               only: XKalfit
@@ -2499,7 +2497,7 @@ contains
 !             write(66,'(a,i0)') 'Kalfit:  ncitem=',ncitem
             write(log_str, '(a,i0)') 'Kalfit:  ncitem=',ncitem
             call logger(66, log_str)
-            call Loadsel_diag_new(1, ncitem)
+            call Loadsel_diag_new(1, idpt(dialogstr))
         end if
         call Xkalfit()
 

@@ -177,7 +177,7 @@ contains
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
-        print *, 'GOOO'
+
         call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), 0_c_int)
         call gtk_widget_set_sensitive(idpt('KalFit'), 0_c_int)
@@ -323,7 +323,8 @@ contains
     !Connect signals to objects below
     !vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-    subroutine connect_signals(builder, object, signal_name, handler_name, connect_object, flags, c_Win) bind(c)
+    subroutine connect_signals(builder, object, signal_name, handler_name, &
+                               connect_object, flags, c_Win) bind(c)
 
         use, intrinsic :: iso_c_binding,    only: c_ptr, c_char, c_int
         use file_io,          only: logger
@@ -351,30 +352,30 @@ contains
         call c_f_string_chars(handler_name, h_name)
         call c_f_string_chars(signal_name, h_signal)
 
-        allocate(widget_type :: ur_widget)
+        ! allocate(widget_type :: ur_widget)
 
-        ur_widget%id_ptr = object
-        call f_c_string(h_signal, tmp_str)
-        ur_widget%signal(1:size(tmp_str)) = tmp_str
-        call f_c_string(h_name, tmp_str)
-        ur_widget%handler(1:size(tmp_str)) = tmp_str
+        ! ur_widget%id_ptr = object
+        ! call f_c_string(h_signal, tmp_str)
+        ! ur_widget%signal(1:size(tmp_str)) = tmp_str
+        ! call f_c_string(h_name, tmp_str)
+        ! ur_widget%handler(1:size(tmp_str)) = tmp_str
 
-        ! don't get the glade id and class, if the objects are no buildable
-        ! flo: better and not sure if needed anyhow
-        ur_widget%gladeid(:) = ''
-        if (h_name /= 'edit_table' .and. h_name /= 'edit_t_toggle') then
-            call f_c_string(get_gladeid_name(object), tmp_str)
-            ! print *, h_signal, h_name, 'STILL'
-            ur_widget%gladeid(1:size(tmp_str)) = tmp_str
+        ! ! don't get the glade id and class, if the objects are no buildable
+        ! ! flo: better and not sure if needed anyhow
+        ! ur_widget%gladeid(:) = ''
+        ! if (h_name /= 'edit_table' .and. h_name /= 'edit_t_toggle') then
+        !     call f_c_string(get_gladeid_name(object), tmp_str)
+        !     ! print *, h_signal, h_name, 'STILL'
+        !     ur_widget%gladeid(1:size(tmp_str)) = tmp_str
 
-            call f_c_string(get_widget_class(object), tmp_str)
-            ur_widget%classname(1:size(tmp_str)) = tmp_str
-        else
-            call f_c_string(get_gladeid_name(object), tmp_str)
-            ! print *, h_signal, h_name, 'NOT'
-        end if
+        !     call f_c_string(get_widget_class(object), tmp_str)
+        !     ur_widget%classname(1:size(tmp_str)) = tmp_str
+        ! else
+        !     call f_c_string(get_gladeid_name(object), tmp_str)
+        !     ! print *, h_signal, h_name, 'NOT'
+        ! end if
 
-        c_Win = c_loc(ur_widget)
+        ! c_Win = c_loc(ur_widget)
         select case (h_name)
 
         ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
@@ -477,7 +478,7 @@ contains
 
 
         use UR_gtk_globals,     only: UR_widgets, item_setintern, &
-                                      ioption, dialogstr, quitprog
+                                      ioption, dialogstr
         use Rout,               only: get_gladeid_name
         use file_io,            only: logger
         use ur_general_globals, only: actual_grid
@@ -489,42 +490,28 @@ contains
         type(c_ptr), value    :: widget, gdata
         type(c_ptr)           :: ctext
 
-        character(len=64)     :: signal, parentstr, f_text
+        character(len=64)     :: f_text
         character(:), allocatable :: error, gladeid
-        integer               :: ncitem, i
+        integer               :: i
         !---------------------------------------------------------------------
         if(item_setintern) return
 
         gladeid = get_gladeid_name(widget, error)
-        print *, 'SELOPT, called by: ' // gladeid
+        print *, '!## SELOPT, called by: ' // gladeid
 
         if(len(error) == 0) then
             ioption = 1000
             dialogstr = ''
 
             if(trim(gladeid) /= 'TBRemoveGridLine' .and. trim(gladeid) /= 'TBRemoveGridLine') return
-
-
-            ! i = clobj%idparent(ncitem)
-            ! if(i > 0) then
-            !     parentstr = clobj%name(i)%s
-            ! else
-            !     ! if the signal does not come from window1:
-            !     parentstr = ''
-            !     signal = 'delete-event'
-            ! end if
-            ! name = clobj%name(ncitem)%s
         else
 
-            ! write(log_str, '(*(g0))') '****** SelOpt:  non-associated widget: ', widget
-            ! call logger(66, log_str)
             write(0,*) '****** SelOpt:  non-associated widget: '!, widget
             return
         end if
 
-        if(trim(parentstr) == 'GtkWindow' .or. trim(gladeid) == 'window1'    &
+        if(trim(gladeid) == 'window1'    &
             .or. trim(gladeid) == 'window_graphs' .or. trim(actual_grid) >= 'treeview5' ) then
-
             call ProcMenu(widget)
             call gtk_widget_set_focus_on_click(UR_widgets%window1, 1_c_int)
         end if
@@ -545,8 +532,6 @@ contains
 
         use UR_gtk_globals,    only: str_item_clicked, &
                                      ButtonClicked
-        use gtk, only: gtk_buildable_get_name
-        use gtk_sup, only: c_f_string
         use UR_Gleich_globals, only: loadingpro
         use chf,               only: ucase
         use rout,              only: get_gladeid_name
@@ -554,16 +539,12 @@ contains
         implicit none
 
         type(c_ptr), value     :: widget, gdata
-        type(c_ptr)            :: item_clicked
 
-        item_clicked = widget
 
         str_item_clicked = get_gladeid_name(widget)
+        print *, '!## button_clicked, called by: ' // str_item_clicked
         if(loadingpro) return
 
-
-        ! write(66,*) 'button_clicked:   HelpButton=',HelpButton
-        ! ret = True
         ButtonClicked = .true.
 
     end subroutine button_clicked
@@ -594,7 +575,7 @@ contains
 
             end if
 
-            call DisplayHelp(topic)
+            call DisplayHelp(topic, UR_widgets)
         else
             call logger(65, 'Error: on_help_button_clicked: widget is not associated!')
         end if

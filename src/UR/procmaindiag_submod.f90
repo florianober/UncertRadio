@@ -139,7 +139,6 @@ contains
 
         implicit none
 
-        !integer,    intent(in)   :: ncitem   ! index of widget in the list of clobj
         type(c_ptr), intent(in)  :: widget
 
         integer                  :: IDENT1, IDENT2
@@ -149,16 +148,16 @@ contains
 
         character(len=6)         :: chcol
 
-        integer                  :: i,kxx,kxy,k2,k2m,j,k,k1,kgr,resp,kanz,ncitem2,k4, nrec
+        integer                  :: i,kxx,kxy,k2,k2m,j,k,k1,kgr,resp,kanz,k4, nrec
         integer                  :: klu, kmin,icp_used(nmumx),irow,kx,ncol,nrow,jj,ii
-        integer                  :: iarray(nmumx),ngmax,kEGrSVE,nfd,nci,ns1,nvv,mmvv(6)
+        integer                  :: iarray(nmumx),ngmax,kEGrSVE,nfd,ns1,nvv,mmvv(6)
         integer                  :: ix, nt, kk
-        character(len=60)       :: ckt, cheader
-        logical                 :: unit_ident , sfound,loadProV
-        real(rn)                :: ucrel,pSV
-        real(rn),allocatable    :: rdummy(:)
-        real                    :: stt1, stp1
-        character(len=64)       :: idstring, parent, classname
+        character(len=60)        :: ckt, cheader
+        logical                  :: unit_ident , sfound, loadProV
+        real(rn)                 :: ucrel, pSV
+        real(rn),allocatable     :: rdummy(:)
+        real                     :: stt1, stp1
+        character(len=64)        :: idstring, parent, classname
         integer(kind=c_int), allocatable :: rownums_marked(:)
         integer(c_int)          :: numrows_marked,ic
         logical                 :: prout
@@ -171,14 +170,14 @@ contains
 
         !----------------------------------------------------------------------------
 
-        prout = .false.
-        ! prout = .true.
+        !prout = .false.
+        prout = .true.
 
 
         idstring = get_gladeid_name(widget)         ! id string of a widget in Glade, e.g., "AcceptAll"
-        i = 0 !Flo clobj%idparent(ncitem)              ! e.g.,  840  (index in the list over 1100 widgets))
+        i = 1 !Flo clobj%idparent(ncitem)              ! e.g.,  840  (index in the list over 1100 widgets))
         if(i > 0) parent = "GtkWindow" !Flo clobj%name(i)%s      ! "GtkWindow"
-        !signal = ""!clobj%signal(ncitem)%s         ! "clicked"
+        !signal = "signal?Flo"!clobj%signal(ncitem)%s         ! "clicked"
         classname = get_widget_class(widget)          ! "GtkButton"
 
         select case (trim(classname))
@@ -190,7 +189,6 @@ contains
               case ('button_LoadSymbols')
 
                 call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'), 1_c_int)
-
                 ngrs_init = ngrs   ! 21.8.2023
 
                 if(kEGr > 0) then
@@ -962,8 +960,7 @@ contains
                     if(kbgv_binom <= 0) then
                         dialogstr = 'dialog_BinPoi'
                         ioption = 71
-                        !call FindItemS(trim(dialogstr), ncitem2)
-                        call Loadsel_diag_new(1, ncitem2)
+                        call Loadsel_diag_new(1, idpt(dialogstr))
                         if(ubound(iptr_cnt,dim=1) < i) call IntModA1(iptr_cnt,i)
                         iptr_cnt(i) = i
 !                         write(66,'(a,4(i0,1x))') 'itm_binom,ip_binom,ilam_binom=',itm_binom,ip_binom,ilam_binom
@@ -1093,12 +1090,6 @@ contains
                 end do
                 if(ncov == 1 .and. ubound(corrval,dim=1) == 1) call RealModA1(CorrVal,i+3)
 
-                ! do i=1,ubound(IsymbA,dim=1)
-                !   WRITE(66,*) 'PMD: i=',int(i,2),' ISymbA(i)=',int(ISymbA(i),2),'  ISymbB(i)=',int(ISymbB(i),2), &
-                !               ' covarval=',sngl(covarval(i)),' corrval=',sngl(corrval(i)), &
-                !               ' CVFormel(i)=',CVFormel(i)%s
-                ! end do
-
                 ! Save the covar-symbols:
                 Symbole_CP(1:ngrsP) = Symbole(1:ngrsP)
                 call Readj_knetto()
@@ -1117,7 +1108,7 @@ contains
                     ifehl = 0                                                  !!
                     dialogstr = 'dialog_decayvals'                             !!
                     !call FindItemS(dialogstr, ncitem2)                         !!
-                    call Loadsel_diag_new(1, ncitem2)                          !!
+                    call Loadsel_diag_new(1, idpt(dialogstr))                          !!
                     IF(ifehl == 1) then                                        !!
 !                         write(66,'(a,i0)') 'After Laodsel (3):  ifehl=',ifehl   !!
                         write(log_str, '(a,i0)') 'After Laodsel (3):  ifehl=',ifehl   !!
@@ -1347,14 +1338,14 @@ contains
                 dialogstr = 'dialogeli'
                 ioption = 68
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case ('EQRenameSymb')
                 dialogstr = 'dialog_symbchg'
                 ioption = 7
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case default
@@ -1385,7 +1376,7 @@ contains
                 ioption = 1
                 dialogstr = 'dialog_options'
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 if(ifehl == 1) goto 9000
 
               case ('TBInputDialog', 'Gspk1Edit', 'FittingData')
@@ -1398,21 +1389,21 @@ contains
                     ioption = 5
                 end if
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case ('RenameQuantity','EQRenameSymb')
                 dialogstr = 'dialog_symbchg'
                 ioption = 7
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case ('NumberOutputQuantities')
                 ioption = 6
                 dialogstr = 'dialog_numegr'
                 !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
                 call gtk_widget_set_sensitive(idpt('QFirst'), 1_c_int)
@@ -1429,15 +1420,15 @@ contains
               case ('TBFontSel', 'FontSel')
                 dialogstr = 'dialog_fontbutton'
                 ioption = 62
-                !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case ('TBColorSel')
                 dialogstr = 'dialogColB'
                 ioption = 63
-                !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case ('ConfidEllipse')
@@ -1467,11 +1458,8 @@ contains
                 pSV = W1minusG
                 ioption = 65
                 dialogstr = 'dialogELI'
-                !call FindItemS('dialogELI', ncitem2)
-!                 write(66,*) 'PrepConfidoid: ncitem2=',ncitem2
-                write(log_str, '(*(g0))') 'PrepConfidoid: ncitem2=',ncitem2
-                call logger(66, log_str)
-                call Loadsel_diag_new(1, ncitem2)
+
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 W1minusG = pSV
                 multi_eval = .false.
                 kEGr = kEGrSVE
@@ -1542,8 +1530,8 @@ contains
               case ('Exchange2Symbols')
                 dialogstr = 'dialog_symbExchg'
                 ioption = 67
-                !call FindItemS(trim(dialogstr), ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 if(ifehl == 1) goto 9000
 
               case ('TBmeansMD')
@@ -1553,18 +1541,14 @@ contains
                 !write(66,*) 'nvarsMD=',nvarsMD
                 !write(66,*) 'meanID(1)=',meanID(1)
                 ! call gtk_widget_set_sensitive(idpt('TBRemoveGridLine'), 1_c_int)
-                call Loadsel_diag_new(1, nci)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 goto 9000
 
               case ('SerialEval')
                 ioption = 70
                 dialogstr = 'dialogSerEval'
-                !call FindItemS('dialogSerEval', ncitem2)
-!                 write(66,*) 'dialogSerEval: ncitem2=',ncitem2
-                write(log_str, '(*(g0))') 'dialogSerEval: ncitem2=',ncitem2
-                call logger(66, log_str)
                 bat_serial = .true.
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
 
                 if(ifehl == 1) goto 9000
                 call Batch_proc()
@@ -1576,14 +1560,14 @@ contains
                 ioption = 71
                 dialogstr = 'dialog_BinPoi'
                 !call FindItemS('dialog_BinPoi', ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 goto 9000
 
               case ('BatestUser')
                 ioption = 72
                 dialogstr = 'dialog_Batest'
                 !call FindItemS('dialog_Batest', ncitem2)
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 if(ifehl == 1) goto 9000
 
                 batest_user = .true.
@@ -1594,13 +1578,9 @@ contains
               case ('BatFiles')
                 ioption = 73
                 dialogstr = 'dialogBatEval'
-                !call FindItemS('dialogBatEval', ncitem2)
-!                 write(66,*) 'dialogBatEval: ncitem2=',ncitem2,' BatFiles'
-                write(log_str, '(*(g0))') 'dialogBatEval: ncitem2=',ncitem2,' BatFiles'
-                call logger(66, log_str)
                 bat_serial = .false.
                 batf = .true.
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
 
 !                 write(66,*) 'BatFiles: ifehl=',ifehl
                 write(log_str, '(*(g0))') 'BatFiles: ifehl=',ifehl
@@ -1629,10 +1609,7 @@ contains
               case ('URfunctions')
                 dialogstr = 'dialog_infoFX'
                 ioption = 75
-
-                !call FindItemS(trim(dialogstr), ncitem2)
-                ! write(66,*) 'PMD: URfunctions  arrived     ncitem2=',ncitem2
-                call Loadsel_diag_new(1, ncitem2)
+                call Loadsel_diag_new(1, idpt(dialogstr))
                 IF(ifehl == 1) goto 9000
 
               case default
@@ -1718,8 +1695,7 @@ contains
                         kEGr = 1
                         ioption = 6
                         dialogstr = 'dialog_numegr'
-                        !call FindItemS(trim(dialogstr), ncitem2)
-                        call Loadsel_diag_new(1, ncitem2)
+                        call Loadsel_diag_new(1, idpt(dialogstr))
                         IF(ifehl == 1) goto 9000
                     end if
                     ! if(project_loadw) loadingpro = .true.

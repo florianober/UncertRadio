@@ -209,6 +209,8 @@ program UncertRadio
     ! initate log and result files
     call logger(30, GPL_HEADER, new=.true.)
     call logger(30, '')
+    call logger(55, GPL_HEADER, new=.true.)
+    call logger(55, '')
     call logger(63, GPL_HEADER, new=.true.)
     call logger(63, '')
     call logger(65, GPL_HEADER, new=.true.)

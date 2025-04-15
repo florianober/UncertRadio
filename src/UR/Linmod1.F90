@@ -30,14 +30,14 @@ subroutine Linmod1(mode)
     !
 
     use UR_types
-    use UR_Gleich_globals,          only: Formeltext, FormeltextFit, ifehl, loadingpro, syntax_check, &
-                                  charv
-    use UR_gtk_globals,   only: dialogstr, ioption
+    use UR_Gleich_globals,   only: Formeltext, FormeltextFit, ifehl, loadingpro, syntax_check, &
+                                   charv
+    use UR_gtk_globals,      only: dialogstr, ioption
     use UR_perror
 
     use Sym1,               only: Symbol1
     use Rout,               only: WDGetTextviewString
-    use Top,                only: WrStatusbar, FindItemS
+    use Top,                only: WrStatusbar, idpt
     use LDN,                only: Loadsel_diag_new
     use RG,                 only: Read_Gleich, modify_Formeltext
 
@@ -47,8 +47,6 @@ subroutine Linmod1(mode)
     implicit none
 
     integer, intent(in)  :: mode         ! 1:  call von Read_Gleich;   2: call von ProcessMenu
-
-    integer              :: ncitem
 
     character(len=100)   :: cgl1,cgl2,cgl3
     character(len=512)   :: log_str
@@ -68,8 +66,8 @@ subroutine Linmod1(mode)
 
     ioption = 2
     dialogstr = 'dialogDecayModel'
-    ! call FindItemS(dialogstr, ncitem)
-    call Loadsel_diag_new(1, ncitem)
+
+    call Loadsel_diag_new(1, idpt('dialogDecayModel'))
 
     if(mode == 2 .and. syntax_check) then
 

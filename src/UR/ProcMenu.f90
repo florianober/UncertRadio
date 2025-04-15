@@ -42,7 +42,7 @@ recursive subroutine ProcMenu(widget)
 
     use gtk_draw_hl,         only: hl_gtk_drawing_area_resize, gtkallocation
 
-    use UR_gtk_globals,      only: clobj, ioption, QuitProg, HelpButton, consoleout_gtk, &
+    use UR_gtk_globals,      only: ioption, QuitProg, consoleout_gtk, &
                                    dialog_leave, item_setintern, gscreen, scrwidth_min, &
                                    scrwidth_max, scrheight_min, scrheight_max, plot_setintern, &
                                    zoomf, replot_on, zoomf_prev, UR_widgets
@@ -61,7 +61,7 @@ recursive subroutine ProcMenu(widget)
                                    pending_events, WDPutEntryString, WDSetComboboxAct, ClearMCfields, &
                                    WDGetSelRadioMenu, EraseNWGfields, &
                                    WDGetCheckButton, WDPutEntryDouble, WDSetCheckButton,  &
-                                   WDGetComboboxAct
+                                   WDGetComboboxAct, get_gladeid_name, get_widget_class
 
     use urInit,              only: UncW_Init, ReadUnits
     use MCC,                 only: Run_MCstart
@@ -79,7 +79,6 @@ recursive subroutine ProcMenu(widget)
     implicit none
 
     type(c_ptr), intent(in) :: widget
-    integer                :: ncitem
     integer                :: k, ix, resp, i, j, iwahl, nci2, kpi, &
                               ncurrp, notebook_last_free
     integer(c_int)         :: cmoni, curp, szx, szy
@@ -99,14 +98,13 @@ recursive subroutine ProcMenu(widget)
     ! prout = .true.
     ifehl = 0
     if(consoleout_gtk) write(0,*) '##### PM:  Anfang  ###########################'
-    HelpButton = .false.
-    signal = ''
-    parent = ''
 
-    idstring = clobj%idd(ncitem)%s
-    signal = clobj%signal(ncitem)%s
-    label  = clobj%label(ncitem)%s
-    i = clobj%idparent(ncitem)
+    parent = 'parent?'
+
+    idstring = get_gladeid_name(widget) ! clobj%idd(ncitem)%s
+    signal = 'signal?' ! Flo clobj%signal(ncitem)%s
+    label  = 'label?' ! Flo clobj%label(ncitem)%s
+    i = 1 ! FLo clobj%idparent(ncitem)
     ! if(prout) write(66,'(a,i0,2(a,a),2x,i16)') 'PM: ncitem=',ncitem,' idstring=',clobj%idd(ncitem)%s,' signal=',  &
     !     clobj%signal(ncitem)%s,clobj%id_ptr(ncitem)
 
@@ -114,7 +112,7 @@ recursive subroutine ProcMenu(widget)
         !write(66,'(a,i0,2(a,a),2x,i16)') 'PM: i=0: ncitem=',ncitem,' idstring=',clobj%idd(ncitem)%s,' signal=', &
         !                            clobj%signal(ncitem)%s, clobj%id_ptr(ncitem)
     end if
-    if(i > 0) parent = clobj%name(i)%s
+    if(i > 0) parent = 'parent?' !Flo clobj%name(i)%s
 
     if(i == 0 .and. trim(idstring) == 'window1') then
         parent = ''
@@ -122,14 +120,11 @@ recursive subroutine ProcMenu(widget)
     end if
     ! if(i == 0 .and. ncitem > 0) signal = clobj%signal(ncitem)
 
-    name = clobj%name(ncitem)%s
+    name = get_widget_class(widget)
 
     iwahl = 1    ! for Decayfit, Gamspk1
     refresh_type = 1
     refresh_but = .false.
-    if(trim(label) == 'Hilfe') HelpButton = .true.
-    if(trim(label) == 'Help') HelpButton = .true.
-    if(HelpButton .and. trim(idstring) == 'HelpFX') HelpButton = .false.   ! 8.3.2024
 
     if(trim(parent) == 'GtkWindow' .or. len_trim(parent) == 0) then
         ! write(66,'(a,i1,a,i5,a,a)') 'PM: Start! kEGr=',kEGr,'  ncitem=',ncitem,' idstring=',trim(idstring)

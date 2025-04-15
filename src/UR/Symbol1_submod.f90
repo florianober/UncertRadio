@@ -211,6 +211,8 @@ contains
         end if
 
         ngmax = nglp + nmodf
+        print *, '-----------------------------> Flo', ngmax
+
         if(allocated(nRssy)) deallocate(nRssy,nRssyanf)
         allocate(nRssy(ngmax),nRssyanf(ngmax))
         nRssy = 0

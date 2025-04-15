@@ -82,7 +82,7 @@ contains
 !        74 : dialog for distributions
 !
 
-    subroutine Loadsel_diag_new(mode, ncitem)
+    subroutine Loadsel_diag_new(mode, widget)
 
         ! This is the basic routine which shows a dialog, reacts to possible user actions
         ! by processing them in this routine and reads the necessary information from the
@@ -125,18 +125,18 @@ contains
 
         use g,                  only:   g_value_set_string,g_object_set_property
 
-        use UR_gtk_globals,     only:   clobj, dialogstr, FieldDoActCB, FieldEditCB, &
+        use UR_gtk_globals,     only:   dialogstr, FieldDoActCB, FieldEditCB, &
                                         ncitemClicked,PageSwitchedCB,ButtonClicked,ioption,CloseDialogCB, &
                                         dialogloop_on,Settings,fontname,colorname,kcolortype,dialog_leave, &
                                         WinMC_resized,dialog_on,ntvs,tvcolindex, &
                                         tvnames,pixel_per_char,tvcols, pstring
 
-        use UR_gtk_window_types, only:   GdkRGBA
+        use UR_gtk_window_types, only:  GdkRGBA
 
         use top,                 only:  idpt, WrStatusbar,FieldUpdate,MDcalc, &
                                         PixelPerString,RealModA1,CharModa1,IntModA1,InitVarsTV5,InitVarsTV5_CP, &
                                         InitVarsTV6_CP,LogModA1,CharModStr
-        use ur_general_globals,       only:   actual_plot,Confidoid_activated, plot_confidoid,plot_ellipse, &
+        use ur_general_globals,  only:  actual_plot,Confidoid_activated, plot_confidoid,plot_ellipse, &
                                         sDecimalPoint,sListSeparator,mcsim_on,Savep,FileTyp,serial_csvinput, &
                                         work_path, results_path, &
                                         batest_ref_file_ch,batest_out_ch,base_project_SE,kfrom_SE,kto_SE, &
@@ -163,8 +163,11 @@ contains
                                         singlenuk,use_absTimeStart,use_WTLS_kal,mac
 
         USE UR_DLIM,            only:   GamDistAdd, kalpha, kbeta, NWGMethode, W1minusG
-        USE UR_Loadsel
-        USE UR_Gspk1Fit
+        USE UR_Loadsel,         only:   numrowsold, NBcurrentPage, kopt, Sname
+        USE UR_Gspk1Fit,        only:   gmodif, unitradio, mwtyp, fbt, ecorruse, WMextSD, kdatmax, Erg_CP, &
+                                        RateCB_CP, guse_CP, GNetRate_CP, RateBG_CP, SDRateBG_CP, Effi_CP, &
+                                        SDEffi_CP, pgamm_CP, SDpgamm_CP, fatt_CP, fcoinsu_CP, SDfatt_CP, &
+                                        SDfcoinsu_CP, effi
         use Rout,               only:   MessageShow, &
                                         WDPutEntryDouble, &
                                         WDPutEntryString, &
@@ -195,7 +198,9 @@ contains
                                         WDPutLabelStringBold, &
                                         WTreeViewSetColorRow, &
                                         WDPutTreeViewColumnLabel, &
-                                        WDSetComboboxAct
+                                        WDSetComboboxAct, &
+                                        get_gladeid_name, &
+                                        get_widget_class
 
         use Brandt,             only: mean, sd
         use urInit,             only: GtkSettingsIO,TVtrimCol_width
@@ -213,7 +218,7 @@ contains
         use plplot_code_sub1,   only: scalable
 
         use file_io,            only: logger, read_config
-        use gtk_handler,      only: SetColors
+        use gtk_handler,        only: SetColors
         use UR_params,          only: BATEST_OUT, BATEST_REF_FILE, UR2_CFG_FILE
         use color_theme
         use translation_module, only: T => get_translation, set_language, get_language
@@ -221,7 +226,7 @@ contains
         implicit none
 
         integer, intent(in)        :: mode             ! 1: show dialog;  2: readout dialog and hide it
-        integer, intent(in)        :: ncitem
+        type(c_ptr), intent(in)    :: widget
 
         character(len=60)          :: idstring
         character(len=60)          :: widgetlabel
@@ -236,7 +241,7 @@ contains
         type(c_ptr)                :: dialog, pfontname, pfd2_ptr, pfd_ptr
         integer(c_int)             :: indx, answer,res
         integer(c_int)             :: resp_id
-        integer                    :: resp,ncitem2,k1lang,ifitXX(3),nn,kcmx,nvals
+        integer                    :: resp, k1lang, ifitXX(3),nn,kcmx,nvals
         type(c_ptr)                :: ctext, pcolor, cp1, cp2
         integer(c_int),allocatable :: indices(:)
 
@@ -267,17 +272,17 @@ contains
         nwei1 = 0
         dnew = .false.
 
-        if(mode == 2 .and. ncitem == 0) return
+        if(mode == 2 .and. .not. c_associated(widget)) return
         prout = .false.
 
         dialog = c_null_ptr      ! 2025.01.23 GK
 
-        if(ncitem > 0) then
-            idstring    = clobj%idd(ncitem)%s
-            widgetlabel = clobj%label(ncitem)%s
-            objstr      = clobj%name(ncitem)%s
-            signal      = clobj%signal(ncitem)%s
-        end if
+
+        idstring    = get_gladeid_name(widget)
+            !widgetlabel = clobj%label(ncitem)%s
+        objstr      = get_widget_class(widget)
+            !signal      = clobj%signal(ncitem)%s
+
 
         if(prout .and. len_trim(dialogstr) > 0)  then
             write(log_str, '(*(g0))') '         dialog=',trim(dialogstr)
@@ -884,7 +889,7 @@ contains
         PageSwitchedCB = .false.
         CloseDialogCB = .false.
         WinMC_resized = .false.
-        ncitem2 = 0
+
         resp_id = 0_c_Int
 
         ! show the dialog
@@ -949,7 +954,7 @@ contains
         if(resp_id == -3 .or. resp_id == -5 .or. resp_id == -8 .or. resp_id == -10) then
             Objstr = 'GtkButton'
             widgetlabel = 'OK'
-            ncitem2 = ncitemClicked
+            !ncitem2 = ncitemClicked
             dialog_leave = 1
 !             if(prout) write(66,*) '     Exit A'
             if(prout)  then
@@ -961,7 +966,7 @@ contains
         if(resp_id == -6 .or. resp_id == -9) then
             Objstr = 'GtkButton'
             widgetlabel = 'Cancel'
-            ncitem2 = ncitemClicked
+            !ncitem2 = ncitemClicked
 !             if(prout) write(66,*) '     Exit B'
             if(prout)  then
                 write(log_str, '(*(g0))') '     Exit B'
@@ -970,13 +975,12 @@ contains
             goto 1100
         end if
         if(ButtonClicked .or. FieldDoActCB .or. CloseDialogCB .or. FieldEditCB) then
-            ncitem2 = ncitemClicked
-            objstr = clobj%name(ncitem2)%s
-            idstring = clobj%idd(ncitem2)%s
-            widgetlabel = clobj%label(ncitem2)%s
-            signal = clobj%signal(ncitem2)%s
-            !!!!!!!!!!!! call gtk_widget_hide(dialog)      ! deacivated 17.9.2023
-!             if(prout) write(66,*) '     Exit C'
+            !ncitem2 = ncitemClicked
+            objstr = 'object?ncitem2' ! Flo clobj%name(ncitem2)%s
+            idstring = 'gladeid?ncitem2' ! Flo:clobj%idd(ncitem2)%s
+            widgetlabel = 'label?ncitem2' ! Flo: clobj%label(ncitem2)%s
+            signal = 'signal?ncitem2' ! Flo: clobj%signal(ncitem2)%s
+
             if(prout)  then
                 write(log_str, '(*(g0))') '     Exit C'
                 call logger(66, log_str)

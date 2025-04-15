@@ -75,15 +75,14 @@
 !--------------------------------------------------------------------------------------------
 subroutine copyEquats()
 
-    !     Copyright (C) 2014-2023  Günter Kanisch
+    !     Copyright (C) 2014-2025  Günter Kanisch
 
-    use UR_types
-    use UR_Gleich_globals,         only: Formeltext, FormeltextFit, ifehl
-    use UR_gtk_globals,  only: item_setintern
-    use Rout,              only: WDPutTextviewString, pending_events
-    use ur_general_globals,      only: copyEQ, open_project_parts
-    use Pread,             only: ProRead
-    use RG,                only: modify_Formeltext
+    use UR_Gleich_globals,  only: Formeltext, FormeltextFit, ifehl
+    use UR_gtk_globals,     only: item_setintern
+    use Rout,               only: WDPutTextviewString, pending_events, idpt
+    use ur_general_globals, only: copyEQ, open_project_parts
+    use Pread,              only: ProRead
+    use RG,                 only: modify_Formeltext
     implicit none
 
     write(0,*) 'Start copyEquats:'
@@ -128,14 +127,18 @@ subroutine modifSymbols()
                                  WTreeViewPutStrCell,WTreeViewGetStrCell,WDSetComboboxAct, &
                                  WDListstoreFill_1,WTreeViewGetStrArray
 
+    use file_io,           only: logger
     use Pread,             only: ProRead
 
     implicit none
+    character(len=512)           :: log_str
     integer                   :: i, k, kfd
     type(charv)               :: xsymbol(1)
 
     write(0,*) 'Start modifSymbols:'
-    write(66,*) 'Start modifSymbols: ngrs=',int(ngrs,2)
+!     write(66,*) 'Start modifSymbols: ngrs=',int(ngrs,2)
+    write(log_str, '(*(g0))') 'Start modifSymbols: ngrs=',int(ngrs,2)
+    call logger(66, log_str)
 
     ifehl = 0
     open_project_parts = .true.
@@ -146,7 +149,9 @@ subroutine modifSymbols()
 
 100 continue
 
-    write(66,*) 'nach ProRead: ngrs=',int(ngrs,2)
+!     write(66,*) 'nach ProRead: ngrs=',int(ngrs,2)
+    write(log_str, '(*(g0))') 'nach ProRead: ngrs=',int(ngrs,2)
+    call logger(66, log_str)
 
 
     kfd = 0
@@ -191,7 +196,8 @@ subroutine modifSymbols()
     close (25)
     write(0,*) 'FitDecay=',FitDecay
     write(0,*) 'End modifSymbols:'
-    write(66,*) 'End modifSymbols:'
+!     write(66,*) 'End modifSymbols:'
+    call logger(66, 'End modifSymbols:')
 
     modSymb = .false.
 
@@ -214,18 +220,22 @@ subroutine setDataTV2
     use Rout,              only: pending_events,WTreeViewPutStrCell,WTreeViewPutDoubleCell, &
                                  WTreeViewPutComboCell,WDListstoreFill_1
     use ur_general_globals,      only: fileToSimulate
+    use file_io,           only: logger
     use CHF,               only: ucase
 
     implicit none
 
     integer                   :: i1,ios,i,jv,k,mm1,kfd,ngrs_new
     character(:),allocatable  :: text
+    character(len=512)        :: log_str
     character(len=60)         :: csymbol
 
     write(0,*) 'Start setDataTV2:'
-    write(66,*) 'Start setDataTV2:'
+!     write(66,*) 'Start setDataTV2:'
+    call logger(66, 'Start setDataTV2:')
 
     ifehl = 0
+
     allocate(character(len=800) :: text)
 
     allocate(SDformelX(ngrs))
@@ -303,10 +313,15 @@ subroutine setDataTV2
 
         end do
         ! WRITE(55,*) 'k=',k,' ',Messwert(k),' ',IVTL(k),' ',TRIM(sdformel(k)), &
-        WRITE(55,'(a,i3,a,es12.5,a,i2,2a,2(a,es12.5),a,i0,a,es12.5)',decimal='point')  &
+!         WRITE(55,'(a,i3,a,es12.5,a,i2,2a,2(a,es12.5),a,i0,a,es12.5)',decimal='point')  &
+!             'k=',k,' ',real(MesswertX(k),8),' ',IVTLX(k),' ',sdformelX(k)%s, &
+!             ' ',real(sdwertX(k),8),' ',real(HBreiteX(k),8),' ',IARX(k),' ',  &
+!             real(StdUncX(k),8)
+        write(log_str, '(a,i3,a,es12.5,a,i2,2a,2(a,es12.5),a,i0,a,es12.5)',decimal='point') &
             'k=',k,' ',real(MesswertX(k),8),' ',IVTLX(k),' ',sdformelX(k)%s, &
             ' ',real(sdwertX(k),8),' ',real(HBreiteX(k),8),' ',IARX(k),' ',  &
             real(StdUncX(k),8)
+        call logger(55, log_str)
     end do
 
 50  continue
@@ -375,7 +390,8 @@ subroutine setDataTV2
     deallocate(MesswertX,StdUncX,SDwertX,HBreiteX)
     deallocate(IARX,IVTLX)
     write(0,*) 'End setDataTV2:'
-    write(66,*) 'End setDataTV2:'
+!     write(66,*) 'End setDataTV2:'
+    call logger(66, 'End setDataTV2:')
 
 end subroutine setDataTV2
 
@@ -423,9 +439,11 @@ subroutine setFdecayModel()
     use Rout,              only: WDPutTextviewString,pending_events,WDSetComboboxAct,WDSetCheckButton, &
                                  WDPutSelRadio,WDPutEntryString
     use LSTfillT,          only: WDListstoreFill_table
+    use file_io,           only: logger
     use Pread,             only: ProRead
 
     implicit none
+    character(len=512)     :: log_str
 
     write(0,*) 'Start setFdecayModel:'
 
@@ -441,7 +459,7 @@ subroutine setFdecayModel()
 
 
     item_setintern = .true.
-!--------------------
+    !--------------------
     call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 1_c_int)
     call gtk_widget_set_sensitive(idpt('FittingModel'), 1_c_int)
     call gtk_widget_set_sensitive(idpt('FittingData'), 1_c_int)
@@ -455,12 +473,16 @@ subroutine setFdecayModel()
     call WDSetComboboxAct('comboboxA1', ifit(1))
     call WDSetComboboxAct('comboboxA2', ifit(2))
     call WDSetComboboxAct('comboboxA3', ifit(3))
-    write(55,*) 'Read:   ifit=',ifit
+!     write(55,*) 'Read:   ifit=',ifit
+    write(log_str, '(*(g0))') 'Read:   ifit=',ifit
+    call logger(55, log_str)
 
     call WDSetCheckButton('checkbuttonWFit', nwei)
     call WDSetCheckButton('checkbuttonCovZR', nkovzr)
     call WDSetCheckButton('checkbuttonAllm', ndefall)
-    write(55,*) 'Read:   nwei=',nwei,'  nkovzr=',nkovzr,'  ndefall=',ndefall,' kfitmeth=',kfitmeth
+!     write(55,*) 'Read:   nwei=',nwei,'  nkovzr=',nkovzr,'  ndefall=',ndefall,' kfitmeth=',kfitmeth
+    write(log_str, '(*(g0))') 'Read:   nwei=',nwei,'  nkovzr=',nkovzr,'  ndefall=',ndefall,' kfitmeth=',kfitmeth
+    call logger(55, log_str)
 
     IF(kfitmeth == 0) call WDPutSelRadio('radiobuttonNLSQ', 1)
     IF(kfitmeth == 1) call WDPutSelRadio('radiobuttonNLSQ', 2)
@@ -468,7 +490,9 @@ subroutine setFdecayModel()
     IF(kfitmeth == 3) call WDPutSelRadio('radiobuttonNLSQ', 4)
 
     call WDSetComboboxAct('comboboxtextNCH', nchannels)
-    write(55,*) 'nchannels=',nchannels
+!     write(55,*) 'nchannels=',nchannels
+    write(log_str, '(*(g0))') 'nchannels=',nchannels
+    call logger(55, log_str)
     ! if(ubound(FormelTextFit,dim=1) > 0) call WDPutTextviewString('textviewModelEQ',FormeltextFit)
 
     !-----------------------------------------------------------------
@@ -514,9 +538,11 @@ subroutine setGspk1Data()
     use LSTfillT,          only: WDListstoreFill_table
     use LDN,               only: ConvertGamD
     use Pread,             only: ProRead
+    use file_io,           only: logger
     use PMD,               only: GamPeakVals
 
     implicit none
+    character(len=512)           :: log_str
     integer                   :: i                 !! , kmwtyp
 
 
@@ -554,10 +580,17 @@ subroutine setGspk1Data()
     !  goto 14
 
 
-    write(55,*) 'ubound(erg,dim=1)=',int(ubound(erg,dim=1),2), &
+!     write(55,*) 'ubound(erg,dim=1)=',int(ubound(erg,dim=1),2), &
+!         ' ubound(GnetRate,dim=1)=',int(ubound(GnetRate,dim=1),2),' numd=',numd
+    write(log_str, '(*(g0))') 'ubound(erg,dim=1)=',int(ubound(erg,dim=1),2), &
         ' ubound(GnetRate,dim=1)=',int(ubound(GnetRate,dim=1),2),' numd=',numd
-    write(55,*) ' erg=',sngl(erg)
-    write(55,*) ' GnetRate=',sngl(GnetRate)
+    call logger(55, log_str)
+!     write(55,*) ' erg=',sngl(erg)
+    write(log_str, '(*(g0))') ' erg=',sngl(erg)
+    call logger(55, log_str)
+!     write(55,*) ' GnetRate=',sngl(GnetRate)
+    write(log_str, '(*(g0))') ' GnetRate=',sngl(GnetRate)
+    call logger(55, log_str)
 
     call WTreeViewPutCheckArray('treeview6', 2, numd/5, guse)
     call WTreeViewPutDoubleArray('treeview6', 3, numd/5, erg)
@@ -634,9 +667,11 @@ subroutine setCovTable()
     use Rout,              only: pending_events,WTreeViewPutComboArray,WTreeViewPutDoubleArray, &
                                  WTreeViewPutStrArray
     use Pread,             only: ProRead
+    use file_io,           only: logger
     use PMD,               only: GamSymList,GamPeakvals
 
     implicit none
+    character(len=512)           :: log_str
     integer                   :: i
 
     write(0,*) 'Start setCovTable:'
@@ -647,7 +682,9 @@ subroutine setCovTable()
 
     call ProRead()
     !  call WDListstoreFill_table('liststore_valunc',2, .true.)
-    write(66,*) 'setCovTable: nach ProRead: numd=',numd,' ngrs=',int(ngrs,2)
+!     write(66,*) 'setCovTable: nach ProRead: numd=',numd,' ngrs=',int(ngrs,2)
+    write(log_str, '(*(g0))') 'setCovTable: nach ProRead: numd=',numd,' ngrs=',int(ngrs,2)
+    call logger(66, log_str)
     goto 60
 
 60  continue
@@ -663,9 +700,13 @@ subroutine setCovTable()
 
     call gamPeakVals()        ! 20.9.2023
 !----------------------------------------------
-    write(66,*) 'setCovTable: ncov=',ncov,' numd=',numd,' ubound(Symbole,dim=1)=',ubound(Symbole,dim=1)
+!     write(66,*) 'setCovTable: ncov=',ncov,' numd=',numd,' ubound(Symbole,dim=1)=',ubound(Symbole,dim=1)
+    write(log_str, '(*(g0))') 'setCovTable: ncov=',ncov,' numd=',numd,' ubound(Symbole,dim=1)=',ubound(Symbole,dim=1)
+    call logger(66, log_str)
     do i=1,ncov
-        write(66,*) 'i=',int(i,2), ' IsymbA, IsymbB: ',IsymbA(i),ISymbB(i)
+!         write(66,*) 'i=',int(i,2), ' IsymbA, IsymbB: ',IsymbA(i),ISymbB(i)
+        write(log_str, '(*(g0))') 'i=',int(i,2), ' IsymbA, IsymbB: ',IsymbA(i),ISymbB(i)
+        call logger(66, log_str)
     end do
 
 
@@ -710,10 +751,12 @@ subroutine setKalfitData()
     use Rout,              only: pending_events,WDPutEntryString,WDSetComboboxAct, &
                                  WDSetCheckButton,WTreeViewPutDoubleArray
     use KLF,               only: xkalfit
+    use file_io,           only: logger
     use Pread,             only: ProRead
 
 
     implicit none
+    character(len=512)           :: log_str
     integer                   :: j, kk
 
     write(0,*) 'Start setKalFitData:'
@@ -749,7 +792,9 @@ subroutine setKalfitData()
     call Xkalfit()
     ! call LinCalib()
 
-    write(66,*) 'Laden Kalfit: chisqKB=',sngl(chisqKB),' a_aklib=',(sngl(a_kalib(j)),j=1,maKB)
+!     write(66,*) 'Laden Kalfit: chisqKB=',sngl(chisqKB),' a_aklib=',(sngl(a_kalib(j)),j=1,maKB)
+    write(log_str, '(*(g0))') 'Laden Kalfit: chisqKB=',sngl(chisqKB),' a_aklib=',(sngl(a_kalib(j)),j=1,maKB)
+    call logger(66, log_str)
     write(0,*) 'End setKalFitData:'
 
 end subroutine setKalfitData
@@ -772,6 +817,7 @@ subroutine setMeanData()
     use Rout,              only: WDPutTextviewString,pending_events,WTreeViewPutStrArray, &
                                  WTreeViewPutStrCell,WTreeViewGetStrCell,WDSetComboboxAct, &
                                  WDListstoreFill_1
+    use file_io,           only: logger
     use Pread,             only: ProRead
 
 
@@ -780,7 +826,8 @@ subroutine setMeanData()
 
 
     write(0,*) 'Start setMeanData:'
-    write(66,*) 'Start setMeanData:'
+!     write(66,*) 'Start setMeanData:'
+    call logger(66, 'Start setMeanData:')
 
     ifehl = 0
     open_project_parts = .true.
@@ -813,7 +860,8 @@ subroutine setMeanData()
 
     MDDT = .false.
     write(0,*) 'End setMeanData:'
-    write(66,*) 'End setMeanData:'
+!     write(66,*) 'End setMeanData:'
+    call logger(66, 'End setMeanData:')
 
 end subroutine setMeanData
 
@@ -821,21 +869,25 @@ end subroutine setMeanData
 
 subroutine setDistPars()
 
-    use UR_types
-    use UR_Gleich_globals,         only: charv,ngrs, &
-                                 IVTL,HBreite,IAR,Messwert,SDWert,StdUnc,nvarsMD,MDpoint,k_datvar,MDpointrev, &
-                                 SDformel
-    use Rout,              only: WTreeViewGetComboArray,WTreeViewGetDoubleArray,WTreeViewGetStrArray
-    use ur_general_globals,      only: SetDP, top_selrow
-    use UR_gtk_globals,  only: ioption
-    use LDN,               only: Loadsel_diag_new
-    use Top,               only: MDcalc
+
+    use UR_Gleich_globals,  only: charv,ngrs, &
+                                  IVTL,HBreite,IAR,Messwert,SDWert,StdUnc,nvarsMD,&
+                                  MDpoint,k_datvar,MDpointrev, &
+                                  SDformel
+    use Rout,               only: WTreeViewGetComboArray, WTreeViewGetDoubleArray, &
+                                  WTreeViewGetStrArray, idpt
+    use ur_general_globals, only: SetDP, top_selrow
+    use UR_gtk_globals,     only: ioption
+    use LDN,                only: Loadsel_diag_new
+    use file_io,            only: logger
+    use Top,                only: MDcalc
 
     implicit none
-    integer             :: ncitem
+    character(len=512)        :: log_str
 
     write(0,*) 'Start setDistPars:'
-    write(66,*) 'Start setDistPars:'
+!     write(66,*) 'Start setDistPars:'
+    call logger(66, 'Start setDistPars:')
 
 
     write(0,*) 'nvarsMD=',nvarsMD
@@ -851,24 +903,26 @@ subroutine setDistPars()
     call WTreeViewGetComboArray('treeview2', 10, ngrs, IAR)
     call WTreeViewGetDoubleArray('treeview2', 11, ngrs, StdUnc)
 
-    write(0,*) 'ubound(ivtl,dim=1)=',ubound(ivtl,dim=1)
+    write(0,*) 'ubound(ivtl,dim=1)=', ubound(ivtl,dim=1)
 
-    write(66,*) 'MDPointrev=',int(MDPointrev(1:2),2),'  MDpoint=',int(MDpoint(1:2),2)
+!     write(66,*) 'MDPointrev=',int(MDPointrev(1:2),2),'  MDpoint=',int(MDpoint(1:2),2)
+    write(log_str, '(*(g0))') 'MDPointrev=',int(MDPointrev(1:2),2),'  MDpoint=',int(MDpoint(1:2),2)
+    call logger(66, log_str)
 
     do k_datvar=1,nvarsMD
         top_selrow = MDpoint(k_datvar)
         call MDcalc(k_datvar)
 
         ioption = 74
-        !call FindItemS('TBDistribDialog', ncitem)
-        call Loadsel_diag_new(1, ncitem)
+        call Loadsel_diag_new(1, idpt('TBDistribDialog'))
     end do
 
     setDP = .false.
 100 continue
 
     write(0,*) 'End setDistPars:'
-    write(66,*) 'End setDistPars:'
+!     write(66,*) 'End setDistPars:'
+    call logger(66, 'End setDistPars:')
 
 
 end subroutine setDistPars

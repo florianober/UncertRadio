@@ -83,7 +83,7 @@ contains
 
 
         integer              :: i1,i,i2,i3,i4,j,i21,i22,jj,k,i0,iff
-        integer              :: ncitem,idif,resp,ncm,ipos(15),ngl
+        integer              :: idif,resp,ncm,ipos(15),ngl
 
         logical              :: prout,frepeat
         integer(c_int)       :: res
@@ -149,8 +149,8 @@ contains
             ! ask for the number of output quantities:
             ioption = 6
             dialogstr = 'dialog_numegr'
-            ! call FindItemS(dialogstr, ncitem)
-            call Loadsel_diag_new(1, ncitem)
+
+            call Loadsel_diag_new(1, idpt(dialogstr))
             if(ifehl == 1) goto 9000    ! RETURN
             if(knumEGr > 0) kEGr = 1
             write(66,'(a,i0)') '  knumEGr=',knumEGr

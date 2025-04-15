@@ -546,9 +546,6 @@ module UR_gtk_globals
     type(widgets_named), target :: UR_widgets
 
 
-    type(Wclobj), target     :: clobj
-    integer                  :: nclobj       ! number of widgets
-
     real(c_double)           :: RGBA_BG_windia(4)
     real(c_double)           :: RGBA_BG_items(4)
     character(len=7)         :: RGBA_BG_windia_hex, RGBA_BG_items_hex

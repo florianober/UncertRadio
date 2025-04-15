@@ -180,7 +180,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(prout) write(66,*) 'PLoadpronew: button_LoadSymbols step started.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
     ! call FindItemS('button_LoadSymbols', ncitem)
     ! write(66,*) 'FindItemS: ncitem=',ncitem
-    !Flo call ProcMainDiag(widget)
+    call ProcMainDiag(idpt('button_LoadSymbols'))
     if(prout) write(66,*) 'PLoadpronew: button_LoadSymbols step finished.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
 
     IF(ifehl == 1) GOTO 100

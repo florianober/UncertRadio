@@ -16,7 +16,7 @@
 !
 !-------------------------------------------------------------------------------------------------!
 
-subroutine DisplayHelp(idstr)
+subroutine DisplayHelp(idstr, UR_widgets)
 
     ! This subroutine is called when a user clicks on various Help buttons throughout the application.
     ! It displays the appropriate help content by opening the corresponding URL in the system's default web browser.
@@ -24,19 +24,23 @@ subroutine DisplayHelp(idstr)
     !
 
     use, intrinsic :: iso_c_binding,       only: c_int, c_null_ptr, c_null_char, c_new_line
-    use UR_gtk_globals,                    only: UR_widgets
-    use ur_general_globals,                only: help_path, dir_sep
-    use file_io,                           only: logger
-    use gtk,                               only: GTK_BUTTONS_OK, GTK_MESSAGE_WARNING, &
+    use gtk,                               only: GTK_BUTTONS_OK, &
+                                                 GTK_MESSAGE_WARNING, &
                                                  gtk_show_uri_on_window
+
+    use UR_types,                          only: widgets_named
+    use ur_general_globals,                only: help_path
+    use file_io,                           only: logger
+
     use Rout,                              only: MessageShow
-    use top,                               only: idpt
+
     use chf,                               only: flfu
     use translation_module,                only: T => get_translation, get_language
 
     implicit none
 
-    character(len=*), intent(in) :: idstr
+    character(len=*), intent(in)           :: idstr
+    type(widgets_named), intent(in)        :: UR_widgets
 
     logical                                :: ex
     integer                                :: i, pos
@@ -75,7 +79,7 @@ subroutine DisplayHelp(idstr)
 
 
     url = " "
-    home_url = help_path // 'final' // dir_sep // 'html' // dir_sep // 'index.html'
+    home_url = help_path // 'final/html/index.html'
 
     idstring = idstr
 
@@ -93,7 +97,7 @@ subroutine DisplayHelp(idstr)
     if (get_language() == 'en') then
         lang = ''
     else
-        lang = get_language() // dir_sep
+        lang = get_language() // '/'
     end if
 
     ! search for the correct topic that is linked to the ButtonID.
@@ -101,7 +105,7 @@ subroutine DisplayHelp(idstr)
         pos = index(topics(i), '|')
 
         if(idstring == trim(adjustl(topics(i)(pos+1:)))) then
-            url = help_path // 'final' // dir_sep // 'html' // dir_sep // lang // trim(topics(i)(1:pos-1))
+            url = help_path // 'final/html/' // lang // trim(topics(i)(1:pos-1))
             inquire(file=flfu(url), exist=ex)
             if (.not. ex) then
                 call logger(66, "Help: Could not find '" // url // "'")
