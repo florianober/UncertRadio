@@ -29,6 +29,7 @@ module gtk_handler
     use, intrinsic :: iso_c_binding
     use UR_types, only: rn
     use gtk,      only: TRUE, FALSE
+    use top,      only: idpt
 
     implicit none
 
@@ -94,7 +95,7 @@ contains
                                         gtk_builder_add_from_resource
 
         use gtk_sup,              only: gvalue, Gerror, c_f_string
-        use Top,                  only: WrStatusbar, idpt
+        use Top,                  only: WrStatusbar
         use URinit,               only: Uncw_Init
         use gdk,                  only: gdk_cursor_new, gdk_synthesize_window_state, &
                                         gdk_display_get_default_screen,  &
@@ -147,7 +148,7 @@ contains
         call logger(66, log_str)
         if(consoleout_gtk) write(0,*) 'Behind processing the Glade file'
 
-        if (guint == 0_c_int) then    ! False
+        if (guint == FALSE) then    ! False
             if(c_associated(error)) call EvalGerror('Load glade from string: ',error)
 
             write(log_str, '(a,a)') "  c_associated(Error)=",c_associated(error)
@@ -164,12 +165,13 @@ contains
         ! of the objects in the Glade file
         !
         UR_widgets%window1 = gtk_builder_get_object(builder, "window1"//c_null_char)
-        UR_widgets%main_notebook(1) = gtk_builder_get_object(builder, "NBProcedure"//c_null_char)
-        UR_widgets%main_notebook(2) = gtk_builder_get_object(builder, "NBEquations"//c_null_char)
-        UR_widgets%main_notebook(3) = gtk_builder_get_object(builder, "NBValUnc"//c_null_char)
-        UR_widgets%main_notebook(4) = gtk_builder_get_object(builder, "NBBudget"//c_null_char)
-        UR_widgets%main_notebook(5) = gtk_builder_get_object(builder, "NBResults"//c_null_char)
-        UR_widgets%main_notebook(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
+        UR_widgets%main_notebook = gtk_builder_get_object(builder, "notebook1"//c_null_char)
+        UR_widgets%main_notebook_labels(1) = gtk_builder_get_object(builder, "NBProcedure"//c_null_char)
+        UR_widgets%main_notebook_labels(2) = gtk_builder_get_object(builder, "NBEquations"//c_null_char)
+        UR_widgets%main_notebook_labels(3) = gtk_builder_get_object(builder, "NBValUnc"//c_null_char)
+        UR_widgets%main_notebook_labels(4) = gtk_builder_get_object(builder, "NBBudget"//c_null_char)
+        UR_widgets%main_notebook_labels(5) = gtk_builder_get_object(builder, "NBResults"//c_null_char)
+        UR_widgets%main_notebook_labels(6) = gtk_builder_get_object(builder, "NBEditor"//c_null_char)
         UR_widgets%dialog_infofx = gtk_builder_get_object(builder, "dialog_infoFX"//c_null_char)
         UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
         UR_widgets%dialog_batest = gtk_builder_get_object(builder, "dialog_Batest"//c_null_char)
@@ -178,14 +180,17 @@ contains
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
 
-        call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('KalFit'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('ExportToR'), 0_c_int)
+        call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), FALSE)
+        call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), FALSE)
+        call gtk_widget_set_sensitive(idpt('KalFit'), FALSE)
+        call gtk_widget_set_sensitive(idpt('ExportToR'), FALSE)
 
-        call gtk_widget_set_sensitive(idpt('TBModelDialog'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('TBInputDialog'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('TBFittingResult'), 0_c_int)
+        call gtk_widget_set_sensitive(idpt('TBModelDialog'), FALSE)
+        call gtk_widget_set_sensitive(idpt('TBInputDialog'), FALSE)
+        call gtk_widget_set_sensitive(idpt('TBFittingResult'), FALSE)
+        call gtk_widget_set_sensitive(idpt('TBColorSel'), FALSE)
+        call gtk_widget_set_sensitive(idpt('TBRemoveGridLine'), FALSE)
+
 
         provider = gtk_css_provider_get_default()
 
@@ -213,7 +218,7 @@ contains
         project_loadw = .TRUE.
 
         do i=1,6
-            cptr = gtk_label_get_text(UR_widgets%main_notebook(i))
+            cptr = gtk_label_get_text(UR_widgets%main_notebook_labels(i))
             call c_f_string(cptr, Notebook_labeltext(i))
         end do
 
@@ -275,7 +280,7 @@ contains
         qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(quit_cb))
         call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, expand=FALSE)
 
-        call gtk_notebook_set_current_page(UR_widgets%plot_notebook, 0_c_int)
+        call gtk_notebook_set_current_page(UR_widgets%plot_notebook, FALSE)
 
         height_da(4) = int(438._rn*0.938_rn)
         width_da(4) = 458
@@ -611,7 +616,6 @@ contains
 
         use brandt,                    only: pnorm, qnorm
         use rout,                      only: get_gladeid_name, wdgetentrydouble, wdputentrydouble
-        use top,                       only: idpt
         use file_io,                   only: logger
 
         implicit none
@@ -834,6 +838,12 @@ contains
         case ('URfunctions')
             dialog_ptr = UR_widgets%dialog_infofx
 
+        case('TBFontSel', 'FontSel')
+            dialog_ptr = idpt('dialog_fontbutton')
+
+        case('TBColorSel')
+            dialog_ptr = idpt('dialogColB')
+
         case('BatestUser')
 
             call prepare_batest_dialog()
@@ -875,6 +885,13 @@ contains
 
         case ('InfoFXOK', "dialog_infoFX")
             dialog_ptr = UR_widgets%dialog_infofx
+
+        case('buttonFBEnd', 'dialog_fontbutton')
+            dialog_ptr = idpt('dialog_fontbutton')
+
+        case('buttonCBEnd', 'dialogColB')
+            dialog_ptr = idpt('dialogColB')
+
         case('BTCancel', 'dialog_Batest')
             dialog_ptr = UR_widgets%dialog_batest
         case default
@@ -1237,9 +1254,8 @@ contains
         type(c_ptr), value    :: widget, gdata
         integer(c_int)        :: resp
 
-        character(len=60)     :: title,cheader
-        character(len=512)    :: log_str
-        character(len=120)    :: str1
+        character(len=64)     :: title, cheader
+        character(len=128)    :: str1
         character(:), allocatable :: idstring, error
         type(widget_type), pointer :: UR_widget
         !----------------------------------------------------------------------------
@@ -2015,14 +2031,14 @@ contains
                     end if
 
 
-                    call gtk_widget_set_sensitive(idpt('NBValUnc'), 0_c_int)
-                    call gtk_widget_set_sensitive(idpt('NBBudget'), 0_c_int)
-                    call gtk_widget_set_sensitive(idpt('NBResults'), 0_c_int)
-                    call gtk_widget_set_sensitive(idpt('TBRefreshCalc'), 0_c_int)
+                    call gtk_widget_set_sensitive(idpt('NBValUnc'), FALSE)
+                    call gtk_widget_set_sensitive(idpt('NBBudget'), FALSE)
+                    call gtk_widget_set_sensitive(idpt('NBResults'), FALSE)
+                    call gtk_widget_set_sensitive(idpt('TBRefreshCalc'), FALSE)
 
-                    call gtk_widget_set_sensitive(idpt('box4'), 0_c_int)
-                    call gtk_widget_set_sensitive(idpt('box5'), 0_c_int)
-                    call gtk_widget_set_sensitive(idpt('grid5'), 0_c_int)
+                    call gtk_widget_set_sensitive(idpt('box4'), FALSE)
+                    call gtk_widget_set_sensitive(idpt('box5'), FALSE)
+                    call gtk_widget_set_sensitive(idpt('grid5'), FALSE)
                     call gtk_widget_hide(idpt('box4'))
                     call gtk_widget_hide(idpt('box5'))
                     call gtk_widget_hide(idpt('grid5'))

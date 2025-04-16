@@ -25,7 +25,7 @@ module Rout
     ! wstr     :    widget name string
     ! idpt     :    returns the C-pointer of the widget with name wstr
 
-    ! pstring       : Gvalue, defined (once) globally in Uncw_init
+    ! pstring       : Gvalue, defined (once) globally in UR_gtk_globals
 
     use, intrinsic :: iso_c_binding,  only: c_int, c_null_char, &
                                             c_null_ptr,c_associated, &
@@ -37,8 +37,44 @@ module Rout
 
     use gtk,                only: TRUE
     use gtk_sup,            only: convert_c_string, c_f_string, clear_gtktreeiter
-    use top,                only: idpt!, FindItemP, FindItemS
+    use top,                only: idpt
 
+    private
+    public :: &
+        WDPutLabelString, WDGetLabelString, &
+        WDPutEntryString, WDGetEntryString, &
+        WDPutEntryDouble, WDGetEntryDouble, &
+        WDPutEntryInt, WDGetEntryInt, &
+        WDPutSelRadio, WDGetSelRadio, &
+        WDPutSelRadioMenu, WDGetSelRadioMenu, &
+        WDSetComboboxAct, WDGetComboboxAct, &
+        WDPutTextviewString, WDGetTextviewString, &
+        WDSetCheckButton, WDGetCheckButton, &
+        WDSetCheckMenuItem, WDGetCheckMenuItem, &
+        WDListstoreClearCell, WDListstoreFill_1, &
+        WTreeViewRemoveRow, nblabelmodify, &
+        WTreeViewPutStrArray, WTreeViewGetStrArray, &
+        WTreeViewPutIntArray, WTreeViewGetIntArray, &
+        WTreeViewPutDoubleArray, WTreeViewGetDoubleArray, &
+        WTreeViewPutDoubleCell, WTreeViewGetDoubleCell, &
+        WTreeViewPutStrCell, WTreeViewGetStrCell, &
+        WTreeViewPutComboArray, WTreeViewGetComboArray, &
+        WTreeViewPutComboCell, WTreeViewGetComboCell, &
+        WTreeViewPutCheckArray, WTreeViewGetCheckArray, &
+        WTreeViewSetCursorCell, wtreeviewappend, &
+        FOpen, WSelectFile, &
+        WDNotebookSetCurrPage, WDNotebookGetCurrPage, &
+        WTreeViewScrollRow, WTreeviewVisibleRows, &
+        WTreeViewSetColorCell, WTreeViewSetColorRow, &
+        WDPutLabelColorF, WDPutLabelColorB, &
+        WDPutLabelStringBold, WDPutTreeViewColumnLabel, &
+        WDGetTreeViewColumnLabel, WDPutTextviewEditor, &
+        MessageShow, pending_events, &
+        SetTooltipText, UpdateProName, &
+        NumRowsTV, SetMenuEGr, &
+        ClearMCfields, hl_gtk_text_view_get_text_GK, &
+        ClearPEfields, EraseNWGfields, ExpandTV2Col7, &
+        get_gladeid_name, get_widget_class
 
     ! logical item_setintern: if set .true. in a routine xxx:
     ! helps to prevent from reacting to the signal just emitted by xxx
@@ -47,44 +83,6 @@ module Rout
     ! FindItemS: find the index number ncitem from the widget's idd-string
 
 contains
-
-
-! following routines:
-
-!  WDPutLabelString               WDGetLabelString
-!  WDPutEntryString               WDGetEntryString
-!  WDPutEntryDouble               WDGetEntryDouble
-!  WDPutEntryInt                  WDGetEntryInt
-!  WDPutSelRadio                  WDGetSelRadio
-!  WDPutSelRadioMenu              WDGetSelRadioMenu
-!  WDSetComboboxAct               WDGetComboboxAct
-!  WDPutTextviewString            WDGetTextviewString
-!  WDSetCheckButton               WDGetCheckButton
-!  WDSetCheckMenuItem             WDGetCheckMenuItem
-!  WDListstoreClearCell           WDListstoreFill_1
-!                                 WTreeViewRemoveRow
-!  WTreeViewPutStrArray           WTreeViewGetStrArray
-!  WTreeViewPutIntArray           WTreeViewGetIntArray
-!  WTreeViewPutDoubleArray        WTreeViewGetDoubleArray
-!  WTreeViewPutDoubleCell         WTreeViewGetDoubleCell
-!  WTreeViewPutStrCell            WTreeViewGetStrCell
-!  WTreeViewPutComboArray         WTreeViewGetComboArray
-!  WTreeViewPutComboCell          WTreeViewGetComboCell
-!  WTreeViewPutCheckArray         WTreeViewGetCheckArray
-!  WTreeViewSetCursorCell
-!  FOpen                          WSelectFile
-!  WDNotebookSetCurrPage          WDNotebookGetCurrPage
-!  WTreeViewScrollRow             WTreeviewVisibleRows
-!  WTreeViewSetColorCell          WTreeViewSetColorRow
-!  WDPutLabelColorF               WDPutLabelColorB
-!  WDPutLabelStringBold           WDPutTreeViewColumnLabel
-!  WDGetTreeViewColumnLabel       WDPutTextviewEditor
-!                                 MessageShow
-!  SetTooltipText                 UpdateProName
-!  NumRowsTV                      SetMenuEGr
-!  ClearMCfields
-!  ClearPEfields                  EraseNWGfields
-!  ExpandTV2Col7                  hl_gtk_text_view_get_text_GK   !
 
 !
 !#####################################################################################################
@@ -2235,7 +2233,7 @@ contains
         if(trim(nbstring) == 'notebook1') ncp = NBcurrentPage
         curp = ipage
         curp = curp - 1_c_int
-        if(trim(nbstring) == 'notebook1') widget = UR_widgets%main_notebook(1)
+        if(trim(nbstring) == 'notebook1') widget = UR_widgets%main_notebook
         if(trim(nbstring) == 'notebook2') widget = UR_widgets%plot_notebook
         ! call gtk_notebook_set_current_page(widget,curp)         !
         if(c_associated(widget)) call gtk_notebook_set_current_page(widget, curp)
@@ -2308,12 +2306,12 @@ contains
         NBsoftSwitch = .true.
 
         i = NBcurrentPage
-        ptr = UR_widgets%main_notebook(i)
+        ptr = UR_widgets%main_notebook_labels(i)
 
         call gtk_label_set_markup(ptr,  &
             '<span foreground="blue">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
         i = NBpreviousPage
-        ptr = UR_widgets%main_notebook(i)
+        ptr = UR_widgets%main_notebook_labels(i)
         call gtk_label_set_markup(ptr,  &
             '<span foreground="black">' // trim(Notebook_labeltext(i)) // '</span>'//c_null_char)
 

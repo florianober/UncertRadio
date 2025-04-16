@@ -40,7 +40,6 @@ subroutine ListstoreTranslate()
                                 vcovcor, &
                                 GrFormat, &
                                 MDtyp,  &
-                                incall, &
                                 vdoptfull, &
                                 vdopt_pname
     use UR_Linft,         only: fitopt, ifit
@@ -87,12 +86,12 @@ subroutine ListstoreTranslate()
     if(.not.allocated(absrel)) allocate(absrel(2))
     absrel(1)%s = 'abs'
     absrel(2)%s = 'rel'
-    if(incall == 1) call WDListstoreFill_1('liststore_absrel', 2, absrel)
+    ! Flo if(incall == 1) call WDListstoreFill_1('liststore_absrel', 2, absrel)
 
     if(.not.allocated(vcovcor)) allocate(vcovcor(2))
     vcovcor(1)%s = 'covariance'
     vcovcor(2)%s = 'correlation'
-    if(incall == 1) call WDListstoreFill_1('liststore_covcor', 2, vcovcor)
+    ! Flo if(incall == 1) call WDListstoreFill_1('liststore_covcor', 2, vcovcor)
 
     if(.not.allocated(fitopt)) allocate(fitopt(3))
 

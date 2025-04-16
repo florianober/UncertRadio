@@ -51,7 +51,7 @@ contains
         implicit none
 
         integer(c_int)                 :: resp
-        type(c_ptr), SAVE              :: button1 = c_null_ptr, &
+        type(c_ptr), save              :: button1 = c_null_ptr, &
                                           button2 = c_null_ptr
         !-----------------------------------------------------------------------------------------!
         if (.not. c_associated(button1)) button1 = idpt('BTchooserButton_1')
@@ -96,7 +96,6 @@ contains
         call WDPutEntryDouble('entryOptKalpha', kalpha,'(f10.8)')
         call WDPutEntryDouble('entryOptKbeta', kbeta,'(f10.8)')
 
-
         call WDPutEntryDouble('entryOptCoverf', coverf,'(f5.2)')
         call WDPutEntryDouble('entryOptCoverIn', coverin,'(f5.2)')
         call WDPutEntryDouble('entryOpt1minusG', W1minusG,'(f5.3)')
@@ -124,5 +123,33 @@ contains
 
 
     end subroutine prepare_options_dialog
+
+    !-----------------------------------------------------------------------------------------!
+
+    subroutine prepare_fontselection_dialog(settings)
+        !
+        !
+        use gtk,                    only: gtk_widget_set_sensitive, gtk_font_button_set_font_name
+        use UR_gtk_window_types,    only: KSetting
+
+        !-----------------------------------------------------------------------------------------!
+        implicit none
+
+        type(KSetting), intent(in)     :: settings
+        integer(c_int)                 :: resp_id, i
+        type(c_ptr), save              :: save_button = c_null_ptr
+        !-----------------------------------------------------------------------------------------!
+        if (.not. c_associated(save_button)) save_button = idpt('buttonFBSave')
+
+        call gtk_widget_set_sensitive(idpt('buttonFBSave'), FALSE)
+        do i=1, settings%nprops
+            if(trim(settings%sproperty(i)) == 'gtk-font-name') then
+                resp_id = gtk_font_button_set_font_name(idpt('fontbutton1'), &
+                    trim(settings%sproperty_val(i))//c_null_char)
+                exit
+            end if
+        end do
+
+    end subroutine prepare_fontselection_dialog
 
 end module gtk_prepare_dialog

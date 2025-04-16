@@ -79,7 +79,8 @@ subroutine copyEquats()
 
     use UR_Gleich_globals,  only: Formeltext, FormeltextFit, ifehl
     use UR_gtk_globals,     only: item_setintern
-    use Rout,               only: WDPutTextviewString, pending_events, idpt
+    use Rout,               only: WDPutTextviewString, pending_events
+    use top,                only: idpt
     use ur_general_globals, only: copyEQ, open_project_parts
     use Pread,              only: ProRead
     use RG,                 only: modify_Formeltext
@@ -875,12 +876,12 @@ subroutine setDistPars()
                                   MDpoint,k_datvar,MDpointrev, &
                                   SDformel
     use Rout,               only: WTreeViewGetComboArray, WTreeViewGetDoubleArray, &
-                                  WTreeViewGetStrArray, idpt
+                                  WTreeViewGetStrArray
     use ur_general_globals, only: SetDP, top_selrow
     use UR_gtk_globals,     only: ioption
     use LDN,                only: Loadsel_diag_new
     use file_io,            only: logger
-    use Top,                only: MDcalc
+    use Top,                only: MDcalc, idpt
 
     implicit none
     character(len=512)        :: log_str

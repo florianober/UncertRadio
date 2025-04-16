@@ -89,7 +89,7 @@ contains
         !     Copyright (C) 2014-2023  Günter Kanisch
 
 
-        use, intrinsic :: iso_c_binding
+        use, intrinsic :: iso_c_binding, only: c_loc, c_null_char, c_null_ptr
         use ur_general_globals, only: frmt,frmtc,frmt_min1,frmtg,frmtres,frmtres_min1, &
                                     gum_restricted,MCSim_on,multi_eval, &
                                     plot_confidoid,plot_ellipse,print_graph, prostartnew, &
@@ -99,7 +99,7 @@ contains
                                     cModeltype, FNAME,progstart_on, UR_version_tag
         use UR_Gleich_globals, only: DistPars,apply_units,apply_units_dir,coverf,coverin,cpu_topo, &
                                     gamspk_rename,ifehl, &
-                                    ilam_binom,ip_binom,itm_binom,incall,increase_dpafact,k_datvar, &
+                                    ilam_binom,ip_binom,itm_binom,increase_dpafact,k_datvar, &
                                     kableitnum,kbgv_binom,kbrutto_gl,kEGr,kEGr_old,knetto,knullef, &
                                     knumEGr,linfit_rename,linmod1_on,LinTest,loadingPro,N_preset, &
                                     nab,ncov,ncovf,nglf,nglp,ngrs_CP,nmu,nmxdist,nparts,nvarsMD, &
@@ -118,7 +118,7 @@ contains
                                     klincall, singlenuk, konstant_r0, use_otherMinv, test_cauchy, &
                                     run_corrmat, kalfit_arg_expr, mfRBG_fit_PMLE, mac, nhp_defined, &
                                     use_absTimeStart, compare_WTLS
-        use UR_Gspk1fit
+        use UR_Gspk1fit,      only: Gamspk1_Fit, ecorruse
         use UR_MCC,           only: use_BCI,imc,MCsim_done,estLQ,estUQ,kcmx,kcrun
         use UR_Loadsel,       only: NBpreviousPage,NBcurrentPage
 
@@ -147,7 +147,7 @@ contains
                                     WDPutEntryInt,WDSetCheckButton, &
                                     ClearMCfields,ClearPEfields
 
-        use UR_gtk_globals, only:   toggleTypeGTK, dialogloop_on, NBsoftSwitch, list_filling_on, &
+        use UR_gtk_globals,   only: toggleTypeGTK, dialogloop_on, NBsoftSwitch, list_filling_on, &
                                     item_setintern, consoleout_gtk,    &
                                     lstfd_syms,lstfd_symtable,lstfd_valunc,lstfd_budget, &
                                     TV1_lentext,dialog_on, &
@@ -189,6 +189,8 @@ contains
         character(len=512)               :: log_str
         real(rn)                         :: start, finish
         type(charv), allocatable         :: leertext(:)
+
+        integer, SAVE :: incall = 0     ! is the number of calls of UncW_init
 
         !-----------------------------------------------------------------------
         call cpu_time(start)

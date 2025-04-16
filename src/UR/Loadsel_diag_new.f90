@@ -584,14 +584,7 @@ contains
 
           case (62)
             ! FontSelection button:
-            call gtk_widget_set_sensitive(idpt('buttonFBSave'), 0_c_int)
-            do i=1,Settings%nprops
-                if(trim(Settings%sproperty(i)) == 'gtk-font-name') then
-                    resp_id = gtk_font_button_set_font_name(idpt('fontbutton1'), &
-                        trim(Settings%sproperty_val(i))//c_null_char)
-                    exit
-                end if
-            end do
+
 
           case (63)
             kcolortype = 1

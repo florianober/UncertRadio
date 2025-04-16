@@ -436,7 +436,7 @@ contains
         if(trim(actual_plot)== 'ELIplot') then
             goto 90
         else
-            if(c_associated(UR_widgets%main_notebook(2))) goto 25
+            if(c_associated(UR_widgets%main_notebook_labels(2))) goto 25
         end if
 
         widthp = c_loc(gint4a)
@@ -463,7 +463,7 @@ contains
             URcolor%green = dble(i2)/dble(256)
             URcolor%blue = dble(i3)/dble(256)
             URcolor%alpha = dble(1.)
-            call gtk_widget_override_background_color(UR_widgets%main_notebook(2), GTK_STATE_FLAG_NORMAL, c_loc(URColor))
+            call gtk_widget_override_background_color(UR_widgets%main_notebook_labels(2), GTK_STATE_FLAG_NORMAL, c_loc(URColor))
             if(.false.) then
                 colorname = "#FFFFFF"
                 read(colorname,'(1x,z2.2,z2.2,z2.2)') i1,i2,i3

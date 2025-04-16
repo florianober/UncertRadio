@@ -89,8 +89,8 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     kkbrutR = 0
 
     ifehl = 0
-    IF(iwahl == 0) kEgr = 1
-    IF(PRESENT(kEGrneu))  kEgr = kEGrneu
+    if(iwahl == 0) kEgr = 1
+    if(present(kEGrneu))  kEgr = kEGrneu
     if(iwahl == 0) call WDNotebookSetCurrPage('notebook1', 1)
     if(iwahl > 0 .and. iwahl /= 3 .and. refresh_but .and. kpage1 >= 3) goto 70
     if(iwahl == 3) goto 75
@@ -122,16 +122,17 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
         fname = trim(fname_getarg)                       !
     else
         fname = ' '
-        IF(.not.batest_on .and. .not.autoreport .and. &
-            .not.bat_serial .and. .not.batf) then
+        if (.not. batest_on .and. .not. autoreport .and. &
+            .not. bat_serial .and. .not. batf) then
             write(str1,*) T("Load project file")  // '(txp; csv):'
 
-            CALL FOpen(ifehl,create=.false., hinweis = str1)
+            call FOpen(ifehl,create=.false., hinweis = str1)
         end if
     end if
     IF(.not.autoreport .and. .not. bat_serial .and. .not.batf) fname_getarg = ' '
 
-    IF(ifehl == 0 .AND. LEN_TRIM(fname) > 0) then
+    if(ifehl == 0 .and. len_trim(fname) > 0) then
+
         call UncW_Init()
         if(project_loadw) loadingpro = .true.
         FileTyp = 'P'
@@ -141,7 +142,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
         if(prout) WRITE(str1,*) 'behind call ProRead: ifehl=',int(ifehl)
         IF(ifehl == 1) GOTO 100
         SAVEP = .FALSE.
-        call FieldUpdate()
+        ! call FieldUpdate()
         call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 1_c_int)
         call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 1_c_int)
         call gtk_widget_set_sensitive(idpt('TBSaveProject'), 1_c_int)
@@ -164,15 +165,15 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(symlist_modified) goto 33
     call WDNotebookSetCurrPage('notebook1', 1)
     call WDNotebookSetCurrPage('notebook1', 2)
-    call gtk_widget_set_sensitive(idpt('NBValUnc'), 0_c_int)
-    call gtk_widget_set_sensitive(idpt('NBBudget'), 0_c_int)
-    call gtk_widget_set_sensitive(idpt('NBResults'), 0_c_int)
+    call gtk_widget_set_sensitive(UR_widgets%main_notebook_labels(3), 0_c_int)
+    call gtk_widget_set_sensitive(UR_widgets%main_notebook_labels(4), 0_c_int)
+    call gtk_widget_set_sensitive(UR_widgets%main_notebook_labels(5), 0_c_int)
     call gtk_widget_hide(idpt('box4'))
     call gtk_widget_hide(idpt('box5'))
     call gtk_widget_hide(idpt('grid5'))
 
 
-    call ProcMainDiag(UR_widgets%main_notebook(1))
+    call ProcMainDiag(UR_widgets%main_notebook)
 
 
     IF(ifehl == 1) GOTO 100
@@ -288,7 +289,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
             if(prout) write(66,*) 'PLoadpronew: 2 -> 3:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
             !call FindItemS('notebook1', ncitem)
             if(prout) write(66,*) ' PLPnew:  ncitem=',int(ncitem,2)
-            call ProcMainDiag(UR_widgets%main_notebook(1))
+            call ProcMainDiag(UR_widgets%main_notebook_labels(1))
             if(prout) write(66,*) 'PLoadpronew: step finished.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
             IF(ifehl == 1 .OR. ifehlp == 1) GOTO 100
             ! ---------------------------------
@@ -312,7 +313,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(prout) write(66,*) 'PLoadpronew: 2 -> 3:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
     ! call FindItemS('notebook1', ncitem)
     if(prout) write(66,*) ' PLPnew:  ncitem=',int(ncitem,2)
-    call ProcMainDiag(UR_widgets%main_notebook(1))
+    call ProcMainDiag(UR_widgets%main_notebook_labels(1))
     if(prout) write(66,*) 'PLoadpronew: step finished.    ifehl=',int(ifehl,2),'  ifehlp=',int(ifehlp,2)
     IF(ifehl == 1 .OR. ifehlp == 1) GOTO 100
 
@@ -348,7 +349,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     if(prout) write(66,*) 'PLoadpronew: 3 -> 4:  previousPage=',int(NBpreviousPage,2),'   currentPage=',int(NBcurrentPage,2)
 
     !Flo clobj%signal(ncitem)%s = 'switch-page'
-    call ProcMainDiag(UR_widgets%main_notebook(1))
+    call ProcMainDiag(UR_widgets%main_notebook_labels(1))
     if(ifehl == 1 .or. ifehlp == 1) goto 100
 
     call gtk_widget_set_sensitive(idpt('NBBudget'), 1_c_int)
@@ -369,7 +370,7 @@ recursive subroutine ProcessLoadPro_new(iwahl, kEGRneu)
     call WDNotebookSetCurrPage('notebook1', 5)
     ! call FindItemS('notebook1', ncitem)
     !Flo clobj%signal(ncitem)%s = 'switch-page'
-    call ProcMainDiag(UR_widgets%main_notebook(1))
+    call ProcMainDiag(UR_widgets%main_notebook_labels(1))
 
     call gtk_widget_set_visible(idpt('TRButtonHelp'), 1_c_int)
     call gtk_widget_set_visible(idpt('TRbuttonSavecsv'), 1_c_int)

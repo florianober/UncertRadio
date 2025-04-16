@@ -2316,11 +2316,11 @@ contains
         integer   ,intent(in)   :: mode        ! 1: called from Rechw1 or Rechw2;
         ! 2: called from MCcalc;
         ! 3: Test, on
-        integer           :: k,j,jj,i,modec
-        character(len=60) :: chh1,chh2
-        real(rn)          :: relvarAtr(4),diffcorr
-        character(len=512)           :: log_str
-        real(rn)          :: xtiny
+        integer            :: k,j,jj,i,modec
+        character(len=64)  :: chh1,chh2
+        real(rn)           :: relvarAtr(4),diffcorr
+        character(len=512) :: log_str
+        real(rn)           :: xtiny
         !----------------------------------------------------------------------------------
         modec = mode
 
@@ -2479,7 +2479,8 @@ contains
         use UR_Loadsel
         use UR_Gleich_globals, only: loadingpro
         use UR_gtk_globals,    only: dialogstr,ioption
-        use Rout,              only: WDGetCheckButton, idpt
+        use Rout,              only: WDGetCheckButton
+        use top,               only: idpt
         use LDN,               only: Loadsel_diag_new
         use file_io,           only: logger
         use KLF,               only: XKalfit

@@ -114,11 +114,11 @@ contains
         !   This routine enables/disables the GUI menu items needed for saving
         !   the project
         !
-        use, intrinsic :: iso_c_binding
+        use, intrinsic :: iso_c_binding, only: c_int
         use UR_Gleich_globals,      only: ngrs, nab
-        use ur_general_globals,   only: savep, FileTyp
-        use gtk,            only: gtk_widget_set_sensitive
-        use translation_module, only: T => get_translation
+        use ur_general_globals,     only: savep, FileTyp
+        use gtk,                    only: gtk_widget_set_sensitive
+        use translation_module,     only: T => get_translation
 
         implicit none
 
@@ -149,7 +149,7 @@ contains
         ! writes text (string) into the statusbar number k
         !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use, intrinsic :: iso_c_binding,      only: c_ptr,c_int,c_null_char
+        use, intrinsic :: iso_c_binding,      only: c_ptr, c_int, c_null_char, c_associated
         use gtk,                only: gtk_statusbar_get_context_id, gtk_statusbar_push, &
                                       gtk_statusbar_remove_all
         use ur_general_globals,       only: BATF,bat_serial,automode,autoreport,batest_user,batest_on, &
@@ -162,17 +162,21 @@ contains
 
         character(len=1)   :: strn
         integer(c_int)     :: context_id,res
-        character(len=100) :: strg
+        character(len=128) :: strg
+        type(c_ptr)        :: statusbar(4) = c_null_ptr
         !----------------------------------------------------------
+        write(strn,'(i1)') k
+        if (.not. c_associated(statusbar(k))) statusbar(k) = idpt('statusbar'//strn)
+
         if(batf .or. bat_serial .or. autoreport .or. batest_user .or. &
             batest_on .or. bat_MC  .or. automode ) return
 
-        write(strn,'(i1)') k
-        context_id = gtk_statusbar_get_context_id (idpt('statusbar'//strn),''//c_null_char)
+        context_id = gtk_statusbar_get_context_id(statusbar(k),''//c_null_char)
         ! Note: with the time, a stack begins to acculuate!
-        call gtk_statusbar_remove_all(idpt('statusbar'//strn), context_id)
+        call gtk_statusbar_remove_all(statusbar(k), context_id)
+
         strg = trim(string)
-        res = gtk_statusbar_push(idpt('statusbar'//strn),context_id, trim(strg)//c_null_char)
+        res = gtk_statusbar_push(statusbar(k), context_id, trim(strg)//c_null_char)
 
     end subroutine WrStatusbar
 

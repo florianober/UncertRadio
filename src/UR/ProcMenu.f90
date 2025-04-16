@@ -51,7 +51,7 @@ recursive subroutine ProcMenu(widget)
     use ur_general_globals
     use UR_Gleich_globals,   only: loadingpro, kEGr, refresh_type, Symbole, knetto, kbrutto, kEGr, &
                                    knumEGr, ifehl, syntax_check, symlist_modified, linmod1_on, &
-                                   knumold, ngrs, refresh_but, incall, kEGr_old, apply_units, ncov, &
+                                   knumold, ngrs, refresh_but, kEGr_old, apply_units, ncov, &
                                    symtyp, syntax_check, retain_triggers
 
     use UR_DLIM,             only: KBgrenzu, KBgrenzo, KBgrenzuSH, KBgrenzoSH
@@ -250,7 +250,6 @@ recursive subroutine ProcMenu(widget)
             IF(trim(idstring) == 'TBCloseProject' .or. trim(idstring) == 'MenuCloseProject' .or.        &
                 trim(idstring) == 'TBLoadProject'  .or. trim(idstring) == 'MenuLoadProject') then
                 QUITprog = .FALSE.
-                incall = 1
                 call UncW_Init()
                 call WDNotebookSetCurrPage('notebook1',1)
                 FileTyp = 'P'
