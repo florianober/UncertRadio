@@ -111,8 +111,6 @@ contains
                                         drawboxpackedBS,drawboxpackedCP, &
                                         draw_baseELI, drawing, width_da, height_da
 
-
-        use handlers_sub1,        only: quit_cb
         use UR_types,             only: widgets_named
 
 
@@ -176,6 +174,8 @@ contains
         UR_widgets%comboboxtextinfofx = gtk_builder_get_object(builder, "comboboxtextInfoFX"//c_null_char)
         UR_widgets%dialog_batest = gtk_builder_get_object(builder, "dialog_Batest"//c_null_char)
         UR_widgets%dialog_options = gtk_builder_get_object(builder, "dialog_options"//c_null_char)
+        UR_widgets%box_wgraphs = gtk_builder_get_object(builder, "box_wgraphs" // c_null_char)
+        UR_widgets%window_graphs = gtk_builder_get_object(builder, "window_graphs" // c_null_char)
 
         ! connect signal handlers
         call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
@@ -251,8 +251,6 @@ contains
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         UR_widgets%plot_notebook = c_null_ptr
         UR_widgets%plot_notebook = hl_gtk_notebook_new()
-        call hl_gtk_box_pack(UR_widgets%box_wgraphs, UR_widgets%plot_notebook, expand=TRUE)
-
         ! Re-scaling with the ratios between stadndard size and another monitor size
 
         width_da(1) = 580
@@ -260,7 +258,7 @@ contains
         width_da(1) = int( width_da(1) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(1) = int( height_da(1) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         drawing(1) = hl_gtk_drawing_area_new(size=(/width_da(1),height_da(1)/), has_alpha=FALSE)
-        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(1), label="MC"//c_null_char)
+        ! pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(1), label="MC"//c_null_char)
 
 
         !width_da(2) = 580
@@ -274,13 +272,8 @@ contains
         height_da(3) = 540   ! 440
         width_da(3) = int( width_da(3) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(3) = int( height_da(3) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
-        drawing(3) = hl_gtk_drawing_area_new(size=(/width_da(3),height_da(3)/),has_alpha=FALSE)
-        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(3),label="LinF"//c_null_char)
-
-        qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(quit_cb))
-        call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, expand=FALSE)
-
-        call gtk_notebook_set_current_page(UR_widgets%plot_notebook, FALSE)
+        ! drawing(3) = hl_gtk_drawing_area_new(size=(/width_da(3),height_da(3)/),has_alpha=FALSE)
+        ! pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(3),label="LinF"//c_null_char)
 
         height_da(4) = int(438._rn*0.938_rn)
         width_da(4) = 458
@@ -288,12 +281,23 @@ contains
         width_da(4) = int( width_da(4) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(4) = int( height_da(4) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
 
-        drawing(4) = hl_gtk_drawing_area_new(size=(/width_da(4),height_da(4)/), &
-            has_alpha=FALSE)
+        ! drawing(4) = hl_gtk_drawing_area_new(size=(/width_da(4),height_da(4)/), &
+        !                                      has_alpha=FALSE)
 
-        call hl_gtk_box_pack(idpt('boxELI'), drawing(4), expand=True, fill=True, &
-            atend=True)
+        ! call hl_gtk_box_pack(idpt('boxELI'), drawing(4), expand=True, fill=True, &
+        !                      atend=True)
+
         drawboxpackedELI = .true.
+
+
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, UR_widgets%plot_notebook, fill=TRUE, expand=TRUE)
+        qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(on_close_dialog))
+        call gtk_notebook_set_current_page(UR_widgets%plot_notebook, FALSE)
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, fill=TRUE, expand=TRUE)
+
+
+        call show_window(UR_widgets%window_graphs)
+
 
         write(*,*) 'end of create_window'
         !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -338,7 +342,7 @@ contains
                                     gtk_buildable_get_name
         use Rout,             only: get_gladeid_name, get_widget_class
 
-        use UR_gtk_window_types, only: widget_type
+        ! use UR_gtk_window_types, only: widget_type
         implicit none
 
         type(c_ptr), value               :: builder           !a GtkBuilder
@@ -350,8 +354,8 @@ contains
         type(c_ptr), value               :: c_Win             !user data
 
         character(len=25), target        :: h_name, h_signal, galdeid
-        character(kind=c_char), allocatable :: tmp_str(:)
-        type(widget_type), pointer       :: ur_widget
+        ! character(kind=c_char), allocatable :: tmp_str(:)
+        ! type(widget_type), pointer       :: ur_widget
         !--------------------------------------------------------------------------------------------------------------
 
         call c_f_string_chars(handler_name, h_name)
@@ -639,10 +643,7 @@ contains
         ! to emmit the "changed" signal if the update comes from the calculation here, on the other
         ! hand here we just have one local variable
         !
-        if (is_updating) then
-            return
-        end if
-
+        if (is_updating) return
 
         is_updating = .true.
         select case (gladeid)
@@ -681,7 +682,7 @@ contains
     subroutine on_change_infofx_topic(widget, data0) bind(c)
         ! subroutine to update the infofx dialog when the combobox changes"
         !
-        use gtk,                 only: gtk_widget_show_all, gtk_image_set_from_resource, &
+        use gtk,                 only: gtk_image_set_from_resource, &
                                        gtk_image_clear
         use gtk_hl_combobox,     only: hl_gtk_combo_box_get_active
 
@@ -816,7 +817,7 @@ contains
         ! @param data0 Additional data passed to the handler (not used in this context).
         !
 
-        use gtk,                       only: gtk_widget_show_all
+        use gtk,                       only: gtk_widget_show
         use rout,                      only: get_gladeid_name
         use gtk_prepare_dialog,        only: prepare_batest_dialog, prepare_options_dialog
         use UR_gtk_globals,            only: UR_widgets
@@ -853,7 +854,7 @@ contains
             call logger(65, "could not show dialog: " // gladeid, stdout=.true.)
         end select
 
-        call gtk_widget_show_all(dialog_ptr)
+        call gtk_widget_show(dialog_ptr)
 
 
     end subroutine on_show_dialog
@@ -891,6 +892,9 @@ contains
 
         case('buttonCBEnd', 'dialogColB')
             dialog_ptr = idpt('dialogColB')
+
+        case('window_graphs')
+            dialog_ptr = UR_widgets%window_graphs
 
         case('BTCancel', 'dialog_Batest')
             dialog_ptr = UR_widgets%dialog_batest
@@ -1238,7 +1242,7 @@ contains
         use, intrinsic :: iso_c_binding,    only: c_null_char,c_ptr,c_int
         use gtk,                only: GTK_BUTTONS_YES_NO,gtk_response_yes,GTK_MESSAGE_WARNING
 
-        use gtk_sup, only: c_f_string
+        use gtk_sup,            only: convert_c_string
         use UR_gtk_globals,     only: dialog_on
         use ur_general_globals, only: FileTyp, fname, Savep
         use UR_interfaces,      only: ProcessLoadPro_new
@@ -1247,7 +1251,7 @@ contains
         use Rout,               only: MessageShow, fopen, get_gladeid_name
         use Top,                only: FieldUpdate
         use translation_module, only: T => get_translation
-        use UR_gtk_window_types, only: widget_type
+        !use UR_gtk_window_types, only: widget_type
 
         implicit none
 
@@ -1257,12 +1261,12 @@ contains
         character(len=64)     :: title, cheader
         character(len=128)    :: str1
         character(:), allocatable :: idstring, error
-        type(widget_type), pointer :: UR_widget
+        !type(widget_type), pointer :: UR_widget
         !----------------------------------------------------------------------------
         idstring = get_gladeid_name(widget, error)
         if(dialog_on .and. idstring /= 'TBRemoveGridLine') return
 
-        call c_f_pointer(gdata, UR_widget)
+        ! call c_f_pointer(gdata, UR_widget)
 
         ! print *, idstring, ' data0'
         ! call c_f_string_chars(UR_widget%signal, str1)
@@ -2478,6 +2482,7 @@ contains
 
         cerror = c_null_ptr
         ! Flo: rework the complete colortheming. For now, just stick with the standard values
+        !      this routine is not a callback function atm -> move it to a better location
 
         ! Problem with css: I have not been very successful in applying :not() selectors
         ! for excluding more than one entry from coloring. The only successful way was to

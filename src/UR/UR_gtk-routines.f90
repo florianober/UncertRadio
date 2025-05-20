@@ -104,7 +104,7 @@ contains
         character(len=*), intent(in)        :: wstr               ! widget-string
         character(len=*), intent(in)        :: string             ! Ausgabetext
 
-        type(c_ptr)                         :: widget, name_ptr
+        type(c_ptr)                         :: widget
         character(len=len_trim(string)+20)  :: str
         character(:), allocatable           :: tmp_classname
         !------------------------------------------------------------
@@ -273,7 +273,6 @@ contains
     subroutine WDPutEntryInt(wstr, ivalue, dform)
 
         use gtk,                only:   gtk_entry_set_text
-        use UR_gtk_globals,     only:   item_setintern
 
         implicit none
 
@@ -552,8 +551,6 @@ contains
     !#####################################################################################
 
     subroutine WDGetTextviewString(wstr, carray)
-
-        use UR_gtk_globals, only: item_setintern
         use top,            only: CharModA1
         use file_io,        only: logger
         use UR_types,       only: charv
@@ -755,7 +752,7 @@ contains
         use gtk,                only: gtk_list_store_clear, gtk_list_store_set_value, gtk_list_store_append, &
                                       gtk_tree_model_iter_nth_child, gtk_tree_model_get_value, &
                                       gtk_widget_override_font
-        use UR_gtk_globals,     only: iter, list_filling_on, item_setintern, consoleout_gtk, &
+        use UR_gtk_globals,     only: iter, list_filling_on, consoleout_gtk, &
                                       pstring
 
         use top,                only: CharModA1
@@ -1977,13 +1974,13 @@ contains
 
         use gtk_hl,       only: hl_gtk_file_chooser_show, false, true
 
-        use ur_general_globals, only: work_path, fname, FileTyp, &
+        use ur_general_globals, only: fname, FileTyp, &
                                       EditorFileName, fname_grout, &
                                       serial_csvinput, filtname, dir_sep
 
         use CHF,          only: ucase
         use translation_module, only: T => get_translation
-        use gtk_sup, only: f_c_string
+        use gtk_sup, only: convert_f_string
 
         implicit none
 
@@ -2019,8 +2016,8 @@ contains
 
         gwork_path = 'dsff'
 
-        call f_c_string(gwork_path, cinidir)
-        call f_c_string(xhinweis, ctitle)
+        call convert_f_string(gwork_path, cinidir)
+        call convert_f_string(xhinweis, ctitle)
 
         ! write(0,*) 'WSElectFile: initial_dir=',trim(work_path)
         ! write(0,*) 'inidir=',cinidir
@@ -2293,7 +2290,7 @@ contains
 
     subroutine NBlabelmodify
 
-        use UR_gtk_globals, only: Notebook_labeltext,item_setintern,NBsoftSwitch, UR_widgets
+        use UR_gtk_globals, only: Notebook_labeltext,NBsoftSwitch, UR_widgets
         use UR_Loadsel,     only: NBcurrentPage, NBpreviousPage
         use gtk,            only: gtk_label_set_markup
 
@@ -2631,14 +2628,11 @@ contains
 
         type(c_ptr)                  :: cstring, widget, name_ptr
         character(len=:),allocatable :: fstring
-        character(len=512)           :: log_str
         character(len=32)            :: tmp_name_widget
-        integer                      :: ncitem,i1,i2,i3
+        integer                      :: i1,i2,i3
         real(c_double)               :: rgba(4)
         type(GdkRGBA), target        :: URcolor
         !-----------------------------------------------------------------------------
-
-        ! ncitem = 0
 
         allocate(character(len=400) :: fstring)
 
@@ -2756,9 +2750,6 @@ contains
 
         character(len=len_trim(labeltext)+20)  :: str1
 
-        character(len=512)  :: log_str
-        integer             :: ncitem
-
         ! ncitem = 0
         ! call FindItemS(trim(labelid), ncitem)
         ! if(ncitem == 0)  then
@@ -2795,7 +2786,7 @@ contains
         character(len=*),intent(in)    :: string             ! Ausgabetext
 
         character(len=50)              :: treecol
-        integer                        :: ncitem,kt,i
+        integer                        :: kt,i
         character(len=2)               :: mcol
 
 !------------------------------------------------------------
@@ -2832,7 +2823,7 @@ contains
 
         type(c_ptr)                        :: cptr
         character(len=50)                  :: treecol
-        integer                            :: ncitem,kt,i
+        integer                            :: kt,i
         character(len=2)                   :: mcol
 !------------------------------------------------------------
 
@@ -2999,7 +2990,6 @@ contains
         integer(c_int),intent(in),optional    :: mtype
         character(len=*),intent(in),optional  :: header
         type(c_ptr), intent(in), optional     :: parent
-        integer(c_int)                        :: tmp_mtype
         type(c_ptr)                           :: tmp_parent
         character(len(trim(message)))         :: rmessage(3)
 
@@ -3370,7 +3360,7 @@ contains
 
         use gtk,              only: gtk_tree_view_column_set_min_width, gtk_tree_view_column_set_max_width, &
                                     gtk_tree_view_columns_autosize,gtk_window_resize
-        use UR_gtk_globals, only: tvnames,tvcolindex,tv_colwidth_digits
+        use UR_gtk_globals,   only: tvcolindex,tv_colwidth_digits
         use Top,              only: PixelPerString
         use CHF,              only: FindlocT
         implicit none

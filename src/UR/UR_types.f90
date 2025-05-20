@@ -29,27 +29,15 @@ module UR_gtk_window_types
         character(:), allocatable  :: s
     end type charv
 
-    type Wclobj
-        type(charv), allocatable  :: name(:)
-        type(charv), allocatable  :: idd(:)
-        type(charv), allocatable  :: label(:)
-        type(c_ptr), allocatable  :: id_ptr(:)
-        type(c_ptr), allocatable  :: label_ptr(:)
-        type(charv), allocatable  :: signal(:)
-        type(charv), allocatable  :: handler(:)
-        integer, allocatable      :: idparent(:)
-    end type
-
-    ! type widget_type
-    !     type(charv)  :: classname
-    !     type(charv)  :: gladeid
-    !     type(charv)  :: label
-    !     type(c_ptr)  :: id_ptr
-    !     type(c_ptr)  :: id_parent_ptr
-    !     type(c_ptr)  :: label_ptr
-    !     type(charv)  :: signal
-    !     type(charv)  :: handler
-    !     type(charv)  :: gladeid_parent
+    ! type Wclobj
+    !     type(charv), allocatable  :: name(:)
+    !     type(charv), allocatable  :: idd(:)
+    !     type(charv), allocatable  :: label(:)
+    !     type(c_ptr), allocatable  :: id_ptr(:)
+    !     type(c_ptr), allocatable  :: label_ptr(:)
+    !     type(charv), allocatable  :: signal(:)
+    !     type(charv), allocatable  :: handler(:)
+    !     integer, allocatable      :: idparent(:)
     ! end type
 
     type widgets_named
@@ -62,15 +50,16 @@ module UR_gtk_window_types
         type(c_ptr) :: dialog_options
         type(c_ptr) :: box_wgraphs
         type(c_ptr) :: comboboxtextinfofx
+        type(c_ptr) :: window_graphs
     end type
 
-    type, bind(c) :: widget_type
-        type(c_ptr) :: id_ptr
-        character(kind=c_char) :: signal(32)
-        character(1, kind=c_char) :: handler(32)
-        character(1, kind=c_char) :: gladeid(32)
-        character(1, kind=c_char) :: classname(32)
-    end type
+    ! type, bind(c) :: widget_type
+    !     type(c_ptr) :: id_ptr
+    !     character(kind=c_char) :: signal(32)
+    !     character(1, kind=c_char) :: handler(32)
+    !     character(1, kind=c_char) :: gladeid(32)
+    !     character(1, kind=c_char) :: classname(32)
+    ! end type
 
     type, bind(c)   :: GdkRGBA
         real(c_double) :: red   = 0.1_c_double

@@ -63,12 +63,12 @@ program UncertRadio
                                 gtk_widget_set_sensitive, &
                                 gtk_window_move, &
                                 FALSE, &
-                                GTK_MESSAGE_WARNING
+                                GTK_MESSAGE_WARNING, gtk_widget_show
 
     use gdk,              only: gdk_screen_get_monitor_at_point
     use gtk_sup,          only: is_UNIX_OS, convert_c_string
     use UR_types,         only: rn
-    use gtk_handler,    only: create_window, show_window
+    use gtk_handler,      only: create_window, show_window
     use UR_gtk_globals,   only: UR_widgets, &
                                 item_setintern, winPL_shown, prout_gldsys,  &
                                 scrwidth_min, scrwidth_max, scrheight_min, monitorUR, gscreen, &

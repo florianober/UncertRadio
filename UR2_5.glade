@@ -5177,16 +5177,13 @@
   <object class="GtkWindow" id="window_graphs">
     <property name="visible">True</property>
     <property name="can-focus">True</property>
-    <property name="has-focus">True</property>
-    <property name="is-focus">True</property>
-    <property name="halign">start</property>
-    <property name="valign">start</property>
+    <property name="halign">fill</property>
+    <property name="valign">fill</property>
     <property name="destroy-with-parent">True</property>
-    <property name="urgency-hint">True</property>
-    <property name="accept-focus">False</property>
-    <property name="deletable">False</property>
-    <property name="gravity">north-east</property>
+    <property name="deletable">True</property>
     <signal name="key-press-event" handler="keyPress" swapped="no"/>
+    <signal name="delete-event" handler="on_close_dialog" swapped="no"/>
+
     <child>
       <object class="GtkBox" id="box_wgraphs">
         <property name="visible">True</property>

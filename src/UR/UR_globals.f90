@@ -527,7 +527,7 @@ module UR_gtk_globals
     use, intrinsic :: iso_c_binding, only: c_double, c_char, c_int, &
                                            c_bool, c_ptr
 
-    use UR_types,            only: rn, Wclobj, GdkRGBA, &
+    use UR_types,            only: rn, GdkRGBA, &
                                    KSetting, charv, widgets_named
 
 
