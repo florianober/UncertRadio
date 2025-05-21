@@ -92,7 +92,7 @@ contains
                                         TRUE,FALSE,gtk_notebook_set_current_page, &
                                         gtk_style_context_add_provider_for_screen, &
                                         gtk_css_provider_get_default, &
-                                        gtk_builder_add_from_resource
+                                        gtk_builder_add_from_resource, gtk_buildable_set_name
 
         use gtk_sup,              only: gvalue, Gerror, c_f_string
         use Top,                  only: WrStatusbar
@@ -292,9 +292,9 @@ contains
 
         call hl_gtk_box_pack(UR_widgets%box_wgraphs, UR_widgets%plot_notebook, fill=TRUE, expand=TRUE)
         qbut = hl_gtk_button_new("Close"//c_null_char, clicked=c_funloc(on_close_dialog))
+        call gtk_buildable_set_name(qbut, "close_window_graphs" // c_null_char)
         call gtk_notebook_set_current_page(UR_widgets%plot_notebook, FALSE)
-        call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut, fill=TRUE, expand=TRUE)
-
+        call hl_gtk_box_pack(UR_widgets%box_wgraphs, qbut)
 
         call show_window(UR_widgets%window_graphs)
 
@@ -309,7 +309,7 @@ contains
 
     subroutine show_window(widget_ptr)
 
-        use gtk, only: gtk_widget_show, &
+        use gtk, only: gtk_widget_show_all, &
                        gtk_window_set_gravity, &
                        GDK_gravity_NORTH_WEST
 
@@ -318,7 +318,7 @@ contains
         type(c_ptr), intent(in) :: widget_ptr
 
         call gtk_window_set_gravity(widget_ptr, GDK_gravity_NORTH_WEST)
-        call gtk_widget_show(widget_ptr)
+        call gtk_widget_show_all(widget_ptr)
 
     end subroutine show_window
 
@@ -893,7 +893,7 @@ contains
         case('buttonCBEnd', 'dialogColB')
             dialog_ptr = idpt('dialogColB')
 
-        case('window_graphs')
+        case('window_graphs', 'close_window_graphs')
             dialog_ptr = UR_widgets%window_graphs
 
         case('BTCancel', 'dialog_Batest')
