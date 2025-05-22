@@ -35,9 +35,9 @@ module gtk_handler
 
     private
     public :: create_window, &
-              show_window, &
-              UR_field_edit_cb, &
-              SetColors
+        show_window, &
+        UR_field_edit_cb, &
+        SetColors
 
 contains
 
@@ -104,12 +104,12 @@ contains
         use Rout,                 only: pending_events, WDPutLabelColorB, WDPutLabelColorF
         use gtk_draw_hl,          only: gtkallocation, hl_gtk_drawing_area_new
         use gtk_hl,               only: hl_gtk_notebook_new,hl_gtk_notebook_add_page, &
-                                        hl_gtk_button_new,hl_gtk_box_pack
+            hl_gtk_button_new,hl_gtk_box_pack
 
         use file_io,              only: logger
         use common_sub1,          only: drawboxpackedMC, drawboxpackedELI, &
-                                        drawboxpackedBS,drawboxpackedCP, &
-                                        draw_baseELI, drawing, width_da, height_da
+            drawboxpackedBS,drawboxpackedCP, &
+            draw_baseELI, drawing, width_da, height_da
 
         use UR_types,             only: widgets_named
 
@@ -120,7 +120,7 @@ contains
         integer, intent(out)        :: ifehl
 
         type(c_ptr)                 :: qbut
-        type(c_ptr), target         :: error
+        type(c_ptr), target         :: error = c_null_ptr
         integer(c_int)              :: guint
         type(c_ptr)                 :: cptr
         integer(c_int)              :: pno
@@ -136,8 +136,6 @@ contains
         builder = gtk_builder_new()
 
         call cpu_time(start)
-
-        error = c_null_ptr        ! necessary
         guint = gtk_builder_add_from_resource(builder, "/org/UncertRadio/UR2_5.glade" // c_null_char, &
                                               c_loc(error))
 
@@ -178,8 +176,9 @@ contains
         UR_widgets%window_graphs = gtk_builder_get_object(builder, "window_graphs" // c_null_char)
 
         ! connect signal handlers
-        call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_null_ptr)
+        call gtk_builder_connect_signals_full(builder, c_funloc(connect_signals), c_loc(UR_widgets))
 
+        ! Disable some widgets
         call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), FALSE)
         call gtk_widget_set_sensitive(idpt('MenuGSpekt1'), FALSE)
         call gtk_widget_set_sensitive(idpt('KalFit'), FALSE)
@@ -258,7 +257,7 @@ contains
         width_da(1) = int( width_da(1) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(1) = int( height_da(1) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
         drawing(1) = hl_gtk_drawing_area_new(size=(/width_da(1),height_da(1)/), has_alpha=FALSE)
-        ! pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(1), label="MC"//c_null_char)
+        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(1), label="MC"//c_null_char)
 
 
         !width_da(2) = 580
@@ -272,8 +271,8 @@ contains
         height_da(3) = 540   ! 440
         width_da(3) = int( width_da(3) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(3) = int( height_da(3) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
-        ! drawing(3) = hl_gtk_drawing_area_new(size=(/width_da(3),height_da(3)/),has_alpha=FALSE)
-        ! pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(3),label="LinF"//c_null_char)
+        drawing(3) = hl_gtk_drawing_area_new(size=(/width_da(3),height_da(3)/),has_alpha=FALSE)
+        pno = hl_gtk_notebook_add_page(UR_widgets%plot_notebook, drawing(3),label="LinF"//c_null_char)
 
         height_da(4) = int(438._rn*0.938_rn)
         width_da(4) = 458
@@ -281,11 +280,11 @@ contains
         width_da(4) = int( width_da(4) * real(scrwidth_max - scrwidth_min,rn)/1920._rn + 0.4999_rn)
         height_da(4) = int( height_da(4) * real(scrheight_max - scrheight_min,rn)/1050._rn + 0.4999_rn)
 
-        ! drawing(4) = hl_gtk_drawing_area_new(size=(/width_da(4),height_da(4)/), &
-        !                                      has_alpha=FALSE)
+        drawing(4) = hl_gtk_drawing_area_new(size=(/width_da(4),height_da(4)/), &
+                                             has_alpha=FALSE)
 
-        ! call hl_gtk_box_pack(idpt('boxELI'), drawing(4), expand=True, fill=True, &
-        !                      atend=True)
+        call hl_gtk_box_pack(idpt('boxELI'), drawing(4), expand=True, fill=True, &
+                             atend=True)
 
         drawboxpackedELI = .true.
 
@@ -310,8 +309,8 @@ contains
     subroutine show_window(widget_ptr)
 
         use gtk, only: gtk_widget_show_all, &
-                       gtk_window_set_gravity, &
-                       GDK_gravity_NORTH_WEST
+            gtk_window_set_gravity, &
+            GDK_gravity_NORTH_WEST
 
         implicit none
 
@@ -333,36 +332,41 @@ contains
     !vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
     subroutine connect_signals(builder, object, signal_name, handler_name, &
-                               connect_object, flags, c_Win) bind(c)
+                               connect_object, flags, udata) bind(c)
 
         use, intrinsic :: iso_c_binding,    only: c_ptr, c_char, c_int
         use file_io,          only: logger
         use gtk_sup,          only: c_f_string, f_c_string, convert_c_string_scalar
-        use gtk,              only: g_signal_connect, gtk_builder_get_type, gtk_widget_get_name, &
-                                    gtk_buildable_get_name
-        use Rout,             only: get_gladeid_name, get_widget_class
+        use gtk,              only: g_signal_connect
+        ! use Rout,             only: get_gladeid_name, get_widget_class
 
-        ! use UR_gtk_window_types, only: widget_type
+        use UR_gtk_window_types, only: widgets_named
         implicit none
 
         type(c_ptr), value               :: builder           !a GtkBuilder
         type(c_ptr), value               :: object            !object to connect a signal to
         character(kind=c_char), target   :: signal_name(*)    !name of the signal
         character(kind=c_char), target   :: handler_name(*)   !name of the handler
-        type(c_ptr), value               :: connect_object    !a GObject, if non-NULL, use g_signal_connect_object()
+        type(c_ptr), value               :: connect_object    !a GObject, can be defined in the glade file
         integer(c_int), value            :: flags             !GConnectFlags to use
-        type(c_ptr), value               :: c_Win             !user data
+        type(c_ptr), value               :: udata             !user data, contains all named widgets
 
-        character(len=25), target        :: h_name, h_signal, galdeid
+        ! type(widgets_named), pointer     :: UR_widgets
+        character(len=25), target        :: h_name, h_signal
+
         ! character(kind=c_char), allocatable :: tmp_str(:)
         ! type(widget_type), pointer       :: ur_widget
-        !--------------------------------------------------------------------------------------------------------------
 
+        !--------------------------------------------------------------------------------------------------------------
+        ! Allocate memory for the UR_widgets structure and set the pointer to the user data (udata).
+        ! allocate(UR_widgets)
+        ! call c_f_pointer(udata, UR_widgets)
+
+        ! Converts the C-style strings `handler_name` and `signal_name` to Fortran strings
         call c_f_string_chars(handler_name, h_name)
         call c_f_string_chars(signal_name, h_signal)
 
-
-        ! Flo: Example how to use create user data
+        ! Flo: Example how to create user data and attach them to the cb functions
         !
         ! allocate(widget_type :: ur_widget)
         ! ur_widget%id_ptr = object
@@ -389,60 +393,60 @@ contains
 
         select case (h_name)
 
-        ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
-        ! The names in the case have to match the names of the *signals* in Glade and the
-        ! text in c_funloc(...) has to match the name of the actual function in the code.
+            ! Add event handlers created in Glade below, otherwise the widgets won't connect to functions
+            ! The names in the case have to match the names of the *signals* in Glade and the
+            ! text in c_funloc(...) has to match the name of the actual function in the code.
 
-        case ("clickbut")
-            call g_signal_connect (object, signal_name, c_funloc(button_clicked), c_Win)
-        case ("SelOpt")
-            call g_signal_connect (object, signal_name, c_funloc(SelOpt), c_Win)
-        case ("LoadProjectFile")
-            call g_signal_connect (object, signal_name, c_funloc(ProjectOpen_cb), c_Win)
-        case ("SavePro")
-            call g_signal_connect (object, signal_name, c_funloc(ProjectSave_cb), c_Win)
-        case ("edit_table")
-            call g_signal_connect (object, signal_name, c_funloc(UR_tree_text_edit_cb), c_Win)
-        case ("edit_t_toggle")
-            call g_signal_connect (object, signal_name, c_funloc(UR_tree_toggle_edit_cb), c_Win)
-        case ("edit_field")
-            call g_signal_connect (object, signal_name, c_funloc(UR_field_edit_cb), c_Win)
-        case ("doact")
-            call g_signal_connect (object, signal_name, c_funloc(UR_Field_doact_cb), c_Win)
-        case ("pageswitch")   !  for notebook1'
-            call g_signal_connect (object, signal_name, c_funloc(UR_NBPage_switched_cb), c_Win)
-        case ("ActualTreeV")
+          case ("clickbut")
+            call g_signal_connect (object, signal_name, c_funloc(button_clicked), udata)
+          case ("SelOpt")
+            call g_signal_connect (object, signal_name, c_funloc(SelOpt), udata)
+          case ("LoadProjectFile")
+            call g_signal_connect (object, signal_name, c_funloc(ProjectOpen_cb), udata)
+          case ("SavePro")
+            call g_signal_connect (object, signal_name, c_funloc(ProjectSave_cb), udata)
+          case ("edit_table")
+            call g_signal_connect (object, signal_name, c_funloc(UR_tree_text_edit_cb), udata)
+          case ("edit_t_toggle")
+            call g_signal_connect (object, signal_name, c_funloc(UR_tree_toggle_edit_cb), udata)
+          case ("edit_field")
+            call g_signal_connect (object, signal_name, c_funloc(UR_field_edit_cb), udata)
+          case ("doact")
+            call g_signal_connect (object, signal_name, c_funloc(UR_Field_doact_cb), udata)
+          case ("pageswitch")   !  for notebook1'
+            call g_signal_connect (object, signal_name, c_funloc(UR_NBPage_switched_cb), udata)
+          case ("ActualTreeV")
             call g_signal_connect (object, signal_name, c_funloc(UR_ActualTreeV_cb))
 
-        case("on_help_button_clicked")
-            call g_signal_connect (object, signal_name, c_funloc(on_help_button_clicked), c_Win)
+          case("on_help_button_clicked")
+            call g_signal_connect (object, signal_name, c_funloc(on_help_button_clicked), udata)
 
-        case("on_destroy_UR")
-            call g_signal_connect (object, signal_name, c_funloc(on_destroy_UR), c_Win)
+          case("on_quit_UR")
+            call g_signal_connect (object, signal_name, c_funloc(on_delete_window1))
 
-        case("on_change_quantiles")
-            call g_signal_connect (object, signal_name, c_funloc(on_change_options_quantiles), c_Win)
+          case("on_change_quantiles")
+            call g_signal_connect (object, signal_name, c_funloc(on_change_options_quantiles), udata)
 
-        case("on_show_monitor_info")
-            call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), c_Win)
+          case("on_show_monitor_info")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_monitor_info), udata)
 
-        case("on_show_dialog")
-            call g_signal_connect (object, signal_name, c_funloc(on_show_dialog), c_Win)
+          case("on_show_dialog")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_dialog), udata)
 
-        case("on_change_infofx_topic")
-            call g_signal_connect (object, signal_name, c_funloc(on_change_infofx_topic), c_Win)
+          case("on_change_infofx_topic")
+            call g_signal_connect (object, signal_name, c_funloc(on_change_infofx_topic), udata)
 
-        case("on_close_dialog")
-            call g_signal_connect (object, signal_name, c_funloc(on_close_dialog), c_Win)
+          case("on_close_dialog")
+            call g_signal_connect (object, signal_name, c_funloc(on_close_dialog), udata)
 
-        case("on_show_about_windows")
-            call g_signal_connect (object, signal_name, c_funloc(on_show_about_windows), c_Win)
+          case("on_show_about_windows")
+            call g_signal_connect (object, signal_name, c_funloc(on_show_about_windows), udata)
 
-        case ("keyPress")
-            call g_signal_connect (object, signal_name, c_funloc(UR_keyPress_cb), c_Win)
-        case ("col_clicked")
-            call g_signal_connect (object, signal_name, c_funloc(UR_TV_column_clicked_cb), c_Win)
-        case default
+          case ("keyPress")
+            call g_signal_connect (object, signal_name, c_funloc(UR_keyPress_cb), udata)
+          case ("col_clicked")
+            call g_signal_connect (object, signal_name, c_funloc(UR_TV_column_clicked_cb), udata)
+          case default
             call logger(66, "Connect signals: Unknown handler = " // h_name, stdout=.true.)
             call logger(66, "Program terminated")
             stop "Program terminated"
@@ -478,18 +482,18 @@ contains
         !
 
         use, intrinsic :: iso_c_binding, only: c_null_char, &
-                                               c_ptr, c_int, &
-                                               c_int16_t, &
-                                               c_associated
+            c_ptr, c_int, &
+            c_int16_t, &
+            c_associated
 
         use gtk, only: gtk_main_quit, &
-                       gtk_widget_set_focus_on_click, &
-                       gtk_widget_destroy, &
-                       gtk_buildable_get_name
+            gtk_widget_set_focus_on_click, &
+            gtk_widget_destroy, &
+            gtk_buildable_get_name
 
 
         use UR_gtk_globals,     only: UR_widgets, item_setintern, &
-                                      ioption, dialogstr
+            ioption, dialogstr
         use Rout,               only: get_gladeid_name
         use file_io,            only: logger
         use ur_general_globals, only: actual_grid
@@ -542,7 +546,7 @@ contains
         use, intrinsic :: iso_c_binding, only: c_null_char, c_ptr, c_int, c_int16_t
 
         use UR_gtk_globals,    only: str_item_clicked, &
-                                     ButtonClicked
+            ButtonClicked
         use UR_Gleich_globals, only: loadingpro
         use chf,               only: ucase
         use rout,              only: get_gladeid_name
@@ -561,20 +565,26 @@ contains
     end subroutine button_clicked
 
     !---------------------------------------------------------------------------------------------!
-    subroutine on_help_button_clicked(widget) bind(c)
+    subroutine on_help_button_clicked(widget, udata) bind(c)
 
         use gtk_hl_combobox, only: hl_gtk_combo_box_get_active
-        use UR_gtk_globals,  only: UR_widgets
+
+        use UR_params,       only: fxtopics
+        use UR_types,        only: widgets_named
+
         use CHF,             only: ucase
         use Rout,            only: get_gladeid_name
         use file_io,         only: logger
-        use UR_params,       only: fxtopics
+
 
         implicit none
-        type(c_ptr), value, intent(in) :: widget
-        character(:), allocatable :: button_id, error, topic
-        integer(c_int) :: i_fx
+        type(c_ptr), value, intent(in) :: widget, udata
+        type(widgets_named), pointer   :: UR_widgets
+        character(:), allocatable      :: button_id, error, topic
+        integer(c_int)                 :: i_fx
         !-----------------------------------------------------------------------------------------!
+        allocate(UR_widgets)
+        call c_f_pointer(udata, UR_widgets)
 
         button_id = get_gladeid_name(widget, error)
         if (len(error) == 0) then
@@ -594,22 +604,22 @@ contains
     end subroutine on_help_button_clicked
 
     !---------------------------------------------------------------------------------------------!
-    subroutine on_destroy_UR(widget, data0) bind(c)
+    function on_delete_window1(self) result(ret) bind(c)
 
-        use gtk, only: gtk_widget_destroy, gtk_main_quit
-        use UR_gtk_globals, only: UR_widgets
-        use file_io, only: logger
+        use gtk, only: gtk_main_quit
+        use urInit, only: quit_uncertradio
 
         implicit none
-        type(c_ptr), value, intent(in) :: widget, data0
+        type(c_ptr), value, intent(in) :: self
+        integer(c_int)                 :: ret
         !-----------------------------------------------------------------------------------------!
-        ! tbd. save project?
+        ret = TRUE
 
-        call gtk_widget_destroy(UR_widgets%window1)
+        ! quit the main loop
         call gtk_main_quit()
+        call quit_uncertradio(0)
 
-
-    end subroutine on_destroy_UR
+    end function on_delete_window1
 
     !---------------------------------------------------------------------------------------------!
     recursive function on_change_options_quantiles(widget, data0) result(ret) bind(c)
@@ -647,28 +657,28 @@ contains
 
         is_updating = .true.
         select case (gladeid)
-            case('entryOptKalpha')
-                ! update entryOptAlpha
-                call wdgetentrydouble(gladeid, changed_val)
-                calc_value =  1.0_rn - pnorm(changed_val)
-                call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
+          case('entryOptKalpha')
+            ! update entryOptAlpha
+            call wdgetentrydouble(gladeid, changed_val)
+            calc_value =  1.0_rn - pnorm(changed_val)
+            call wdputentrydouble('entryOptAlpha', calc_value,'(f10.8)')
 
-            case('entryOptAlpha')
-                call wdgetentrydouble(gladeid, changed_val)
-                calc_value =  qnorm(1.0_rn - changed_val)
-                call wdputentrydouble('entryOptKalpha', calc_value,'(f10.8)')
+          case('entryOptAlpha')
+            call wdgetentrydouble(gladeid, changed_val)
+            calc_value =  qnorm(1.0_rn - changed_val)
+            call wdputentrydouble('entryOptKalpha', calc_value,'(f10.8)')
 
-            case('entryOptKbeta')
-                ! update entryOptBeta
-                call wdgetentrydouble(gladeid, changed_val)
-                calc_value =  1.0_rn - pnorm(changed_val)
-                call wdputentrydouble('entryOptBeta', calc_value,'(f10.8)')
+          case('entryOptKbeta')
+            ! update entryOptBeta
+            call wdgetentrydouble(gladeid, changed_val)
+            calc_value =  1.0_rn - pnorm(changed_val)
+            call wdputentrydouble('entryOptBeta', calc_value,'(f10.8)')
 
-            case ('entryOptBeta')
-                ! entryOptKbeta
-                call wdgetentrydouble(gladeid, changed_val)
-                calc_value =  qnorm(1.0_rn - changed_val)
-                call wdputentrydouble('entryOptKbeta', calc_value,'(f10.8)')
+          case ('entryOptBeta')
+            ! entryOptKbeta
+            call wdgetentrydouble(gladeid, changed_val)
+            calc_value =  qnorm(1.0_rn - changed_val)
+            call wdputentrydouble('entryOptKbeta', calc_value,'(f10.8)')
 
         end select
         is_updating = .false.
@@ -683,7 +693,7 @@ contains
         ! subroutine to update the infofx dialog when the combobox changes"
         !
         use gtk,                 only: gtk_image_set_from_resource, &
-                                       gtk_image_clear
+            gtk_image_clear
         use gtk_hl_combobox,     only: hl_gtk_combo_box_get_active
 
         use UR_gtk_globals,      only: UR_widgets
@@ -705,8 +715,8 @@ contains
         character(len=400)         :: text, textfile
         character(len=15)          :: code
         type(c_ptr), SAVE          :: image1 = c_null_ptr , &
-                                      image2 = c_null_ptr , &
-                                      image3 = c_null_ptr
+            image2 = c_null_ptr , &
+            image3 = c_null_ptr
         !-----------------------------------------------------------------------------------------!
         i_fx = hl_gtk_combo_box_get_active(UR_widgets%comboboxtextinfofx)
         ! if "select" is selected then return
@@ -721,32 +731,32 @@ contains
         call gtk_image_clear(image3)
 
         select case (i_fx)
-            case (1)
+          case (1)
             code = 'LINFIT'
             call gtk_image_set_from_resource(image1, &
-                                             '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
+                '/org/UncertRadio/icons/preferences-system.png' // c_null_char)
             call gtk_image_set_from_resource(image2, &
-                                             '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
             call gtk_image_set_from_resource(image3, &
-                                             '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
+                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
-            case (2)
+          case (2)
             code = 'GAMSPK1'
             call gtk_image_set_from_resource (image2, &
-                                              '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
+                '/org/UncertRadio/icons/FittingData_24.png' // c_null_char)
             call gtk_image_set_from_resource (image3, &
-                                              '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
+                '/org/UncertRadio/icons/FittingResults_24.png' // c_null_char)
 
-            case (3)
+          case (3)
             code = 'KALFIT'
 
-            case (4)
+          case (4)
             code = 'SUMEVAL'
 
-            case (5)
+          case (5)
             code = 'UVAL'
 
-            case (6)
+          case (6)
             code = 'FD'
 
         end select
@@ -833,24 +843,24 @@ contains
 
         select case(gladeid)
 
-        case('PreSettings')
+          case('PreSettings')
             call prepare_options_dialog()
             dialog_ptr = UR_widgets%dialog_options
-        case ('URfunctions')
+          case ('URfunctions')
             dialog_ptr = UR_widgets%dialog_infofx
 
-        case('TBFontSel', 'FontSel')
+          case('TBFontSel', 'FontSel')
             dialog_ptr = idpt('dialog_fontbutton')
 
-        case('TBColorSel')
+          case('TBColorSel')
             dialog_ptr = idpt('dialogColB')
 
-        case('BatestUser')
+          case('BatestUser')
 
             call prepare_batest_dialog()
             dialog_ptr = UR_widgets%dialog_batest
 
-        case default
+          case default
             call logger(65, "could not show dialog: " // gladeid, stdout=.true.)
         end select
 
@@ -875,31 +885,31 @@ contains
         !-----------------------------------------------------------------------------------------!
         gladeid = get_gladeid_name(widget)
         dialog_ptr = c_null_ptr
+        print *, 'FLO: ', gladeid
 
         select case(gladeid)
 
-        case('dialog_options', 'DOptionsCancel', 'DOptionsOK')
+          case('dialog_options', 'DOptionsCancel', 'DOptionsOK')
             dialog_ptr = UR_widgets%dialog_options
             if (gladeid == 'DOptionsOK') then
                 print *, 'call do action'
             end if
 
-        case ('InfoFXOK', "dialog_infoFX")
+          case ('InfoFXOK', "dialog_infoFX")
             dialog_ptr = UR_widgets%dialog_infofx
 
-        case('buttonFBEnd', 'dialog_fontbutton')
+          case('buttonFBEnd', 'dialog_fontbutton')
             dialog_ptr = idpt('dialog_fontbutton')
 
-        case('buttonCBEnd', 'dialogColB')
+          case('buttonCBEnd', 'dialogColB')
             dialog_ptr = idpt('dialogColB')
 
-        case('window_graphs', 'close_window_graphs')
+          case('window_graphs', 'close_window_graphs')
             dialog_ptr = UR_widgets%window_graphs
 
-        case('BTCancel', 'dialog_Batest')
+          case('BTCancel', 'dialog_Batest')
             dialog_ptr = UR_widgets%dialog_batest
-        case default
-
+          case default
             call logger(65, "could not hide dialog: " // gladeid, stdout=.true.)
         end select
         call gtk_widget_hide(dialog_ptr)
@@ -912,10 +922,10 @@ contains
 
     subroutine on_show_about_windows(widget, data0) bind(c)
         use gtk,                only: GTK_LICENSE_GPL_3_0, GTK_LICENSE_GPL_2_0_ONLY, &
-                                      GTK_LICENSE_LGPL_2_1, GTK_LICENSE_BSD_3, &
-                                      gtk_get_major_version, &
-                                      gtk_get_minor_version, &
-                                      gtk_get_micro_version
+            GTK_LICENSE_LGPL_2_1, GTK_LICENSE_BSD_3, &
+            gtk_get_major_version, &
+            gtk_get_minor_version, &
+            gtk_get_micro_version
         use gtk_hl,             only: hl_gtk_about_dialog_show, hl_gtk_about_dialog_gtk_fortran
         use gdk_pixbuf,         only: gdk_pixbuf_new_from_resource_at_scale
         use ur_general_globals, only: UR_version_tag, UR_git_hash
@@ -937,7 +947,7 @@ contains
 
         idstring = get_gladeid_name(widget)
         select case(idstring)
-        case ('About_UR')
+          case ('About_UR')
 
             if (get_language() == 'de') then
                 url_str =  'https://www.thuenen.de/de/fachinstitute/fischereioekologie/arbeitsbereiche/' &
@@ -979,8 +989,8 @@ contains
             end if
 
             logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/ur2_symbol.png" // c_null_char, &
-                                                        width=30_c_int, height=30_c_int, &
-                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+                width=30_c_int, height=30_c_int, &
+                preserve_aspect_ratio=TRUE, error=c_null_ptr)
 
             call hl_gtk_about_dialog_show(    &
                 name='UncertRadio' // c_null_char, &
@@ -1011,10 +1021,10 @@ contains
                 logo=logo,      &
                 parent=UR_widgets%window1)
 
-        case ('About_Glade')
+          case ('About_Glade')
             logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/glade.png" // c_null_char, &
-                                                        width=30_c_int, height=30_c_int, &
-                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+                width=30_c_int, height=30_c_int, &
+                preserve_aspect_ratio=TRUE, error=c_null_ptr)
             call hl_gtk_about_dialog_show(    &
                 name='Glade Interface Designer'//c_null_char, &
                 license_type=GTK_LICENSE_GPL_2_0_ONLY, &
@@ -1025,11 +1035,11 @@ contains
                 logo=logo, &
                 parent=UR_widgets%window1)
 
-        case ('About_LAPACK')
+          case ('About_LAPACK')
 
             logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/lapack.png" // c_null_char, &
-                                                        width=30_c_int, height=30_c_int, &
-                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+                width=30_c_int, height=30_c_int, &
+                preserve_aspect_ratio=TRUE, error=c_null_ptr)
             call hl_gtk_about_dialog_show(    &
                 name='LAPACK - Linear Algebra PACKage'//c_null_char, &
             ! license_type=GTK_LICENSE_BSD_3, &
@@ -1042,7 +1052,7 @@ contains
                 logo=logo, &
                 parent=UR_widgets%window1)
 
-        case ('About_FParser')
+          case ('About_FParser')
             call hl_gtk_about_dialog_show(    &
                 name='FParser'//c_null_char, &
                 copyright='Copyright (c) 2000-2008, Roland Schmehl. All rights reserved.'//c_null_char, &
@@ -1053,7 +1063,7 @@ contains
                 version='1.0'//c_null_char, &
                 parent=UR_widgets%window1)
 
-        case ('About_PLPLOT')
+          case ('About_PLPLOT')
             call hl_gtk_about_dialog_show(    &
                 name='PLplot'//c_null_char, &
                 license_type=GTK_LICENSE_GPL_3_0, &
@@ -1063,14 +1073,14 @@ contains
                 version='5.15.0'//c_null_char, &
                 parent=UR_widgets%window1)
 
-        case ('About_GTK_Fortran')
+          case ('About_GTK_Fortran')
             call hl_gtk_about_dialog_gtk_fortran(UR_widgets%window1)
 
-        case ('About_GTK')
+          case ('About_GTK')
 
             logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/gtk-logo.png" // c_null_char, &
-                                                        width=30_c_int, height=30_c_int, &
-                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+                width=30_c_int, height=30_c_int, &
+                preserve_aspect_ratio=TRUE, error=c_null_ptr)
             write(versgtk,'(i0,a1,i0,a1,i0)') gtk_get_major_version(),'.', gtk_get_minor_version(),'.', &
                 gtk_get_micro_version()
             call hl_gtk_about_dialog_show(    &
@@ -1088,10 +1098,10 @@ contains
                 logo=logo, &
                 parent=UR_widgets%window1)
 
-        case ('About_MSYS2')
+          case ('About_MSYS2')
             logo = gdk_pixbuf_new_from_resource_at_scale("/org/UncertRadio/icons/msys2logo.png" // c_null_char, &
-                                                        width=30_c_int, height=30_c_int, &
-                                                        preserve_aspect_ratio=TRUE, error=c_null_ptr)
+                width=30_c_int, height=30_c_int, &
+                preserve_aspect_ratio=TRUE, error=c_null_ptr)
             call hl_gtk_about_dialog_show(    &
                 name='MSYS2'//c_null_char, &
             ! license='The licenses of those tools apply, which are installed by MSYS2' // c_null_char, &
@@ -1113,13 +1123,13 @@ contains
 
 
         use gtk, only: gtk_widget_destroy, gtk_main_quit, &
-                       gtk_window_get_position, &
-                       GTK_BUTTONS_OK, GTK_MESSAGE_INFO
+            gtk_window_get_position, &
+            GTK_BUTTONS_OK, GTK_MESSAGE_INFO
 
         use gdk, only: gdk_screen_get_monitor_at_point
         use UR_gtk_globals, only: UR_widgets, gscreen, &
-                                  scrwidth_min, scrwidth_max, &
-                                  scrheight_min, scrheight_max
+            scrwidth_min, scrwidth_max, &
+            scrheight_min, scrheight_max
         use Rout, only: get_gladeid_name, MessageShow
         use file_io, only: logger
         !-----------------------------------------------------------------------------------------!
@@ -1140,7 +1150,7 @@ contains
             ' height: ',scrheight_min,' - ',scrheight_max
         call logger(65, msg_string)
         call MessageShow('  '//trim(msg_string)//'  ', GTK_BUTTONS_OK, &
-                         "Monitor#:", resp, mtype=GTK_MESSAGE_INFO, parent=UR_widgets%window1)
+            "Monitor#:", resp, mtype=GTK_MESSAGE_INFO, parent=UR_widgets%window1)
 
     end subroutine on_show_monitor_info
     !---------------------------------------------------------------------------------------------!
@@ -1154,7 +1164,7 @@ contains
         use gdk,                only: gdk_event_get_keyval
         use gdk_events,         only: GdkEventKey
         use gtk,                only: gtk_widget_grab_focus,gtk_main_do_event, TRUE, FALSE, &
-                                      gtk_tree_view_get_cursor
+            gtk_tree_view_get_cursor
         use gtk_hl,             only: hl_gtk_listn_get_selections, hl_gtk_listn_get_cell
         use g,                  only: g_object_get_data
 
@@ -1283,10 +1293,10 @@ contains
         IF (Filetyp == 'P' .AND. SaveP) then
             write(str1,*) T("Shall the open project be saved before closing it?")
             call MessageShow(str1, &
-                             GTK_BUTTONS_YES_NO, &
-                             T("Closing Project:"), &
-                             resp, &
-                             mtype=GTK_MESSAGE_WARNING)
+                GTK_BUTTONS_YES_NO, &
+                T("Closing Project:"), &
+                resp, &
+                mtype=GTK_MESSAGE_WARNING)
 
             IF (resp == GTK_RESPONSE_YES) then   !
                 if(len_trim(fname)== 0) then
@@ -1374,23 +1384,23 @@ contains
 
 
         use gtk,              only: gtk_cell_renderer_toggle_get_active,gtk_widget_set_sensitive,  &
-                                    gtk_widget_hide,FALSE, &
-                                    gtk_tree_view_column_set_max_width,gtk_tree_view_column_set_expand, &
-                                    gtk_tree_selection_select_path, &
-                                    gtk_tree_path_to_string
+            gtk_widget_hide,FALSE, &
+            gtk_tree_view_column_set_max_width,gtk_tree_view_column_set_expand, &
+            gtk_tree_selection_select_path, &
+            gtk_tree_path_to_string
 
         use gtk_hl,           only: hl_gtk_listn_set_cell, gtk_tree_view_get_model, hl_gtk_listn_get_cell
         use gtk_sup,          only: convert_c_string
         use gdk,              only: gdk_beep
         use UR_gtk_globals,   only: nstores, storename, lsgtype,lstype,item_setintern, &
-                                    tv_colwidth_digits,tvnames,ntvs,TVlastCell
+            tv_colwidth_digits,tvnames,ntvs,TVlastCell
 
         use ur_general_globals,     only: frmt,frmtg,saveP,frmt_min1,frmtc,sDecimalPoint    ! ,clipd
         use UR_Gleich_globals,        only: SDformel,SDFormel_CP,SDwert,SDWert_CP,missingval,ngrs_CP,  &
-                                    SDWert_CP,Symbole_CP,Symbole,IVTL,IAR,SymboleA,  &
-                                    Messwert,HBreite,StdUnc, ngrs,ngrs_CP,use_DP,charv
+            SDWert_CP,Symbole_CP,Symbole,IVTL,IAR,SymboleA,  &
+            Messwert,HBreite,StdUnc, ngrs,ngrs_CP,use_DP,charv
         use Rout,             only: WTreeViewSetCursorCell,WTreeViewGetComboArray,WTreeViewGetStrArray, &
-                                    WTreeViewGetDoubleArray,ClearMCfields,WTreeViewSetCursorCell
+            WTreeViewGetDoubleArray,ClearMCfields,WTreeViewSetCursorCell
         use Top,              only: FieldUpdate, wrstatusbar, idpt
         use g,                only: g_signal_emitv
         use file_io,          only: logger
@@ -1814,19 +1824,19 @@ contains
 
     subroutine modify_grid_value(treename, krow, kcol, newvalstr)
 
-       ! This subroutine used by UR_tree_text_edit_cb copies the modified cell value of the
-       ! actual treeview (with name treename) to the corresponding array element.
-       ! GK  9.12.2024
+        ! This subroutine used by UR_tree_text_edit_cb copies the modified cell value of the
+        ! actual treeview (with name treename) to the corresponding array element.
+        ! GK  9.12.2024
 
         use UR_Gleich_globals, only: missingval, ISymbA, ISymbB, &
-                                     CVFormel, icovtyp, covarval, XDataMD
+            CVFormel, icovtyp, covarval, XDataMD
         use UR_Linft,          only: CStartzeit, dmesszeit, dbimpulse, &
-                                     dbzrate, sdbzrate, d0messzeit, d0impulse, &
-                                     d0zrate, sd0zrate, dnetrate, sdnetrate, &
-                                     xkalib, uxkalib, ykalib, uykalib
+            dbzrate, sdbzrate, d0messzeit, d0impulse, &
+            d0zrate, sd0zrate, dnetrate, sdnetrate, &
+            xkalib, uxkalib, ykalib, uykalib
         use UR_Gspk1Fit,       only: guse, erg, GNetRate, RateCB, RateBG, &
-                                     SDRateBG, effi, SDeffi, pgamm, sdpgamm, &
-                                     fatt, sdfatt, fcoinsu, sdfcoinsu
+            SDRateBG, effi, SDeffi, pgamm, sdpgamm, &
+            fatt, sdfatt, fcoinsu, sdfcoinsu
 
         implicit none
 
@@ -1899,16 +1909,16 @@ contains
         ! and dependent on it performs the necessary actions.
 
         use gtk_hl,             only: hl_gtk_listn_set_cell,gtk_tree_view_get_model, hl_gtk_listn_get_cell, &
-                                      hl_gtk_combo_box_get_active
+            hl_gtk_combo_box_get_active
         use UR_gtk_globals,     only: FieldEditCB, list_filling_on, item_setintern
         use gtk,                only: gtk_widget_set_sensitive, gtk_widget_hide, &
-                                      gtk_widget_set_state_flags, GTK_STATE_FLAG_NORMAL, gtk_notebook_set_current_page, &
-                                      gtk_buildable_get_name
+            gtk_widget_set_state_flags, GTK_STATE_FLAG_NORMAL, gtk_notebook_set_current_page, &
+            gtk_buildable_get_name
         use gtk_sup,            only: c_f_string, c_f_pointer
 
         use ur_general_globals, only: saveP,Gum_restricted,gross_negative,kModelType
         use UR_Gleich_globals,  only: syntax_check,dialogfield_chg, kEGr,knetto, kbrutto, &
-                                      knumEGr, knumold
+            knumEGr, knumold
         use UR_Linft,           only: FitDecay, dmodif
         use Top,                only: FieldUpdate, idpt, FindItemP
 
@@ -1968,11 +1978,11 @@ contains
             ! Widget signals which are to be processed further have to use the "goto 10" above.
             print *, '####### else, signal ? edit_cb', idstring
             if(trim(signal) == 'group_changed' .or. trim(signal) == 'toggled' .or. &
-               trim(signal) == 'changed' ) then
-              if(trim(idstring) /= 'notebook1') then
-                SaveP = .true.
-                call FieldUpdate()
-              end if
+                trim(signal) == 'changed' ) then
+                if(trim(idstring) /= 'notebook1') then
+                    SaveP = .true.
+                    call FieldUpdate()
+                end if
             end if
             return
 
@@ -2058,8 +2068,8 @@ contains
                 WRITE(cnu,'(i1)') knumEGr
                 IF(KnumEGr > knumold) THEN
                     str1 = T("Please insert the main equation for the") //" " // cnu // ". " // &
-                           T("output quantity in the formula textfield") // ","//  char(13) // &
-                           T("also equations for further auxiliary quantities!")
+                        T("output quantity in the formula textfield") // ","//  char(13) // &
+                        T("also equations for further auxiliary quantities!")
 
                 end if
                 if(KnumEGr < knumold) then
@@ -2112,7 +2122,7 @@ contains
         !
 
         use gtk_hl,             only: hl_gtk_listn_set_cell, gtk_tree_view_get_model, &
-                                      hl_gtk_listn_get_cell
+            hl_gtk_listn_get_cell
         use gtk,                only: gtk_buildable_get_name
         use gtk_sup,            only: c_f_string
 
@@ -2139,7 +2149,7 @@ contains
         if (c_associated(c_text)) then
             call c_f_string(c_text, idstring)
         else
-        !   write(66,*) '****** UR_field_doact_cb :  non-associated widget:'     ! ,renderer
+            !   write(66,*) '****** UR_field_doact_cb :  non-associated widget:'     ! ,renderer
             write(log_str, '(*(g0))') '****** UR_field_doact_cb :  non-associated widget:'     ! ,renderer
             call logger(66, log_str)
             return
@@ -2205,44 +2215,44 @@ contains
         character(len=1)              :: str
         integer                       :: ncitem,ncol
 
-    !     ! ret = 1
-    !     if(item_setintern) return
-    !     call FindItemP(renderer, ncitem)
-    !     call convert_c_string(path, fpath)
-    !     read(fpath, *) irow
+        !     ! ret = 1
+        !     if(item_setintern) return
+        !     call FindItemP(renderer, ncitem)
+        !     call convert_c_string(path, fpath)
+        !     read(fpath, *) irow
 
-    !     ncol = 1
+        !     ncol = 1
 
-    !     if(clobj%idd(ncitem)%s == 'cellrenderertext64') then
-    !         list = idpt('liststore_gspk1')
-    !         tree = idpt('treeview6')
-    !     end if
-    !     icol1 = 1
-    !     irow1 = irow
+        !     if(clobj%idd(ncitem)%s == 'cellrenderertext64') then
+        !         list = idpt('liststore_gspk1')
+        !         tree = idpt('treeview6')
+        !     end if
+        !     icol1 = 1
+        !     irow1 = irow
 
-    !     select case (toggleTypeGTK)
-    !       case ('text')
-    !         call hl_gtk_listn_get_cell(tree, row=irow1, col=ncol,  svalue=str)
-    !         stateold = .false.
-    !         if(str == 'T') stateold = .true.
-    !         statenew = .not.stateold
-    !         str = 'F'
-    !         if(statenew) str = 'T'
-    !         call hl_gtk_listn_set_cell(tree, row=irow1, col=ncol,  svalue=str)
-    !         str = ' '
-    !         call hl_gtk_listn_get_cell(tree, row=irow1, col=ncol,  svalue=str)
+        !     select case (toggleTypeGTK)
+        !       case ('text')
+        !         call hl_gtk_listn_get_cell(tree, row=irow1, col=ncol,  svalue=str)
+        !         stateold = .false.
+        !         if(str == 'T') stateold = .true.
+        !         statenew = .not.stateold
+        !         str = 'F'
+        !         if(statenew) str = 'T'
+        !         call hl_gtk_listn_set_cell(tree, row=irow1, col=ncol,  svalue=str)
+        !         str = ' '
+        !         call hl_gtk_listn_get_cell(tree, row=irow1, col=ncol,  svalue=str)
 
-    !       case ('bool')
+        !       case ('bool')
 
-    !         state = c_f_logical(gtk_cell_renderer_toggle_get_active(renderer))
-    !         call hl_gtk_listn_set_cell(tree, irow, ncol, &
-    !         & logvalue= .not. state)
-    !         state = c_f_logical(gtk_cell_renderer_toggle_get_active(renderer))
-    !       case default
-    !     end select
+        !         state = c_f_logical(gtk_cell_renderer_toggle_get_active(renderer))
+        !         call hl_gtk_listn_set_cell(tree, irow, ncol, &
+        !         & logvalue= .not. state)
+        !         state = c_f_logical(gtk_cell_renderer_toggle_get_active(renderer))
+        !       case default
+        !     end select
 
-    !     SaveP = .true.
-    !     call FieldUpdate()
+        !     SaveP = .true.
+        !     call FieldUpdate()
 
     end subroutine UR_tree_toggle_edit_CB
 
@@ -2255,11 +2265,11 @@ contains
         ! and sets the following two variables:
 
         use UR_gtk_globals,   only: PageSwitchedCB, ncitemClicked,NBsoftSwitch, &
-                                    item_setintern, switched_ignore
+            item_setintern, switched_ignore
         use UR_Gleich_globals, only: loadingpro
         use UR_Loadsel,       only: NBpreviousPage, NBcurrentPage
         use gtk,              only: gtk_widget_is_sensitive,gtk_notebook_set_current_page,&
-                                    gtk_notebook_set_tab_pos
+            gtk_notebook_set_tab_pos
         use Rout,             only: NBlabelmodify,pending_events
         use top,              only: idpt, FindItemP
 
@@ -2279,51 +2289,51 @@ contains
         ! When using GTK+ directly, keep in mind that only functions can be connected to signals, not methods.
         ! So you will need to use global functions or "static" class functions for signal connections.
 
-    !     if(item_setintern) return
-    !     if(NBsoftSwitch) then
-    !         return
-    !     end if
+        !     if(item_setintern) return
+        !     if(NBsoftSwitch) then
+        !         return
+        !     end if
 
-    !     call FindItemP(renderer, ncitem)
-    !     if(ncitem > 0) then
-    !         idstring = clobj%idd(ncitem)%s
-    !         i = clobj%idparent(ncitem)
-    !         parentstr = clobj%name(i)%s
-    !         signal = clobj%signal(ncitem)%s
-    !         name = clobj%name(ncitem)%s
+        !     call FindItemP(renderer, ncitem)
+        !     if(ncitem > 0) then
+        !         idstring = clobj%idd(ncitem)%s
+        !         i = clobj%idparent(ncitem)
+        !         parentstr = clobj%name(i)%s
+        !         signal = clobj%signal(ncitem)%s
+        !         name = clobj%name(ncitem)%s
 
-    !         if(loadingpro) return
-    !     else
-    !         if(switched_ignore) then
-    !             switched_ignore = .false.
-    !             return
-    !         end if
+        !         if(loadingpro) return
+        !     else
+        !         if(switched_ignore) then
+        !             switched_ignore = .false.
+        !             return
+        !         end if
 
-    !         ! write(log_str, '(a,i11)') '****** UR_PageSwitched_cb :  not associated widget:', renderer
-    !         ! call logger(66, log_str)
-    !         return
-    !     end if
+        !         ! write(log_str, '(a,i11)') '****** UR_PageSwitched_cb :  not associated widget:', renderer
+        !         ! call logger(66, log_str)
+        !         return
+        !     end if
 
-    !     ipage = transfer(ppage, ipage) + 1
+        !     ipage = transfer(ppage, ipage) + 1
 
-    !     if(trim(idstring) == 'notebook1' .and. len_trim(signal) > 0) then
-    !         ncpr = NBpreviousPage
-    !         ! current page:
-    !         ncp = NBcurrentPage
-    !         if(ipage /= ncp) then
-    !             NBpreviousPage = ncp
-    !             NBcurrentPage = int(ipage)
-    !             if(ipage == 3 .and. gtk_widget_is_sensitive(idpt('NBValUnc')) == 0_c_int) call NBlabelmodify()
-    !             if(ipage == 4 .and. gtk_widget_is_sensitive(idpt('NBBudget')) == 0_c_int) call NBlabelmodify()
-    !             if(ipage == 5 .and. gtk_widget_is_sensitive(idpt('NBResults')) == 0_c_int) call NBlabelmodify()
-    !         end if
-    !         call ProcMainDiag(ncitem)
+        !     if(trim(idstring) == 'notebook1' .and. len_trim(signal) > 0) then
+        !         ncpr = NBpreviousPage
+        !         ! current page:
+        !         ncp = NBcurrentPage
+        !         if(ipage /= ncp) then
+        !             NBpreviousPage = ncp
+        !             NBcurrentPage = int(ipage)
+        !             if(ipage == 3 .and. gtk_widget_is_sensitive(idpt('NBValUnc')) == 0_c_int) call NBlabelmodify()
+        !             if(ipage == 4 .and. gtk_widget_is_sensitive(idpt('NBBudget')) == 0_c_int) call NBlabelmodify()
+        !             if(ipage == 5 .and. gtk_widget_is_sensitive(idpt('NBResults')) == 0_c_int) call NBlabelmodify()
+        !         end if
+        !         call ProcMainDiag(ncitem)
 
-    !     end if
+        !     end if
 
-    !     ! ret = True
-    !     PageSwitchedCB = .true.
-    !     ncitemClicked = ncitem
+        !     ! ret = True
+        !     PageSwitchedCB = .true.
+        !     ncitemClicked = ncitem
 
     end subroutine UR_NBPage_switched_cb
 
@@ -2362,44 +2372,44 @@ contains
         !   the 11th child of the root node, the 5th child of that 11th child, and the
         !   1st child of that 5th child. If an invalid path string is passed in, NULL is returned.
 
-    !     ret = 1
-    !     if(item_setintern) return
+        !     ret = 1
+        !     if(item_setintern) return
 
-    !     ret = 0
-    !     call FindItemP(renderer, ncitem)
-    !     if(ncitem > 0) then
-    !         idstring = clobj%idd(ncitem)%s
-    !         i = clobj%idparent(ncitem)
-    !         parentstr = clobj%name(i)%s
-    !         signal = clobj%signal(ncitem)%s
-    !         name = clobj%name(ncitem)%s
-    !     else
+        !     ret = 0
+        !     call FindItemP(renderer, ncitem)
+        !     if(ncitem > 0) then
+        !         idstring = clobj%idd(ncitem)%s
+        !         i = clobj%idparent(ncitem)
+        !         parentstr = clobj%name(i)%s
+        !         signal = clobj%signal(ncitem)%s
+        !         name = clobj%name(ncitem)%s
+        !     else
 
-    !         write(log_str, '(*(g0))') '****** UR_ActualTreeV_cb :  nicht zugeordnetes widget:'     ! ,renderer
-    !         call logger(66, log_str)
-    !         return
-    !     end if
+        !         write(log_str, '(*(g0))') '****** UR_ActualTreeV_cb :  nicht zugeordnetes widget:'     ! ,renderer
+        !         call logger(66, log_str)
+        !         return
+        !     end if
 
-    !     if(trim(Name) == 'GtkTreeSelection') then
-    !         actual_grid = ' '
-    !         if(trim(idstring) == 'treeview-selectionTV1') actual_grid = 'treeview1'
-    !         if(trim(idstring) == 'treeview-selectionTV2') actual_grid = 'treeview2'
-    !         if(trim(idstring) == 'treeview-selectionTV3') actual_grid = 'treeview3'
-    !         if(trim(idstring) == 'treeview-selectionTV4') actual_grid = 'treeview4'
-    !         if(trim(idstring) == 'treeview-selectionTV5') actual_grid = 'treeview5'
-    !         if(trim(idstring) == 'treeview-selectionTV6') actual_grid = 'treeview6'
-    !         if(trim(idstring) == 'treeview-selectionTV7') actual_grid = 'treeview7'
-    !         if(trim(idstring) == 'treeview-selectionTV8') actual_grid = 'treeview8'
-    !         ret = 1
-    !     end if
-    !     if(len_trim(actual_grid) == 0) then
-    !         return
-    !     else
-    !         krow = 0
-    !         numrows_marked = hl_gtk_listn_get_selections(idpt(actual_grid), rownums_marked)
-    !         if(numrows_marked == 1) krow = minval(rownums_marked) + 1
-    !         return
-    !     end if
+        !     if(trim(Name) == 'GtkTreeSelection') then
+        !         actual_grid = ' '
+        !         if(trim(idstring) == 'treeview-selectionTV1') actual_grid = 'treeview1'
+        !         if(trim(idstring) == 'treeview-selectionTV2') actual_grid = 'treeview2'
+        !         if(trim(idstring) == 'treeview-selectionTV3') actual_grid = 'treeview3'
+        !         if(trim(idstring) == 'treeview-selectionTV4') actual_grid = 'treeview4'
+        !         if(trim(idstring) == 'treeview-selectionTV5') actual_grid = 'treeview5'
+        !         if(trim(idstring) == 'treeview-selectionTV6') actual_grid = 'treeview6'
+        !         if(trim(idstring) == 'treeview-selectionTV7') actual_grid = 'treeview7'
+        !         if(trim(idstring) == 'treeview-selectionTV8') actual_grid = 'treeview8'
+        !         ret = 1
+        !     end if
+        !     if(len_trim(actual_grid) == 0) then
+        !         return
+        !     else
+        !         krow = 0
+        !         numrows_marked = hl_gtk_listn_get_selections(idpt(actual_grid), rownums_marked)
+        !         if(numrows_marked == 1) krow = minval(rownums_marked) + 1
+        !         return
+        !     end if
 
     end subroutine UR_ActualTreeV_CB
 
@@ -2458,14 +2468,14 @@ contains
 
         use UR_gtk_globals,       only: provider
         use gtk,                  only: GTK_STATE_FLAG_NORMAL,gtk_widget_set_focus_on_click, &
-                                        gtk_widget_set_sensitive,gtk_entry_set_has_frame, &
-                                        gtk_entry_grab_focus_without_selecting, &
-                                        gtk_widget_is_sensitive, &
-                                        gtk_widget_get_state_flags,gtk_label_set_attributes, &
-                                        gtk_css_provider_load_from_data, &
-                                        gtk_widget_override_cursor, &
-                                        gtk_text_view_reset_cursor_blink, &
-                                        gtk_text_view_set_cursor_visible
+            gtk_widget_set_sensitive,gtk_entry_set_has_frame, &
+            gtk_entry_grab_focus_without_selecting, &
+            gtk_widget_is_sensitive, &
+            gtk_widget_get_state_flags,gtk_label_set_attributes, &
+            gtk_css_provider_load_from_data, &
+            gtk_widget_override_cursor, &
+            gtk_text_view_reset_cursor_blink, &
+            gtk_text_view_set_cursor_visible
 
         use Rout,                 only: pending_events, WDPutLabelColorB, WDPutLabelColorF
         use top,                  only: idpt
@@ -2498,27 +2508,27 @@ contains
 
         if(get_theme_name() == 'contrast') then
             custom_css_style = &
-                    ' .button, filechooser entry { color: white; background: #5A5A5A; } ' // &
-                    ' .textview, textview text { color: white; background-color: black; } ' // &
-                    ' entry:not(#TRMCpm):not(#TRMCpmu):not(#TRMCval):not(#TRMCvalu):not(#TRMCvalru):not(#TRMClq):not(#TRMCuq):not(#TRMCdt):not(#TRMCdl) { color: white; background: #00002F; } ' // &
-                    ' .treeview.view header button { color: white; background-color: #4A4A4A; } ' // &
-                    ' input, entry, textview { caret-color: white; border-style: solid} ' // &
-                    ' box.linked > button.combo > box > button, cellview { color: white;  background-color: #1d1d1d } '
+                ' .button, filechooser entry { color: white; background: #5A5A5A; } ' // &
+                ' .textview, textview text { color: white; background-color: black; } ' // &
+                ' entry:not(#TRMCpm):not(#TRMCpmu):not(#TRMCval):not(#TRMCvalu):not(#TRMCvalru):not(#TRMClq):not(#TRMCuq):not(#TRMCdt):not(#TRMCdl) { color: white; background: #00002F; } ' // &
+                ' .treeview.view header button { color: white; background-color: #4A4A4A; } ' // &
+                ' input, entry, textview { caret-color: white; border-style: solid} ' // &
+                ' box.linked > button.combo > box > button, cellview { color: white;  background-color: #1d1d1d } '
         else
             custom_css_style = &
-                    '.button, filechooser entry { color: black; background: #ECECE9; } ' // &
-                    '.button:disabled { color: #F1F1BE; } '  // &
-                    ' entry:not(#TRMCpm):not(#TRMCpmu):not(#TRMCval):not(#TRMCvalu):not(#TRMCvalru):not(#TRMClq):not(#TRMCuq):not(#TRMCdt):not(#TRMCdl) { color: black; background: #FFFFDF; } ' // &
-                    ' .textview text { color: black; background-color: white; } ' // &
-                    ' .treeview.view header button { color: black; background-color: white; } ' // &
-                    ' input, entry, textview { caret-color: black; border-style: solid} ' // &
-                    ' box.linked > button.combo > box > button, cellview { color: black;  background-color: white } '
+                '.button, filechooser entry { color: black; background: #ECECE9; } ' // &
+                '.button:disabled { color: #F1F1BE; } '  // &
+                ' entry:not(#TRMCpm):not(#TRMCpmu):not(#TRMCval):not(#TRMCvalu):not(#TRMCvalru):not(#TRMClq):not(#TRMCuq):not(#TRMCdt):not(#TRMCdl) { color: black; background: #FFFFDF; } ' // &
+                ' .textview text { color: black; background-color: white; } ' // &
+                ' .treeview.view header button { color: black; background-color: white; } ' // &
+                ' input, entry, textview { caret-color: black; border-style: solid} ' // &
+                ' box.linked > button.combo > box > button, cellview { color: black;  background-color: white } '
         end if
 
         res = gtk_css_provider_load_from_data(provider, &
-                                              custom_css_style // c_null_char, &
-                                              -1_c_size_t, &
-                                              c_loc(cerror))
+            custom_css_style // c_null_char, &
+            -1_c_size_t, &
+            c_loc(cerror))
 
         ! write(log_str, '(A,I0)') "load css from data: res= ", res
         ! call logger(66, log_str)

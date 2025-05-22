@@ -1667,7 +1667,249 @@ contains
 
     end subroutine ReadUnits
 
-!########################################################################################
+    !########################################################################################
+
+    !------------------------------------------------------------------------------!
+    subroutine quit_uncertradio(error_code)
+        use, intrinsic :: iso_c_binding, only : c_null_char
+
+        use ur_general_globals,       only: work_path, actpath, runauto
+        use UR_gtk_globals,           only: builder
+        use UR_params,                only: LOCKFILENAME
+
+        use UR_Gleich_globals,        only: ifehl
+
+        use file_io,                  only: logger
+        use g,                        only: g_chdir, g_object_unref
+        use gtk,                      only: gtk_main_quit
+        use chf,                      only: flfu
+
+        implicit none
+        integer, intent(in)           :: error_code
+        logical                       :: exists
+        character(len=512)            :: log_str
+        integer                       :: stat, nio
+
+        ! free memory
+        call g_object_unref(builder)
+
+        ! possible error_codes are:
+        ! 0: everything is fine
+        ! 1: not specified atm
+        ! 2: UR is already running
+        ! 3: ifehl == 1
+        ! 4: there is an error with the glade file
+
+        ! Remove the lock file if specified
+        if (error_code /= 2) then
+            inquire(file=flfu(work_path // LOCKFILENAME), exist=exists)
+            if (exists) then
+                ! The lock file exists, so remove it
+                open(file=flfu(work_path // LOCKFILENAME), newunit=nio, iostat=stat)
+                if (stat == 0) close(nio, status='delete', iostat=stat)
+            endif
+        endif
+        if (error_code > 0) then
+            write(*,*) 'Warning: Stoping UR with errorcode: ', error_code
+
+            write(log_str, '(*(g0))') 'Warning: Stoping UR with errorcode: ', error_code
+            call logger(66, log_str)
+        end if
+
+        ! change the current path back to the current path, when UR was started.
+        stat = g_chdir(actpath // c_null_char)
+        if (stat /= 0) then
+            call logger(66, "Warning: Could not revert the curr_dir")
+        end if
+
+        write(log_str, '(*(g0))') 'runauto=', runauto, ' ifehl=', ifehl
+        call logger(66, log_str)
+
+        write(log_str, '(A, I0)') ' UR2 terminated with errorcode: ', error_code
+        call logger(66, log_str, stdout=.true.)
+
+        ! Terminate the program showing the error_code
+        stop error_code
+    end subroutine quit_uncertradio
+
+
+    !------------------------------------------------------------------------------!
+    subroutine check_if_running(lock_file, ur_runs)
+
+        ! checks if another UR instance is already running to prevent from
+        ! running two instances of UR; returns ur_runs = false if not running
+        ! and .true. otherwise
+        !
+        ! This example has been completely rewritten and greatly simplified.
+        ! It now uses a lock file system. It must be ensured that the lock file
+        ! is also deleted again.
+        ! This is particularly problematic in the event of crashes, but can also
+        ! be used to better identify code errors.
+        !
+        ! Copyright (C) 2018-2024  Günter Kanisch, Florian Ober
+
+        use chf, only: flfu
+        implicit none
+
+        character(len=*), intent(in)   :: lock_file
+        integer                        :: nio, iostat
+        logical, intent(out)           :: ur_runs
+
+        ! Attempt to open the lock file for exclusive access
+
+        open(newunit=nio, &
+            file=flfu(lock_file), &
+            status='new', &
+            action='write', &
+            iostat=iostat)
+
+        if (iostat == 0) then
+            ur_runs = .false.
+            close(nio)
+        else
+            ! maybe we need to create more condition which removes the
+            ! file e.g. after a certain time?
+            ur_runs = .true.
+        endif
+
+    end subroutine check_if_running
+
+
+    !------------------------------------------------------------------------------!
+    subroutine monitor_coordinates()
+
+        ! finds the number of monitors combined within a screen;
+        ! it then estimates the coordinates (height, width) of the monitor(s)
+        !
+        ! calls FindMonitorRect
+        !
+        ! See chapter 1.3 "Using several monitors" of the UncertRadio CHM Help
+        ! file for more details.
+
+        !   Copyright (C) 2020-2023  Günter Kanisch
+
+        use, intrinsic :: iso_c_binding, only:  c_int, &
+                                                c_ptr, &
+                                                c_loc, &
+                                                c_f_pointer, &
+                                                c_associated, &
+                                                c_char, &
+                                                c_size_t, &
+                                                c_null_ptr
+
+        use gdk,  only: gdk_display_get_default, &
+                        gdk_display_get_default_screen, &
+                        gdk_screen_get_n_monitors, &
+                        gdk_screen_get_primary_monitor, &
+                        gdk_display_get_monitor, &
+                        gdk_monitor_get_workarea, &
+                        gdk_monitor_get_geometry
+
+        use UR_gtk_globals, only: monitorUR, &
+                                    scrwidth_min, &
+                                    scrwidth_max, &
+                                    scrheight_min, &
+                                    scrheight_max, &
+                                    gscreen
+
+        use Top,              only: idpt
+        use UR_Gleich_globals,        only: ifehl
+
+        use file_io,          only: logger
+
+        implicit none
+
+        type :: GdkRectangle
+            integer(c_int)   :: x       ! the x coordinate of the left edge of the rectangle.
+            integer(c_int)   :: y       ! the y coordinate of the top of the rectangle.
+            integer(c_int)   :: width   ! the width of the rectangle.
+            integer(c_int)   :: height  ! the height of the rectangle.
+        end type GdkRectangle
+
+        integer :: monisel, nprim, tmon, tmonx
+
+        integer(c_int)              :: nmonit, atmonx
+        type(GdkRectangle),pointer  :: URgdkRect
+        type(c_ptr), target         :: cgdkrect
+        type(c_ptr)                 :: monitor, display
+        logical                     :: m0out
+        character(len=512)          :: log_str
+        integer, allocatable        :: widthmin(:), &
+                                    widthmax(:), &
+                                    heightmin(:), &
+                                    heightmax(:)
+
+        ! GDK: a single GdkScreen combines several physical monitors.
+
+        ifehl = 0
+        allocate(URgdkRect)
+        display = c_null_ptr
+        gscreen = c_null_ptr
+        display = gdk_display_get_default()
+        gscreen = gdk_display_get_default_screen(display)
+
+        nmonit = max(0_c_int, gdk_screen_get_n_monitors(gscreen))
+        tmonx = nmonit
+        !     write(66,'(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
+        write(log_str, '(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
+        call logger(66, log_str)
+        allocate(widthmin(nmonit), widthmax(nmonit), heightmin(nmonit), heightmax(nmonit))
+        widthmin(:) = 0
+        widthmax(:) = 0
+        heightmin(:) = 0
+        heightmax(:) = 0
+
+        monitor = c_null_ptr
+        monitor = gdk_display_get_monitor(display, nmonit)
+
+        ! Note: monitorx or monitor should be created only once; for further creations of the
+        ! C-pointer monitorx with the GDK function, it must first be reset by monitorx = c_null_ptr;
+        ! if not, GDK-critical warnings appear.
+
+        m0out = .false.
+        do tmon=1,tmonx
+            !         if(tmon == 1) write(66,'(a)') '***  Monitors:'
+            if(tmon == 1)  then
+                write(log_str, '(a)') '***  Monitors:'
+                call logger(66, log_str)
+            end if
+            call gdk_monitor_get_geometry(gdk_display_get_monitor(display,tmon - 1_c_int), c_loc(cGdkRect))        !
+            call c_f_pointer(c_loc(cGdkRect), URGdkRect)
+
+            if(m0out) then
+                write(0,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+                                        URGdkRect%width,URGdkRect%height
+                !             write(66,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+                !                 URGdkRect%width,URGdkRect%height
+                write(log_str, '(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+                                                URGdkRect%width,URGdkRect%height
+                call logger(66, log_str)
+            endif
+
+            widthmin(tmon) = URGdkRect%x
+            heightmin(tmon) = URGdkRect%y
+            widthmax(tmon) = URGdkRect%x + URGdkRect%width
+            heightmax(tmon) = URGdkRect%y + URGdkRect%height
+
+        end do
+        write(log_str, '(A,i0)') '***  Monitor number selected as given in UR2_cfg.dat: ', monitorUR
+        call logger(66, log_str)
+        nprim = gdk_screen_get_primary_monitor(gscreen)+0_c_int
+        monisel = 1
+
+        atmonx = max(0_c_int, monitorUR - 0_c_int)
+        tmon = atmonx + 0_c_int
+
+        scrwidth_min = widthmin(tmon) + 1
+        scrwidth_max = widthmax(tmon) - 1
+        scrheight_min = heightmin(tmon) + 2
+        scrheight_max = heightmax(tmon) - int(0.032 * real(heightmax(tmon)-heightmin(tmon)) + 0.4999)
+
+        write(log_str, '(a,i0,2(a,i0,a,i0))') '***  Selected monitor: ',monitorUR,'; Screen min-max horiz.: ',  &
+            scrwidth_min,' - ',scrwidth_max,'  min-max vertical: ',scrheight_min,' - ',scrheight_max
+        call logger(66, log_str)
+
+    end subroutine monitor_coordinates
 
 
 end module URinit

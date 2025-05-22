@@ -31,10 +31,8 @@ contains
         !
         ! called by ProRead
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+        !     Copyright (C) 2014-2025  Günter Kanisch
 
-
-        use UR_params,               only: ZERO, ONE
         use, intrinsic :: iso_c_binding
         use gtk,                     only: gtk_window_set_title,gtk_buttons_ok, &
                                            gtk_widget_set_sensitive,GTK_MESSAGE_ERROR
@@ -160,17 +158,17 @@ contains
             m1 = 0
             do
                 m1 = m1 + 1
-                IF(m1 > 200) EXIT
+                IF(m1 > 200) exit
                 call DRead(25,ttext,ios)
-                IF(ios /= 0) EXIT
-                IF(m1 > 10) EXIT  ! Suchwort not found
+                IF(ios /= 0) exit
+                IF(m1 > 10) exit  ! Suchwort not found
 
                 IF(INDEX(ucase(ttext),TRIM(suchwort)) > 0) THEN
                     IF(ift == 3) fit = .TRUE.
                     kkk = 0
                     do
                         call DRead(25,ttext,ios)
-                        IF(ios /= 0) EXIT
+                        IF(ios /= 0) exit
                         call GetCells(ttext,cell,' ')
                         READ(cell(1)%s,*,IOSTAT=ios2) inum
                         IF(ios2 == 0) THEN
@@ -192,10 +190,10 @@ contains
                                 IF(ift == 3) FormeltextFit(kkk)%s = ' '
                             end if
                         else
-                            EXIT
+                            exit
                         end if
                     end do
-                    IF(ios /= 0 .or. ios2 /= 0) EXIT
+                    IF(ios /= 0 .or. ios2 /= 0) exit
                 end if
             end do
             if(.not.fit .and. allocated(Formeltextfit)) deallocate(FormeltextFit)
@@ -243,32 +241,32 @@ contains
         suchwort = 'OPTIONEN:'
         do
             m1 = m1 + 1
-            IF(m1 > 300) EXIT
+            IF(m1 > 300) exit
             call DRead(25,text,ios)
-            ! IF(ios /= 0) EXIT
+            ! IF(ios /= 0) exit
             IF(m1 > 50) THEN
                 WRITE(55,*) 'Options not found'
                 ifehl = 1
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
 
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(INDEX(ucase(cell(2)%s),'KALPHA') > 0) READ(cell(3)%s,*,IOSTAT=ios2) kalpha
                 write(55,*) 'kalpha=',sngl(kalpha)
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(INDEX(ucase(cell(2)%s),'KBETA') > 0) READ(cell(3)%s,*,IOSTAT=ios2) kbeta
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(INDEX(ucase(cell(2)%s),'COVERF') > 0) then
@@ -277,7 +275,7 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(index(ucase(cell(2)%s),'NWGTyp') > 0) then
@@ -287,7 +285,7 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(index(ucase(cell(2)%s),'COVERIN') > 0) then
@@ -299,15 +297,15 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(INDEX(ucase(cell(2)%s),'1-GAMMA') > 0) READ(cell(3)%s,*,IOSTAT=ios2) W1minusG
                 write(55,*) 'W1minusG=',sngl(W1minusG)
 
-                GamDistAdd = ZERO      ! since 30.11.2019,  according to ISO 11929:2019
+                GamDistAdd = 0.0_rn      ! since 30.11.2019,  according to ISO 11929:2019
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 call WandelDPkt(cell(3)%s,1)
                 IF(INDEX(ucase(cell(2)%s),'GAMDISTADD') > 0) then
@@ -322,7 +320,7 @@ contains
                 gross_negative = .false.
                 kModelType = 1
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 Gum_restricted = .false.
                 gross_negative = .false.
@@ -353,7 +351,7 @@ contains
                     Backspace 25
                 end if
 
-                EXIT
+                exit
 
             end if
         end do
@@ -368,12 +366,12 @@ contains
         suchwort = 'PROJEKTPARAMETER:'
         do
             m1 = m1 + 1
-            IF(m1 > 300) EXIT
+            IF(m1 > 300) exit
             call DRead(25,text,ios)
-            ! IF(ios /= 0) EXIT
+            ! IF(ios /= 0) exit
             IF(m1 > 25) THEN
                 WRITE(55,*) 'Projektparameter nicht gefunden'
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
 
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
@@ -445,7 +443,7 @@ contains
                     READ(cell(6)%s,*,IOSTAT=ios) ilam_binom
                     write(55,*) 'ipoi-params:',ip_binom,kbgv_binom,itm_binom,ilam_binom
                 end if
-                EXIT
+                exit
 
             end if
         end do
@@ -472,15 +470,15 @@ contains
         suchwort = 'SYMBOLE:'
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
-            IF(m1 > 15) EXIT  ! Suchwort not found
+            IF(ios /= 0) exit
+            IF(m1 > 15) exit  ! Suchwort not found
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
 
                 do k=1,ngrs
                     call DRead(25,text,ios)
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     call GetCells(text,cell,' ')
                     READ(cell(1)%s,*) inum
                     IF(inum == k) THEN
@@ -508,10 +506,10 @@ contains
                             MDused(nvarsMD) = .true.
                         end if
                     else
-                        EXIT
+                        exit
                     end if
                 end do
-                EXIT
+                exit
             end if
         end do
         BACKSPACE 25
@@ -528,12 +526,12 @@ contains
         suchwort = 'WERTE, UNSICHERHEITEN:'
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
             IF(m1 > 15) THEN
                 ugr = .FALSE.
                 WRITE(55,*) 'Werte, Unsicherheiten NOT found'
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
                 WRITE(55,*) 'Werte, Unsicherheiten found'
@@ -542,7 +540,7 @@ contains
                     call DRead(25,text,ios)
                     text = trim(text) // ctr//ctr
                     write(55,*) 'ProRead_CSV: k=',k,' text=',TRIM(text)
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     call GetCells(text,cell,' ')
                     READ(cell(1)%s,*) inum
                     IF(inum == k) THEN
@@ -565,10 +563,10 @@ contains
                         READ(cell(9)%s,*) StdUnc(k)
                         IAR(k) = max(1,IAR(k))   ! Precautionary
                     else
-                        EXIT
+                        exit
                     end if
                 end do
-                EXIT
+                exit
             end if
         end do
 
@@ -587,22 +585,22 @@ contains
         suchwort = 'COVARGRID:'
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
+            IF(ios /= 0) exit
             IF(m1 > 10) THEN
                 cvgr = .FALSE.
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
                 ncov = 0
                 do
                     call DRead(25,text,ios)
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     text = trim(text)//ctr
                     call GetCells(text,cell,' ')
                     READ(cell(1)%s,*,IOSTAT=ios) inum
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     ncov = ncov + 1
                     IF(inum == ncov) THEN
                         do i=2,6
@@ -620,10 +618,10 @@ contains
                         WRITE(55,*) ncov,' ',ISymbA(ncov),' ',ISymbB(ncov),' ',icovtyp(ncov), &
                             ' ',TRIM(CVformel(ncov)%s),' ',CovarVal(ncov)
                     else
-                        EXIT
+                        exit
                     end if
                 end do
-                EXIT
+                exit
             end if
         end do
         write(55,*) 'ncov=',ncov
@@ -651,19 +649,19 @@ contains
         m1 = 0
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
+            IF(ios /= 0) exit
             IF(m1 > 15) THEN
                 cvgr = .FALSE.
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
                 abgr = .TRUE.
                 FitDecay = .true.
                 call InitVarsTV5(ndatmax)
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'MODPAR') > 0) THEN
                     do i=1,3
@@ -709,7 +707,7 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'TRENN-DATUM') > 0) THEN
                     READ(cell(2)%s,'(a)') CFaelldatum
@@ -722,10 +720,10 @@ contains
                 do k=1,ndatmax
                     text = ' '
                     call DRead(25,text,ios)
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     text = trim(text)//ctr
                     call GetCells(text,cell,' ')
-                    IF(LEN_TRIM(cell(1)%s) == 0) EXIT
+                    IF(LEN_TRIM(cell(1)%s) == 0) exit
 
                     READ(cell(1)%s,*) inum
                     numd = numd + 1
@@ -759,7 +757,7 @@ contains
                     !        ' ',d0zrate(numd),' ',sd0zrate(numd),' ',dnetrate(numd),' ',sdnetrate(numd)
                 end do
                 if(numd > 50) export_r = .false.
-                EXIT
+                exit
             end if
         end do
 
@@ -792,14 +790,14 @@ contains
         m1 = 0
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             if(gsp1gr) exit
 
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
+            IF(ios /= 0) exit
             IF(m1 > 25) THEN
                 gsp1gr = .FALSE.
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
                 gsp1gr = .TRUE.
@@ -808,7 +806,7 @@ contains
                 Gamspk1_Fit = .true.
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'UNITRADIO') > 0) THEN
                     UnitR_effi_old = 0
@@ -822,14 +820,14 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'MEANTYP') > 0) THEN
                     READ(cell(2)%s,*) kmwtyp
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'FBT') > 0) THEN
                     call WandelDPkt(cell(2)%s,1)
@@ -837,14 +835,14 @@ contains
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'ECORRUSE') > 0) THEN
                     READ(cell(2)%s,*) ecorrUse
                 end if
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'u')
                 IF(INDEX(ucase(cell(1)%s),'WMEXTSD') > 0) THEN
                     READ(cell(2)%s,*) WMextSD
@@ -873,7 +871,7 @@ contains
             do k=1,kdatmax
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 text = trim(text)//ctr
                 call WandelDPkt(text,1)
                 call GetCells(text,cell,' ')
@@ -914,13 +912,13 @@ contains
                     READ(cell(14)%s,*) fcoinsu(numd)
                     READ(cell(15)%s,*) SDfcoinsu(numd)
 
-                    if(abs(SDfcoinsu(numd) - missingval) < EPS1MIN) SDfcoinsu(numd)= ZERO
-                    if(abs(RateBG(numd) - missingval) < EPS1MIN) RateBG(numd)= ZERO
-                    if(abs(SDRateBG(numd) - missingval) < EPS1MIN) SDRateBG(numd)= ZERO
+                    if(abs(SDfcoinsu(numd) - missingval) < EPS1MIN) SDfcoinsu(numd)= 0.0_rn
+                    if(abs(RateBG(numd) - missingval) < EPS1MIN) RateBG(numd)= 0.0_rn
+                    if(abs(SDRateBG(numd) - missingval) < EPS1MIN) SDRateBG(numd)= 0.0_rn
                     if(UnitR_effi_old == 1) effi(numd) = effi(numd)/100._rn
                     if(UnitR_pgamm_old == 1) pgamm(numd) = pgamm(numd)/100._rn
                 else
-                    EXIT
+                    exit
                 end if
                 !WRITE(55,*) 'numd=',numd,' ',erg(numd),' ',GNetRate(numd),                      &
                 !          ' ',RateCB(numd),' ',RateBG(numd),' ',SDRAteBG(numd),                 &
@@ -947,12 +945,12 @@ contains
         m1 = 0
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
+            IF(ios /= 0) exit
             IF(m1 > 30) THEN
                 gkalf = .FALSE.
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(text),TRIM(suchwort)) > 0) THEN
                 gkalf = .TRUE.
@@ -960,7 +958,7 @@ contains
                 FitCalCurve = .true.
 
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'n')
                 READ(cell(1+1)%s,*) nkalpts
                 READ(cell(1+2)%s,*) kal_polgrad
@@ -977,10 +975,10 @@ contains
                 do k=1,nkalpts
                     text = ' '
                     call DRead(25,text,ios)
-                    IF(ios /= 0) EXIT
+                    IF(ios /= 0) exit
                     call GetCells(text,cell,' ')
-                    IF(LEN_TRIM(cell(1)%s) == 0) EXIT
-                    IF(INDEX(cell(1)%s,'Titeltext') > 0) EXIT
+                    IF(LEN_TRIM(cell(1)%s) == 0) exit
+                    IF(INDEX(cell(1)%s,'Titeltext') > 0) exit
                     READ(cell(1)%s,*) inum
                     do i=2,5
                         call WandelDPkt(cell(i)%s,1)
@@ -1009,19 +1007,19 @@ contains
         m1 = 0
         do
             m1 = m1 + 1
-            IF(m1 > 200) EXIT
+            IF(m1 > 200) exit
             call DRead(25,text,ios)
-            IF(ios /= 0) EXIT
+            IF(ios /= 0) exit
             if(len_trim(text) == 0) exit
             call GetCells(text,cell,'n')
 
             IF(m1 > 30) THEN
-                EXIT  ! Suchwort not found
+                exit  ! Suchwort not found
             end if
             IF(INDEX(ucase(cell(1)%s),TRIM(suchwort)) > 0) THEN
                 WRITE(55,*) 'Means: gefunden!'
                 call DRead(25,text,ios)
-                IF(ios /= 0) EXIT
+                IF(ios /= 0) exit
                 call GetCells(text,cell,'n')
                 READ(cell(1)%s,'(a)') word
                 if(trim(ucase(word)) /= 'MEANTYP') then
@@ -1114,7 +1112,7 @@ contains
         if(Gamspk1_Fit) numd = numd*5
 
         !-----------------------------------------------------------------------------
-        if(coverin > ZERO) then
+        if(coverin > 0.0_rn) then
             do i=nab+1,ngrs
                 if(abs(Stdunc(i) - missingval) > EPS1MIN) Stdunc(i) = StdUnc(i)/coverin
                 if(abs(SDwert(i) - missingval) > EPS1MIN) SDwert(i) = SDwert(i)/coverin
