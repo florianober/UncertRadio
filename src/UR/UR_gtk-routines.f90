@@ -3030,22 +3030,22 @@ contains
         type(c_ptr) :: c_buildable_id
         character(64) :: buildable_id, error_message
         integer(c_int) :: status
-        integer :: tmp_error
+        integer :: error_tmp
         !-----------------------------------------------------------------------------------------!
-        tmp_error = 0
+        error_tmp = 0
         buildable_id = ""
         c_buildable_id  = gtk_buildable_get_name(buildable)
         if (c_associated(c_buildable_id)) then
             call c_f_string(c_buildable_id, buildable_id, status=status)
-            if (status /= 0_c_int) tmp_error = 2
+            if (status /= 0_c_int) error_tmp = 2
         else
-            tmp_error = 1
+            error_tmp = 1
         end if
 
         if (present(error)) then
             error = ""
-            if (tmp_error /= 0) then
-                write(error_message, '(A, I0)') "Error in get_glade_name: ", tmp_error
+            if (error_tmp /= 0) then
+                write(error_message, '(A, I0)') "Error in get_glade_name: ", error_tmp
                 error = trim(error_message)
             end if
         end if

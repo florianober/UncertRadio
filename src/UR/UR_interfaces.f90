@@ -21,6 +21,14 @@ module ur_interfaces
 
     interface
 
+        function get_help_url(idstr, error) result(url)
+            implicit none
+            character(len=*), intent(in) :: idstr
+            character(:), allocatable :: url
+            character(:), allocatable, optional, intent(out) :: error
+
+        end function
+
         recursive subroutine processloadpro_new(iwahl, kegrneu)
             implicit none
             integer, intent(in)             :: iwahl

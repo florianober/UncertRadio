@@ -568,20 +568,24 @@ contains
     subroutine on_help_button_clicked(widget, udata) bind(c)
 
         use gtk_hl_combobox, only: hl_gtk_combo_box_get_active
+        use gtk,             only: GTK_BUTTONS_OK, &
+                                   GTK_MESSAGE_WARNING, &
+                                   gtk_show_uri_on_window
 
         use UR_params,       only: fxtopics
         use UR_types,        only: widgets_named
+        use ur_interfaces,   only: get_help_url
 
         use CHF,             only: ucase
-        use Rout,            only: get_gladeid_name
+        use Rout,            only: get_gladeid_name, MessageShow
         use file_io,         only: logger
 
 
         implicit none
         type(c_ptr), value, intent(in) :: widget, udata
         type(widgets_named), pointer   :: UR_widgets
-        character(:), allocatable      :: button_id, error, topic
-        integer(c_int)                 :: i_fx
+        character(:), allocatable      :: button_id, error, topic, url
+        integer(c_int)                 :: i_fx, resp
         !-----------------------------------------------------------------------------------------!
         allocate(UR_widgets)
         call c_f_pointer(udata, UR_widgets)
@@ -595,8 +599,20 @@ contains
                 if (i_fx > 0) topic = trim(fxtopics(i_fx))
 
             end if
+            url = get_help_url(topic, error)
 
-            call DisplayHelp(topic, UR_widgets%window1)
+            if (len(url) /= 0) then
+                ! open the help file using the systems browser
+                resp = gtk_show_uri_on_window(UR_widgets%window1, &
+                                              'file:///' // url // c_null_char, 0, c_null_ptr)
+            else
+                call MessageShow(error, &
+                                 GTK_BUTTONS_OK, &
+                                 "DisplayHelp:", &
+                                 resp, &
+                                 mtype=GTK_MESSAGE_WARNING, &
+                                 parent=widget)
+            end if
         else
             call logger(65, 'Error: on_help_button_clicked: widget is not associated!')
         end if
@@ -885,7 +901,6 @@ contains
         !-----------------------------------------------------------------------------------------!
         gladeid = get_gladeid_name(widget)
         dialog_ptr = c_null_ptr
-        print *, 'FLO: ', gladeid
 
         select case(gladeid)
 

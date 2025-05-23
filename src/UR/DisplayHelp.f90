@@ -16,22 +16,17 @@
 !
 !-------------------------------------------------------------------------------------------------!
 
-subroutine DisplayHelp(idstr, window1_widget)
+function get_help_url(idstr, error) result(url)
 
     ! This subroutine is called when a user clicks on various Help buttons throughout the application.
-    ! It displays the appropriate help content by opening the corresponding URL in the system's default web browser.
-    ! If the specific help topic is not found, it defaults to the main help index page.
+    ! It returns the specific url associated with the button
     !
 
     use, intrinsic :: iso_c_binding,       only: c_int, c_null_ptr, c_null_char, c_new_line, c_ptr
-    use gtk,                               only: GTK_BUTTONS_OK, &
-                                                 GTK_MESSAGE_WARNING, &
-                                                 gtk_show_uri_on_window
 
     use ur_general_globals,                only: help_path
     use file_io,                           only: logger
 
-    use Rout,                              only: MessageShow
 
     use chf,                               only: flfu
     use translation_module,                only: T => get_translation, get_language
@@ -39,16 +34,15 @@ subroutine DisplayHelp(idstr, window1_widget)
     implicit none
 
     character(len=*), intent(in) :: idstr
-    type(c_ptr), intent(in)      :: window1_widget
+    character(:), allocatable :: url
+    character(:), allocatable, optional, intent(out) :: error
 
     logical                                :: ex
     integer                                :: i, pos
-    integer(c_int)                         :: resp
     character(len=128)                     :: topics(26)
-    character(:), allocatable              :: idstring, home_url, url, lang
+    character(:), allocatable              :: idstring, home_url, lang, error_tmp
 
     !----------------------------------------------------------------------------------------------
-
     topics(1) = 'index.html | TBInfoDialog'
     topics(2) = 'index.html | Help_UR'
     topics(3) = 'doc_files/first_steps/options_dialog.html | DOptionsHelp'
@@ -76,52 +70,50 @@ subroutine DisplayHelp(idstr, window1_widget)
     topics(25) = 'doc_files/special_methods/aggregating_activities.html | HelpSumEval'
     topics(26) = 'doc_files/first_steps/example_projects.html | HelpExamples'
 
-
-    url = " "
+    error_tmp = ""
+    url = ""
     home_url = help_path // 'final/html/index.html'
 
     idstring = idstr
 
     inquire(file=flfu(home_url), exist=ex)
     if (.not. ex) then
-        call MessageShow(T("Could find the help files") // ": " // c_new_line // home_url, &
-                         GTK_BUTTONS_OK, &
-                         "DisplayHelp:", &
-                         resp, &
-                         mtype=GTK_MESSAGE_WARNING, &
-                         parent=window1_widget)
-        call logger(66, "Help: Could find the help files: '" // home_url // "'")
-        return
-    end if
+        error_tmp = T("Could find the help files") // ":" // c_new_line // home_url
+        call logger(66, error_tmp)
 
-    if (get_language() == 'en') then
-        lang = ''
     else
-        lang = get_language() // '/'
-    end if
-
-    ! search for the correct topic that is linked to the ButtonID.
-    do i=1, size(topics)
-        pos = index(topics(i), '|')
-
-        if(idstring == trim(adjustl(topics(i)(pos+1:)))) then
-            url = help_path // 'final/html/' // lang // trim(topics(i)(1:pos-1))
-            inquire(file=flfu(url), exist=ex)
-            if (.not. ex) then
-                call logger(66, "Help: Could not find '" // url // "'")
-                url = home_url
-            end if
+        if (get_language() == 'en') then
+            lang = ''
+        else
+            lang = get_language() // '/'
         end if
-    end do
 
-    ! check if an url is found
-    if (url == "") then
-        url = home_url
-        call logger(66, "Help: Could not find url for button id '" // idstring // "'")
+        ! search for the correct topic that is linked to the ButtonID.
+        do i=1, size(topics)
+            pos = index(topics(i), '|')
+
+            if(idstring == trim(adjustl(topics(i)(pos+1:)))) then
+                url = help_path // 'final/html/' // lang // trim(topics(i)(1:pos-1))
+                inquire(file=flfu(url), exist=ex)
+                if (.not. ex) then
+                    error_tmp = "Help: Could not find '" // url // "'"
+                    call logger(66, error_tmp)
+                    url = home_url
+                end if
+            end if
+        end do
+
+        ! check if an url is found
+        if (url == "") then
+            url = home_url
+            error_tmp = "Could not find url for button id '" // idstring // "'"
+            call logger(66, error_tmp)
+        end if
     end if
 
-    ! finally open the help file using the systems browser
-    resp = gtk_show_uri_on_window(window1_widget, &
-                                  'file:///' // url // c_null_char, 0, c_null_ptr)
+    if (present(error)) then
+        error = " "
+        error = error_tmp
+    end if
 
-end subroutine DisplayHelp
+end function get_help_url
