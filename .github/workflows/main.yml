@@ -20,10 +20,12 @@ jobs:
 
       - name: Install dependencies
         run: |
+          working-directory: docs
           python -m pip install --upgrade pip
-          pip install -r docs/requirements.txt
+          pip install -r requirements.txt
 
       - name: Build documentation
+        working-directory: docs
         run: python docs/make_docs.py
 
       - name: Deploy to GitHub Pages
