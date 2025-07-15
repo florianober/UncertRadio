@@ -22,11 +22,11 @@ msgstr ""
 
 #: ../../doc_files/first_steps/example_projects.rst:2
 msgid "Included Examples"
-msgstr ""
+msgstr "Enhaltende Beispiele"
 
 #: ../../doc_files/first_steps/example_projects.rst:5
 msgid "List of example projects"
-msgstr ""
+msgstr "Liste der Beispielprojekte"
 
 #: ../../doc_files/first_steps/example_projects.rst:8
 msgid ""
