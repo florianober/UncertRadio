@@ -26,7 +26,7 @@ jobs:
 
       - name: Build documentation
         working-directory: docs
-        run: python docs/make_docs.py
+        run: python make_docs.py
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
