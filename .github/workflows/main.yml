@@ -19,8 +19,8 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
+        working-directory: docs
         run: |
-          working-directory: docs
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
