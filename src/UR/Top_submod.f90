@@ -20,161 +20,161 @@ submodule (top)  TOPA
 
 contains
 
-    module function idpt(strid) result(ptr)
+    ! module function idpt(strid) result(ptr)
 
-        ! finds the c-pointer value of the GUI widget with id name string strid
-        ! from the structure clobj derived from the Glade file
+    !     ! finds the c-pointer value of the GUI widget with id name string strid
+    !     ! from the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+    !     !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use UR_gtk_globals,  only: clobj, nclobj
-        implicit none
+    !     use UR_gtk_globals,  only: clobj, nclobj
+    !     implicit none
 
-        type(c_ptr)                   :: ptr
-        character(len=*),intent(in)   :: strid      ! Name des ID-Labels aus dem Glade-File
+    !     type(c_ptr)                   :: ptr
+    !     character(len=*),intent(in)   :: strid      ! Name des ID-Labels aus dem Glade-File
 
-        integer                       :: i
+    !     integer                       :: i
 
-        ! Flo: tdb
-        call FindItemS(strid, i)
-        if (i > nclobj .or. i == 0) then
-            ptr = c_null_ptr
-            write(66,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
-            write(*,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
-        else
-            ptr = clobj%id_ptr(i)
-        end if
+    !     ! Flo: tdb
+    !     call FindItemS(strid, i)
+    !     if (i > nclobj .or. i == 0) then
+    !         ptr = c_null_ptr
+    !         write(66,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
+    !         write(*,*) 'Warnung: IDPT:  ', trim(strid), ': is not connected!'
+    !     else
+    !         ptr = clobj%id_ptr(i)
+    !     end if
 
-    end function idpt
+    ! end function idpt
 
     ! #############################################################################################
 
-    pure module subroutine FindItemP(ptr, ncitem)
+!     pure module subroutine FindItemP(ptr, ncitem)
 
-        ! finds for the given c-pointer value ptr the associated index number
-        ! ncitem within the structure clobj derived from the Glade file
+!         ! finds for the given c-pointer value ptr the associated index number
+!         ! ncitem within the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+!         !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
-        use UR_gtk_globals,            only: clobj, nclobj
-        implicit none
+!         use, intrinsic :: iso_c_binding, only: c_ptr, c_null_ptr, c_associated
+!         use UR_gtk_globals,            only: clobj, nclobj
+!         implicit none
 
-        type(c_ptr), value, intent(in) :: ptr
-        integer, intent(out)           :: ncitem
+!         type(c_ptr), value, intent(in) :: ptr
+!         integer, intent(out)           :: ncitem
 
-        integer :: i
-        ! -----------------------------------------------------------------------------------------
-        ncitem = 0
-        if( .not. c_associated(ptr)) return
+!         integer :: i
+!         ! -----------------------------------------------------------------------------------------
+!         ncitem = 0
+!         if( .not. c_associated(ptr)) return
 
-        do i=1, nclobj
-            if(c_associated(ptr, clobj%id_ptr(i))) then
-                ncitem = i
-                exit
-            end if
-        end do
+!         do i=1, nclobj
+!             if(c_associated(ptr, clobj%id_ptr(i))) then
+!                 ncitem = i
+!                 exit
+!             end if
+!         end do
 
-    end subroutine FindItemP
+!     end subroutine FindItemP
 
-    !#############################################################################################
+!     !#############################################################################################
 
-    module subroutine FindItemS(dialogstr, ncitem)
+!     module subroutine FindItemS(dialogstr, ncitem)
 
-        ! finds for the given dialogstr the associated index number
-        ! ncitem within the structure clobj derived from the Glade file
+!         ! finds for the given dialogstr the associated index number
+!         ! ncitem within the structure clobj derived from the Glade file
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+!         !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use UR_gtk_globals,  only: clobj, nclobj
-        implicit none
+!         use UR_gtk_globals,  only: clobj, nclobj
+!         implicit none
 
-        character(*), intent(in) :: dialogstr
-        integer, intent(out)     :: ncitem
+!         character(*), intent(in) :: dialogstr
+!         integer, intent(out)     :: ncitem
 
-        integer                  :: i
-        !---------------------------------------------------------------
-        ncitem = 0
+!         integer                  :: i
+!         !---------------------------------------------------------------
+!         ncitem = 0
 
-        do i=1, nclobj
-            if(clobj%idd(i)%s == dialogstr) then
-                ncitem = i
-                exit
-            end if
-        end do
+!         do i=1, nclobj
+!             if(clobj%idd(i)%s == dialogstr) then
+!                 ncitem = i
+!                 exit
+!             end if
+!         end do
 
-    end subroutine FindItemS
-    !-----------------------------------------------------------------
+!     end subroutine FindItemS
+!     !-----------------------------------------------------------------
 
-    !#############################################################################################
-    !
-    module subroutine FieldUpdate()
-        !
-        !   This routine enables/disables the GUI menu items needed for saveing
-        !   the project
-        !
-        use, intrinsic :: iso_c_binding
-        use UR_Gleich_globals,      only: ngrs, nab
-        use ur_general_globals,   only: savep, FileTyp
-        use gtk,            only: gtk_widget_set_sensitive
-        use translation_module, only: T => get_translation
+!     !#############################################################################################
+!     !
+!     module subroutine FieldUpdate()
+!         !
+!         !   This routine enables/disables the GUI menu items needed for saveing
+!         !   the project
+!         !
+!         use, intrinsic :: iso_c_binding
+!         use UR_Gleich_globals,      only: ngrs, nab
+!         use ur_general_globals,   only: savep, FileTyp
+!         use gtk,            only: gtk_widget_set_sensitive
+!         use translation_module, only: T => get_translation
 
-        implicit none
+!         implicit none
 
-        select case (Filetyp)
-          case ('P')
-            IF (SAVEP) THEN
-                if(ngrs > 0 .and. nab > 0) then
-                    call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 1_c_int)
-                    call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 1_c_int)
-                    call gtk_widget_set_sensitive(idpt('TBSaveProject'), 1_c_int)
-                    call gtk_widget_set_sensitive(idpt('TBSaveProjectAs'), 1_c_int)
-                    call WrStatusbar(3, T("unsaved") // "!")
+!         select case (Filetyp)
+!           case ('P')
+!             IF (SAVEP) THEN
+!                 if(ngrs > 0 .and. nab > 0) then
+!                     call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 1_c_int)
+!                     call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 1_c_int)
+!                     call gtk_widget_set_sensitive(idpt('TBSaveProject'), 1_c_int)
+!                     call gtk_widget_set_sensitive(idpt('TBSaveProjectAs'), 1_c_int)
+!                     call WrStatusbar(3, T("unsaved") // "!")
 
-                end if
-            else
-                call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 0_c_int)
-                call gtk_widget_set_sensitive(idpt('TBSaveProject'), 0_c_int)
-                call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 0_c_int)   ! 13.4.2023
-                call WrStatusbar(3,' ')
-            end if
-        end select
+!                 end if
+!             else
+!                 call gtk_widget_set_sensitive(idpt('MenuSaveProject'), 0_c_int)
+!                 call gtk_widget_set_sensitive(idpt('TBSaveProject'), 0_c_int)
+!                 call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'), 0_c_int)   ! 13.4.2023
+!                 call WrStatusbar(3,' ')
+!             end if
+!         end select
 
-    end subroutine FieldUpdate
+!     end subroutine FieldUpdate
 
-!###############################################################################
+! !###############################################################################
 
-    module subroutine WrStatusbar(k, string)
+!     module subroutine WrStatusbar(k, string)
 
-        ! writes text (string) into the statusbar number k
-        !     Copyright (C) 2014-2024  Günter Kanisch
+!         ! writes text (string) into the statusbar number k
+!         !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use, intrinsic :: iso_c_binding,      only: c_ptr,c_int,c_null_char
-        use gtk,                only: gtk_statusbar_get_context_id, gtk_statusbar_push, &
-                                      gtk_statusbar_remove_all
-        use ur_general_globals,       only: BATF,bat_serial,automode,autoreport,batest_user,batest_on, &
-                                      bat_mc
+!         use, intrinsic :: iso_c_binding,      only: c_ptr,c_int,c_null_char
+!         use gtk,                only: gtk_statusbar_get_context_id, gtk_statusbar_push, &
+!                                       gtk_statusbar_remove_all
+!         use ur_general_globals,       only: BATF,bat_serial,automode,autoreport,batest_user,batest_on, &
+!                                       bat_mc
 
-        implicit none
+!         implicit none
 
-        integer, intent(in)          :: k       ! statusbar number
-        character(len=*), intent(in) :: string  ! output text
+!         integer, intent(in)          :: k       ! statusbar number
+!         character(len=*), intent(in) :: string  ! output text
 
-        character(len=1)   :: strn
-        integer(c_int)     :: context_id,res
-        character(len=100) :: strg
-        !----------------------------------------------------------
-        if(batf .or. bat_serial .or. autoreport .or. batest_user .or. &
-            batest_on .or. bat_MC  .or. automode ) return
+!         character(len=1)   :: strn
+!         integer(c_int)     :: context_id,res
+!         character(len=100) :: strg
+!         !----------------------------------------------------------
+!         if(batf .or. bat_serial .or. autoreport .or. batest_user .or. &
+!             batest_on .or. bat_MC  .or. automode ) return
 
-        write(strn,'(i1)') k
-        context_id = gtk_statusbar_get_context_id (idpt('statusbar'//strn),''//c_null_char)
-        ! Note: with the time, a stack begins to acculuate!
-        call gtk_statusbar_remove_all(idpt('statusbar'//strn), context_id)
-        strg = trim(string)
-        res = gtk_statusbar_push(idpt('statusbar'//strn),context_id, trim(strg)//c_null_char)
+!         write(strn,'(i1)') k
+!         context_id = gtk_statusbar_get_context_id (idpt('statusbar'//strn),''//c_null_char)
+!         ! Note: with the time, a stack begins to acculuate!
+!         call gtk_statusbar_remove_all(idpt('statusbar'//strn), context_id)
+!         strg = trim(string)
+!         res = gtk_statusbar_push(idpt('statusbar'//strn),context_id, trim(strg)//c_null_char)
 
-    end subroutine WrStatusbar
+!     end subroutine WrStatusbar
 
     !-----------------------------------------------------------------------------------------
     !#######################################################################
@@ -355,61 +355,61 @@ contains
 
     !#######################################################################
 
-    module subroutine PixelPerString(dialog,string,wdpixel,htpixel)
+    ! module subroutine PixelPerString(dialog,string,wdpixel,htpixel)
 
-        ! this routine determines the length (wdpixel) and height (htpixel) of
-        ! the string, in pixel, as appearing on the given dialog, from which the
-        ! pixel width and height per character can be derived.
+    !     ! this routine determines the length (wdpixel) and height (htpixel) of
+    !     ! the string, in pixel, as appearing on the given dialog, from which the
+    !     ! pixel width and height per character can be derived.
 
-        !     Copyright (C) 2014-2024  Günter Kanisch
+    !     !     Copyright (C) 2014-2024  Günter Kanisch
 
-        use, intrinsic :: iso_c_binding,    only: c_ptr,c_null_char,c_int,c_loc,c_associated,c_null_ptr
-        use pango,     only: pango_font_description_new, pango_font_description_set_style, &
-                             pango_font_description_set_stretch, pango_font_description_set_size, &
-                             pango_layout_new, pango_layout_set_text, pango_font_description_set_family, &
-                             pango_layout_set_font_description, pango_layout_get_pixel_size
+    !     use, intrinsic :: iso_c_binding,    only: c_ptr,c_null_char,c_int,c_loc,c_associated,c_null_ptr
+    !     use pango,     only: pango_font_description_new, pango_font_description_set_style, &
+    !                          pango_font_description_set_stretch, pango_font_description_set_size, &
+    !                          pango_layout_new, pango_layout_set_text, pango_font_description_set_family, &
+    !                          pango_layout_set_font_description, pango_layout_get_pixel_size
 
-        use gtk,       only: PANGO_STYLE_NORMAL,PANGO_STRETCH_NORMAL,gtk_widget_get_pango_context
-        use g,         only: g_object_unref
-        use UR_gtk_globals, only: fontname
+    !     use gtk,       only: PANGO_STYLE_NORMAL,PANGO_STRETCH_NORMAL,gtk_widget_get_pango_context
+    !     use g,         only: g_object_unref
+    !     use UR_gtk_globals, only: fontname
 
-        implicit none
+    !     implicit none
 
-        type(c_ptr), value           :: dialog
-        character(len=*),intent(in)  :: string
-        integer,intent(out)          :: wdpixel,htpixel
+    !     type(c_ptr), value           :: dialog
+    !     character(len=*),intent(in)  :: string
+    !     integer,intent(out)          :: wdpixel,htpixel
 
-        type(c_ptr)            :: pfd,pcontext,playout
-        integer(c_int),target  :: wdret,htret
-        character(len=60)      :: family
-        integer                :: i1
+    !     type(c_ptr)            :: pfd,pcontext,playout
+    !     integer(c_int),target  :: wdret,htret
+    !     character(len=60)      :: family
+    !     integer                :: i1
 
 
-        family = fontname   ! 'Sans'
-        i1 = index(family,' ')
-        !!    if(i1 > 1) family = family(1:i1-1)
-        ! ptsize = 10
-        pfd = c_null_ptr
-        if(.not.c_associated(pfd)) pfd = pango_font_description_new()
-        ! write(66,*) 'pfd=',pfd
-        call pango_font_description_set_family(pfd,family//c_null_char)
-        call pango_font_description_set_style(pfd, PANGO_STYLE_NORMAL)
+    !     family = fontname   ! 'Sans'
+    !     i1 = index(family,' ')
+    !     !!    if(i1 > 1) family = family(1:i1-1)
+    !     ! ptsize = 10
+    !     pfd = c_null_ptr
+    !     if(.not.c_associated(pfd)) pfd = pango_font_description_new()
+    !     ! write(66,*) 'pfd=',pfd
+    !     call pango_font_description_set_family(pfd,family//c_null_char)
+    !     call pango_font_description_set_style(pfd, PANGO_STYLE_NORMAL)
 
-        call pango_font_description_set_stretch(pfd, PANGO_STRETCH_NORMAL)
+    !     call pango_font_description_set_stretch(pfd, PANGO_STRETCH_NORMAL)
 
-        pcontext = gtk_widget_get_pango_context(dialog)
-        ! write(66,*) 'pcontext=',pcontext
-        playout = pango_layout_new(pcontext)
-        call pango_layout_set_text(playout, trim(string)//c_null_char, -1_c_int)
-        call pango_layout_set_font_description(playout, pfd)
+    !     pcontext = gtk_widget_get_pango_context(dialog)
+    !     ! write(66,*) 'pcontext=',pcontext
+    !     playout = pango_layout_new(pcontext)
+    !     call pango_layout_set_text(playout, trim(string)//c_null_char, -1_c_int)
+    !     call pango_layout_set_font_description(playout, pfd)
 
-        call pango_layout_get_pixel_size(playout, c_loc(wdret) , c_loc(htret) )
-        call g_object_unref(playout);
-        wdpixel = wdret
-        htpixel = htret
-        ! write(66,*) 'wdpixel=',wdpixel,' htpixel=',htpixel
+    !     call pango_layout_get_pixel_size(playout, c_loc(wdret) , c_loc(htret) )
+    !     call g_object_unref(playout);
+    !     wdpixel = wdret
+    !     htpixel = htret
+    !     ! write(66,*) 'wdpixel=',wdpixel,' htpixel=',htpixel
 
-    end subroutine PixelPerString
+    ! end subroutine PixelPerString
 
     !########################################################################################
 

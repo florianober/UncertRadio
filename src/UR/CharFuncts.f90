@@ -101,8 +101,6 @@ contains
 
         use, intrinsic :: iso_c_binding,       only: c_ptr, c_null_ptr, &
                                                      c_null_char, c_associated
-        use gtk_sup, only: c_f_string
-        use g,       only: g_locale_to_utf8
 
         implicit none
 
@@ -114,22 +112,22 @@ contains
         character(:), allocatable                     :: utf8_str
         !-----------------------------------------------------------------------------------------!
 
-        if (present(error_code)) error_code = 0
+        ! if (present(error_code)) error_code = 0
 
-        if(Len_trim(local_encoded_str) == 0) return
-        resp = g_locale_to_utf8(trim(local_encoded_str)//c_null_char, &
-                                int(len_trim(local_encoded_str), 8),  &
-                                c_null_ptr,                           &
-                                c_null_ptr,                           &
-                                c_null_ptr)
+        ! if(Len_trim(local_encoded_str) == 0) return
+        ! resp = g_locale_to_utf8(trim(local_encoded_str)//c_null_char, &
+        !                         int(len_trim(local_encoded_str), 8),  &
+        !                         c_null_ptr,                           &
+        !                         c_null_ptr,                           &
+        !                         c_null_ptr)
 
-        if(c_associated(resp)) then
-            call c_f_string(resp, str)
-            utf8_str = trim(str)
-        else
-            utf8_str = trim(local_encoded_str)
-            if (present(error_code)) error_code = 1 ! could not convert string
-        endif
+        ! if(c_associated(resp)) then
+        !     call c_f_string(resp, str)
+        !     utf8_str = trim(str)
+        ! else
+        !     utf8_str = trim(local_encoded_str)
+        !     if (present(error_code)) error_code = 1 ! could not convert string
+        ! endif
 
     end function fltu
 
@@ -227,8 +225,6 @@ contains
 
         use, intrinsic :: iso_c_binding,       only: c_ptr, c_null_ptr, &
                                                      c_null_char, c_associated
-        use gtk_sup,             only: c_f_string
-        use g,                   only: g_locale_from_utf8
 
         implicit none
 
@@ -240,21 +236,21 @@ contains
         character(:), allocatable             :: local_encoded_str
         !-----------------------------------------------------------------------------------------!
 
-        if (present(error_code)) error_code = 0
-        if(len_trim(utf8_str) == 0) return
-        resp = g_locale_from_utf8(trim(utf8_str) // c_null_char,   &
-                                  int(len_trim(utf8_str), 8),      &
-                                  c_null_ptr,                      &
-                                  c_null_ptr,                      &
-                                  c_null_ptr)
+        ! if (present(error_code)) error_code = 0
+        ! if(len_trim(utf8_str) == 0) return
+        ! resp = g_locale_from_utf8(trim(utf8_str) // c_null_char,   &
+        !                           int(len_trim(utf8_str), 8),      &
+        !                           c_null_ptr,                      &
+        !                           c_null_ptr,                      &
+        !                           c_null_ptr)
 
-        if(c_associated(resp)) then
-            call c_f_string(resp, str)
-            local_encoded_str = trim(str)
-        else
-            local_encoded_str = trim(utf8_str)
-            if (present(error_code)) error_code = 1 ! could not convert string
-        endif
+        ! if(c_associated(resp)) then
+        !     call c_f_string(resp, str)
+        !     local_encoded_str = trim(str)
+        ! else
+        !     local_encoded_str = trim(utf8_str)
+        !     if (present(error_code)) error_code = 1 ! could not convert string
+        ! endif
     end function flfu
 
     !---------------------------------------------------------------------------------------------!

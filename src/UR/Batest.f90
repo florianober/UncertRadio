@@ -20,8 +20,6 @@ subroutine batest()
 !   copyright (c) 2014-2024  günter kanisch
 
     use, intrinsic :: iso_c_binding
-    use gtk,                only:   gtk_buttons_ok,gtk_message_error,gtk_main_iteration, &
-                                    gtk_message_info,gtk_widget_hide
     use UR_types
     use ur_general_globals, only:   project_loadw,fname,fname_getarg, batest_on, &
                                     batest_user, batest_ref_file_ch, &
@@ -31,13 +29,9 @@ subroutine batest()
                                     knetto,klinf,kgspk1, &
                                     ifehl,coverf
     use ur_dlim
-    use ur_linft,           only: fitdecay
-    use UR_gtk_globals,   only: item_setintern
-    use gtk,                only: gtk_widget_show,gtk_widget_set_visible
-    use rout,               only: pending_events,wdputentrystring,messageshow,wdputentryint
-    use top,                only: idpt
+    ! use ur_linft,           only: fitdecay
+
     use urdate,             only: get_formated_date_time
-    use ur_interfaces,      only: processloadpro_new
     use ur_params,          only: BATEST_OUT, BATEST_REF_FILE
 
     use file_io,            only: logger, write_text_file
@@ -55,9 +49,8 @@ subroutine batest()
     character(len=64)  :: fname_old(6)
     character(len=20)  :: xsymbol
     character(:), allocatable :: full_filename_batest_out, full_filename_batest_resu
-    real(rn)           :: start,finish
-    integer(c_int)     :: resp
-    logical            :: isoneumi,equalqty
+    real(rn)           :: start, finish
+    logical            :: isoneumi, equalqty
     character(len=512) :: log_str
     logical            :: batestmc, exists
 
@@ -77,24 +70,24 @@ subroutine batest()
     ndevs = 0
     ndevs_new = 0
 
-    call gtk_widget_set_visible(idpt('textview1'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('textview1'), 0_c_int)
 
-    call gtk_widget_set_visible(idpt('box3'), 0_c_int)
-    call gtk_widget_set_visible(idpt('box4'), 0_c_int)
-    call gtk_widget_set_visible(idpt('box5'), 0_c_int)
-    call gtk_widget_set_visible(idpt('grid5'), 0_c_int)
-    call gtk_widget_set_visible(idpt('box7'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('box3'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('box4'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('box5'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('grid5'), 0_c_int)
+    ! call gtk_widget_set_visible(idpt('box7'), 0_c_int)
 
-    if(batest_user) then
-        call gtk_widget_hide(idpt('box2'))
-        call gtk_widget_hide(idpt('box3'))
-    endif
+    ! if(batest_user) then
+    !     call gtk_widget_hide(idpt('box2'))
+    !     call gtk_widget_hide(idpt('box3'))
+    ! endif
 
     call cpu_time(start)
 
     fname_getarg = ' '
     batest_on = .TRUE.
-    if(batest_user) call gtk_widget_hide(idpt('box4'))
+    ! if(batest_user) call gtk_widget_hide(idpt('box4'))
 
     ! File (19) contains contains the reference values of results, used for comparison
     close (19)
@@ -110,8 +103,8 @@ subroutine batest()
         if(ios /= 0) then
 
             str1 = T('File cannot be opened') // ': ' // trim(Batest_ref_file_ch)
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp, mtype=GTK_MESSAGE_ERROR)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp, mtype=GTK_MESSAGE_ERROR)
 
             write(log_str, '(*(g0))') 'File '  // trim(Batest_ref_file_ch) // ' not found!','   IOS=',ios
             call logger(66, log_str)
@@ -201,8 +194,8 @@ subroutine batest()
                         if (.not. exists) then
 
                             str1 = T('File cannot be opened') // ': ' // trim(fname)
-
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp, mtype=GTK_MESSAGE_ERROR)
+                            print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp, mtype=GTK_MESSAGE_ERROR)
                             ifehl = 1
                             batest_on = .false.
                             return
@@ -222,7 +215,7 @@ subroutine batest()
             call logger(67, "Datei=" // trim(fname))
         end if
 
-        call gtk_widget_show(idpt('window1'))
+        ! call gtk_widget_show(idpt('window1'))
         ios = 0
         project_loadw = .TRUE.
 
@@ -231,11 +224,11 @@ subroutine batest()
             if(kE == 2 .and. ios /= 0) exit
             if(kE == 2 .and. .not.(.not.batestMC .and. knumEGr > 1)) cycle
 
-            if(kE == 1) call ProcessLoadPro_new(0,1)       ! call for the 1. output quantity
-            if(kE == 2) then
-                if(batest_user) read(19,*) xsymbol
-                call ProcessLoadPro_new(1,2)      ! call for the 2. output quantity
-            endif
+            ! if(kE == 1) call ProcessLoadPro_new(0,1)       ! call for the 1. output quantity
+            ! if(kE == 2) then
+            !     if(batest_user) read(19,*) xsymbol
+            !     call ProcessLoadPro_new(1,2)      ! call for the 2. output quantity
+            ! endif
             if(ifehl == 1) return
             kwh = 0
 
@@ -252,12 +245,12 @@ subroutine batest()
                 end if
             end if
 
-            if(batestMC) then
-                item_setintern = .true.
-                call WDPutEntryInt('TRentryMCanzM', 75000)
-                if(.not.FitDecay) call WDPutEntryInt('TRentryMCanzM', 200000)
+            ! if(batestMC) then
 
-            end if
+            !     call WDPutEntryInt('TRentryMCanzM', 75000)
+            !     if(.not.FitDecay) call WDPutEntryInt('TRentryMCanzM', 200000)
+
+            ! end if
 
             xsymbol = adjustl(symbole(kEGr)%s)
             write(text18,'(a,1x,a10,1x,8(es12.5,1x),1x,i2,1x,4(f7.5,1x))') &
@@ -315,14 +308,6 @@ subroutine batest()
             endif
         end do  ! kE=1,2
 
-        IF(.false. .and. .not. batestMC .and. knumEGr > 1 .AND. FitDecay) THEN
-            call ProcessLoadPro_new(1, 2)      ! Aufruf für die 2. Ergebnisgröße
-            write(text18,'(a,1x,a10,1x,8(es12.5,1x),1x,i2,1x,4(f7.5,1x))')  &
-                fname_rel(1:45),adjustL(Symbole(kEGr)%s), real(Messwert(kEGr),8),real(Ucomb,8), &
-                real(WertBayes,8),real(UcombBayes,8),real(KBgrenzu,8),real(KBgrenzo,8),        &
-                real(decthresh,8),real(detlim,8),1,real(Coverf,8),real(kalpha,8),real(kbeta,8), &
-                real(W1minusG,8)
-        endif
     enddo
 
     call cpu_time(finish)
@@ -338,24 +323,23 @@ subroutine batest()
     close (19)
 
 
-    if(batest_user) then    ! 28.6.2019
-        call gtk_widget_show(idpt('box2'))
-        call gtk_widget_show(idpt('box3'))
-    endif
+    ! if(batest_user) then    ! 28.6.2019
+    !     call gtk_widget_show(idpt('box2'))
+    !     call gtk_widget_show(idpt('box3'))
+    ! endif
 
-    if(.not. batest_user) return
-    call gtk_widget_show(idpt('box4'))
+    ! if(.not. batest_user) return
+    ! call gtk_widget_show(idpt('box4'))
 
     if(ndevs == 0) then
         str1 = T('Test finished: no deviations!')
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp,mtype=GTK_MESSAGE_INFO)
     else
         write(str1,'(A,I0,A,I3,A)') T('Test finished: deviations found for') // ' ', ndevs, ' ' // &
                T('projects') // '!' // char(13) // T('Number of unknown deviations:') //  &
                ' ', ndevs_new, char(13) // T('Details: see output file') // Batest_out_ch // '!'
 
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batest:", resp,mtype=GTK_MESSAGE_INFO)
     endif
+    print *, str1
 
 end subroutine Batest
 
@@ -374,7 +358,6 @@ subroutine Batest_no_gui()
                                     ifehl,coverf
     use ur_dlim
     use urdate,             only: get_formated_date_time
-    use ur_interfaces,      only: processloadpro_new
     use ur_params,          only: BATEST_OUT, BATEST_REF_FILE
 
     use file_io,            only: logger, write_text_file
@@ -481,11 +464,11 @@ subroutine Batest_no_gui()
             if(kE == 2 .and. ios /= 0) exit
             if(kE == 2 .and. .not.(knumEGr > 1)) cycle
 
-            if(kE == 1) call ProcessLoadPro_new(0,1)       ! call for the 1. output quantity
+            ! if(kE == 1) call ProcessLoadPro_new(0,1)       ! call for the 1. output quantity
 
             if(kE == 2) then
                 read(19,*) xsymbol
-                call ProcessLoadPro_new(1,2)      ! call for the 2. output quantity
+                ! call ProcessLoadPro_new(1,2)      ! call for the 2. output quantity
             endif
             if(ifehl == 1) return
             kwh = 0

@@ -60,7 +60,6 @@ contains
         use URdate,        only: get_formated_date_time
         use Usub3,         only: FindMessk
         use Num1,          only: funcs,matwrite
-        use Top,           only: WrStatusbar
         use UR_params,     only: ZERO,TWO
         use FCVX,          only: FindCovx
         use translation_module, only: T => get_translation
@@ -211,7 +210,7 @@ contains
                 if(.not.posdef) then
                     if(ncofact > 3) then
                         ifehl = 1
-                        call WrStatusBar(4, T("Abortion. Matrix not posdef!"))
+                        ! call WrStatusBar(4, T("Abortion. Matrix not posdef!"))
                         return
                     else
                         posdef = .true.

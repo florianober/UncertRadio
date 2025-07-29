@@ -50,8 +50,6 @@ contains
         use ur_perror
         use usub3,               only: findmessk
 
-        use rout,                only: messageshow
-        use gtk,                 only: gtk_buttons_ok,gtk_message_warning
         use top,                 only: intmoda2
         use translation_module,  only: T => get_translation
         use, intrinsic :: iso_c_binding,       only: c_int
@@ -112,8 +110,8 @@ contains
             write(str1,*) T("Possible inconsistency between the number of Xi formulas in the FitDecay model"), &
                           new_line('A'), T("and the number of measurements, counting channels and results!"), &
                           new_line('A'), T("The calculations are stopped here, see chapter 7.11.3 within the CHM Help.")
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
             ifehl = 1
             return
         end if

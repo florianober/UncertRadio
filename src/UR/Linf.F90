@@ -38,8 +38,7 @@ contains
         use UR_Gleich_globals,          only: ifehl,loadingpro
         use UR_Linft,           only: ma,fpa,fpaSV,sfpa,sfpaSV,kfitp
         use UR_DLIM,            only: iteration_on
-        use Rout,               only: pending_events
-        use Top,                only: WrStatusbar
+
         use translation_module, only: T => get_translation
 
         implicit none
@@ -51,9 +50,9 @@ contains
         !-----------------------------------------------------------------------
         ifehl = 0
 
-        call WrStatusbar(4, T("Calculating") // "....")
+        ! call WrStatusbar(4, T("Calculating") // "....")
 
-        if( .not. loadingPro) call pending_events()
+        ! if( .not. loadingPro) call pending_events()
 
         call Linf(rn0, SDrn0)
         IF(ifehl == 1) RETURN
@@ -64,7 +63,7 @@ contains
         END IF
 
         IF(mode == 2) THEN
-            call WrStatusbar(4, T("Decay curve fit: view/save/print"))
+            ! call WrStatusbar(4, T("Decay curve fit: view/save/print"))
             call Linfout()
         END IF
 
@@ -81,7 +80,7 @@ contains
         USE UR_Gleich_globals,     only: klinf,knumEGr,loadingpro,missingval,Messwert,MesswertSV,StdUnc, &
                                  StduncSV, covarval, corrval, covarvalSV
         USE UR_Linft,      only: mfit,ifit,fpa,sfpa,kfitp,covar,covfpa
-        use Rout,          only: WTreeViewPutDoubleCell,pending_events
+
         use UR_params,     only: ZERO,ONE
         use Top,           only: RealModA1
         use Num1,          only: matwrite
@@ -97,8 +96,8 @@ contains
         MesswertSV(klinf) = Messwert(klinf)
         StdUnc(klinf)   = SDrn0
         StdUncSV(klinf) = SDrn0
-        call WTreeViewPutDoubleCell('treeview2', 5, klinf, Messwert(klinf))
-        call WTreeViewPutDoubleCell('treeview2', 11, klinf, StdUnc(klinf))
+        ! call WTreeViewPutDoubleCell('treeview2', 5, klinf, Messwert(klinf))
+        ! call WTreeViewPutDoubleCell('treeview2', 11, klinf, StdUnc(klinf))
 
         if(allocated(corrval)) deallocate(corrval)
         if(allocated(covarvalSV)) deallocate(covarvalSV)
@@ -121,8 +120,8 @@ contains
             MesswertSV(kx) = fpa(i)
             StdUnc(kx)     = sfpa(i)
             StdUncSV(kx)   = sfpa(i)
-            call WTreeViewPutDoubleCell('treeview2', 5, kx, Messwert(kx))
-            call WTreeViewPutDoubleCell('treeview2', 11, kx, StdUnc(kx))
+            ! call WTreeViewPutDoubleCell('treeview2', 5, kx, Messwert(kx))
+            ! call WTreeViewPutDoubleCell('treeview2', 11, kx, StdUnc(kx))
         end do
         if(mfit < 2 .or. knumEGr == 1) return
 
@@ -139,7 +138,7 @@ contains
         else
             Covarval(kx) = -ZERO
         end if
-        call WTreeViewPutDoubleCell('treeview3', 6, kx, CovarVal(kx))
+        ! call WTreeViewPutDoubleCell('treeview3', 6, kx, CovarVal(kx))
         Covarval(kx) = covar(1,2)
         if(kx > ubound(CovarvalSV,dim=1)) call RealModA1(CovarvalSV,kx)
         CovarValSV(kx) = Covarval(kx)
@@ -156,7 +155,7 @@ contains
         else
             Covarval(kx) = ZERO
         end if
-        call WTreeViewPutDoubleCell('treeview3', 6, kx, CovarVal(kx))
+        ! call WTreeViewPutDoubleCell('treeview3', 6, kx, CovarVal(kx))
         Covarval(kx) = covar(2,3)
         CovarValSV(kx) = Covarval(kx)
 
@@ -168,13 +167,13 @@ contains
         else
             Covarval(kx) = ZERO
         end if
-        call WTreeViewPutDoubleCell('treeview3', 6, kx, Covarval(kx))   ! format frmt
+        ! call WTreeViewPutDoubleCell('treeview3', 6, kx, Covarval(kx))   ! format frmt
         Covarval(kx) = covar(1,3)
         CovarValSV(kx) = Covarval(kx)
 
         covFPA = covar         ! copy of covar
 
-        if(.not.loadingPro) call pending_events()
+        ! if(.not.loadingPro) call pending_events()
 
     end subroutine StoreLinfParms
 
@@ -198,7 +197,7 @@ contains
         use ur_dlim,       only: iteration_on,limit_typ
         use ur_mcc,        only: kqtypx,imc
         use ur_general_globals,  only: mcsim_on,fname,batest_on,batf,bat_serial, results_path
-        use Top,           only: WrStatusbar,dpafact
+        use Top,           only: dpafact
         use Num1,          only: dpi_funcs,funcs,matwrite,find_mac
         use UR_params,     only: ZERO,ONE,TWO,EPS1MIN
         use LLcov2,        only: LinCov2
@@ -718,19 +717,19 @@ contains
             end if
         end if
 
-        if(.not.MCSim_on .and. .not.iteration_on .and. kableitnum == 0 .and. cofact > ZERO .and. use_WTLS) then
-            write(str1,'(a,es8.1)') 'cofact=1-',ONE-cofactlyt
-            call WrStatusBar(2, trim(str1))
-            ! write(66,*) trim(str1)
-        end if
+        ! if(.not.MCSim_on .and. .not.iteration_on .and. kableitnum == 0 .and. cofact > ZERO .and. use_WTLS) then
+        !     write(str1,'(a,es8.1)') 'cofact=1-',ONE-cofactlyt
+        !     call WrStatusBar(2, trim(str1))
+        !     ! write(66,*) trim(str1)
+        ! end if
 
 !         if(.false. .and. use_WTLS .and. imc < 50 ) write(23,*) 'Linf am Ende:   fpa =',(sngl(fpa(i)),i=1,3),  &
+! !             ' sfpa=',(sngl(sfpa(i)),i=1,3)
+!         if(.false. .and. use_WTLS .and. imc < 50 )  then
+!             write(log_str, '(*(g0))') 'Linf am Ende:   fpa =',(sngl(fpa(i)),i=1,3),  &
 !             ' sfpa=',(sngl(sfpa(i)),i=1,3)
-        if(.false. .and. use_WTLS .and. imc < 50 )  then
-            write(log_str, '(*(g0))') 'Linf am Ende:   fpa =',(sngl(fpa(i)),i=1,3),  &
-            ' sfpa=',(sngl(sfpa(i)),i=1,3)
-            call logger(23, log_str)
-        end if
+!             call logger(23, log_str)
+!         end if
 
     end subroutine Linf
 

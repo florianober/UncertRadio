@@ -36,23 +36,18 @@ contains
 
         use UR_params,               only: ZERO, ONE
         use, intrinsic :: iso_c_binding
-        use gtk,                     only: gtk_window_set_title,gtk_buttons_ok, &
-                                           gtk_widget_set_sensitive,GTK_MESSAGE_ERROR
-        USE ur_general_globals,            only: fname,Gum_restricted,sListSeparator, &
+
+        USE ur_general_globals,      only: fname,Gum_restricted,sListSeparator, &
                                            gross_negative,kModelType, work_path, runauto
-        use UR_gtk_globals,        only: item_setintern
+
         USE UR_Gleich_globals
         USE UR_DLIM
         USE UR_Linft
         USE UR_Gspk1Fit
 
         use CHF,                     only: FindlocT, ucase, flfu
-        use Rout,                    only: updateproname,MessageShow,WDPutTextviewString, &
-                                           WDPutSelRadio,WDSetComboboxAct,WDPutEntryDouble, &
-                                           WDSetCheckButton,WTreeViewPutDoubleCell,WDPutEntryInt
-        use top,                     only: idpt
         use Brandt,                  only: pnorm
-        use RdSubs,                  only: TransferToGTK, WandelDPkt
+        use RdSubs,                  only: WandelDPkt
         use UR_params,               only: EPS1MIN
         use top,                     only: InitVarsTV2,InitVarsTV3,InitVarsTV5,InitVarsTV6, &
                                            InitVarsTV7,IntModA1,CharModA1,RealModA1,LogModA1, &
@@ -72,7 +67,7 @@ contains
         type(charv),allocatable  :: cellk(:)
         character(LEN=50)      :: suchwort,word
         integer                :: k,ios,ios2,i,i1,i2,i3,imenu1,kk             ! ,kmwtyp
-        integer                :: kWTLS,inum,m1,ift,nn,kk1,kk2,kkk,idummy,kkL,iv,kc,kim,ksep,nnch, resp
+        integer                :: kWTLS,inum,m1,ift,nn,kk1,kk2,kkk,idummy,kkL,iv,kc,kim,ksep,nnch
         integer                :: error_str_conv
         logical                :: ugr,cvgr,fit,abgr,gsp1gr,gkalf
 
@@ -85,14 +80,14 @@ contains
         character(len=len(fname) + 32) :: fname_tmp
 
         !-----------------------------------------------------------------------
-        item_setintern = .true.
+        ! item_setintern = .true.
 
 
         ctr = sListSeparator
         fit = .FALSE.
         DChain_read_data = .false.                ! 27.4.2025
 
-        call UpdateProName(fname)
+        ! call UpdateProName(fname)
 
         allocate(character(len=800) :: text)
         allocate(character(len=1500) :: ttext)
@@ -122,8 +117,8 @@ contains
             write(66,*) 'iomessg=',trim(iomessg)
             write(cios,'(i0)') ios
             str1 = T('File cannot be opened') // ": " // trim(fname)
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead_CSV:", &
-                             resp, mtype=GTK_MESSAGE_ERROR)
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead_CSV:", &
+            !                  resp, mtype=GTK_MESSAGE_ERROR)
             ifehl = 1
             return
         end if
@@ -135,14 +130,14 @@ contains
             if(i1 == 0) then
                 str1 = T("List separator (CSV files):") // " '" // sListSeparator //  "' " // &
                        T('does not fit to the CSV file') // "!" // T('Wrong language') // "?"
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead_CSV:", resp,mtype=GTK_MESSAGE_ERROR)
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead_CSV:", resp,mtype=GTK_MESSAGE_ERROR)
                 ifehl = 1
                 return
             end if
         end if
         backspace (25)
 
-        item_setintern = .true.
+        ! item_setintern = .true.
 
         if(allocated(cell)) deallocate(cell)
         allocate(cell(60))
@@ -236,9 +231,9 @@ contains
             end if
         end if
 
-        if(ubound(titeltext,dim=1) > 0) call WDPutTextviewString('textview1', titeltext)
-        call WDPutTextviewString('textview2', Formeltext)
-        if(allocated(FormeltextFit)) call WDPutTextviewString('textviewModelEQ', FormeltextFit)
+        ! if(ubound(titeltext,dim=1) > 0) call WDPutTextviewString('textview1', titeltext)
+        ! call WDPutTextviewString('textview2', Formeltext)
+        ! if(allocated(FormeltextFit)) call WDPutTextviewString('textviewModelEQ', FormeltextFit)
 
         do i=1,15
             backspace (25)
@@ -398,11 +393,11 @@ contains
                 call WandelDPkt(cell(3)%s,1)
                 READ(cell(3)%s,*) knumEGr
                 IF(knumEGr > 0) kEGr = 1
-                call gtk_widget_set_sensitive(idpt('QFirst'), 1_c_int)
-                call gtk_widget_set_sensitive(idpt('QThird'), 0_c_int)
-                call gtk_widget_set_sensitive(idpt('QSecond'), 0_c_int)
-                if(knumEGr > 1) call gtk_widget_set_sensitive(idpt('QSecond'), 1_c_int)
-                if(knumEGr > 2) call gtk_widget_set_sensitive(idpt('QThird'), 1_c_int)
+                ! call gtk_widget_set_sensitive(idpt('QFirst'), 1_c_int)
+                ! call gtk_widget_set_sensitive(idpt('QThird'), 0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('QSecond'), 0_c_int)
+                ! if(knumEGr > 1) call gtk_widget_set_sensitive(idpt('QSecond'), 1_c_int)
+                ! if(knumEGr > 2) call gtk_widget_set_sensitive(idpt('QThird'), 1_c_int)
 
                 call DRead(25,text,ios)
                 call GetCells(text,cell,'u')
@@ -673,17 +668,17 @@ contains
                 call DRead(25,text,ios)
                 Chaincode%s = adjustL(cell(2)%s)
 
-                call WDSetComboboxAct('ComboboxDCchains',kc)
+                ! call WDSetComboboxAct('ComboboxDCchains',kc)
                 ChainSelected = kc
                 apply_separation = .false.
                 if(ksep == 1) apply_separation = .true.
-                call WDSetComboboxAct('DCcheckSepar', ksep)
-                call WDSetCheckButton('DCcheckVorLam',iv)
-                call WDSetComboboxAct('comboboxtextDCNCH', nnch)
-                DCcommMeasmt = .false.
+                ! call WDSetComboboxAct('DCcheckSepar', ksep)
+                ! call WDSetCheckButton('DCcheckVorLam',iv)
+                ! call WDSetComboboxAct('comboboxtextDCNCH', nnch)
+                ! DCcommMeasmt = .false.
                 if(kim == 1) DCcommMeasmt = .true.
-                call WDSetCheckButton('DCcheckCommMeasmt',kim)
-                call WDPutEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
+                ! call WDSetCheckButton('DCcheckCommMeasmt',kim)
+                ! call WDPutEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
 
                 i = N_Nuclides
                 if(allocated(DCnuclide)) deallocate(DCnuclide,DCsymbT12,DCsymbLambda,DCsymbEffiA, &
@@ -930,20 +925,20 @@ contains
                 CYCLE
             end if
 
-            call WDPutSelRadio('radiobuttonG1', unitRadio(1))
-            call WDPutSelRadio('radiobuttonG5', unitRadio(2))
-            call WDPutSelRadio('radiobuttonG9', unitRadio(3))
-            call WDPutSelRadio('radiobuttonG11', unitRadio(4))
-            call WDPutSelRadio('radiobuttonG13', unitRadio(5))
+            ! call WDPutSelRadio('radiobuttonG1', unitRadio(1))
+            ! call WDPutSelRadio('radiobuttonG5', unitRadio(2))
+            ! call WDPutSelRadio('radiobuttonG9', unitRadio(3))
+            ! call WDPutSelRadio('radiobuttonG11', unitRadio(4))
+            ! call WDPutSelRadio('radiobuttonG13', unitRadio(5))
 
-            IF(kmwtyp > 0) THEN
-                call WDSetComboboxAct('comboboxGMWtyp', kmwtyp)
-            else
-                call WDSetComboboxAct('comboboxGMWtyp', 1)
-            end if
-            call WDPutEntryDouble('entry_b2LFactor', FBT,'(f6.3)')
-            call WDSetCheckButton('checkbuttonGspk1EffiCov', ecorruse)
-            call WDSetCheckButton('checkbuttonMeanOpt', WMextSD)
+            ! IF(kmwtyp > 0) THEN
+            !     call WDSetComboboxAct('comboboxGMWtyp', kmwtyp)
+            ! else
+            !     call WDSetComboboxAct('comboboxGMWtyp', 1)
+            ! end if
+            ! call WDPutEntryDouble('entry_b2LFactor', FBT,'(f6.3)')
+            ! call WDSetCheckButton('checkbuttonGspk1EffiCov', ecorruse)
+            ! call WDSetCheckButton('checkbuttonMeanOpt', WMextSD)
 
             numd = 0
             do k=1,kdatmax
@@ -1198,14 +1193,14 @@ contains
                 if(abs(SDwert(i) - missingval) > EPS1MIN) SDwert(i) = SDwert(i)/coverin
                 if(abs(HBreite(i) - missingval) > EPS1MIN) HBreite(i) = HBreite(i)/coverin
 
-                if(abs(Stdunc(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
-                if(abs(SDwert(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
-                if(abs(HBreite(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
-                write(55,*) 'Unsicherheiten / coverin dividert Symbol=',Symbole(i)%s, &
-                    ' StdUnc=',sngl(StdUnc(i)),' coverin=',int(coverin,2)
+                ! if(abs(Stdunc(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                ! if(abs(SDwert(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
+                ! if(abs(HBreite(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
+                ! write(55,*) 'Unsicherheiten / coverin dividert Symbol=',Symbole(i)%s, &
+                !     ' StdUnc=',sngl(StdUnc(i)),' coverin=',int(coverin,2)
             end do
         end if
 
@@ -1213,9 +1208,9 @@ contains
           if(index(ucase(Formeltext(i)%s),'SDECAY') > 0) DChainEGR = .true.
         end do
 
-        call TransferToGTK(ugr,cvgr,fit,abgr,gsp1gr,imenu1,kmwtyp)
+        ! call TransferToGTK(ugr,cvgr,fit,abgr,gsp1gr,imenu1,kmwtyp)
 
-        item_setintern = .false.
+        ! item_setintern = .false.
 
     end subroutine ProRead_CSV
     !-----------------------------------------------------------------------

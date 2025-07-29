@@ -58,9 +58,8 @@ contains
         !     Copyright (C) 2014-2024  Günter Kanisch
 
         use, intrinsic :: iso_c_binding,  only: c_null_char,c_ptr,c_int
-        use gtk,            only:   GTK_BUTTONS_OK,gtk_widget_set_visible,GTK_MESSAGE_WARNING
 
-        USE UR_Gleich_globals,      only:   Symbole,CVFormel,Messwert,RSeite, StdUnc, wpars, &
+        USE UR_Gleich_globals, only:   Symbole,CVFormel,Messwert,RSeite, StdUnc, wpars, &
                                     SDFormel,symtyp,coverf,coverin,DT_increase,DL_increase,ifehl,   &
                                     ilam_binom,ip_binom,increase_dpafact,itm_binom,ISymbA,   &
                                     kbgv_binom,kEGr,kgspk1,klinf,knumEGr,lintest,loadingpro, &
@@ -81,21 +80,19 @@ contains
         USE UR_Perror
         USE UR_Gspk1Fit
         use UWB,            only:   gevalf
-        use Rout,           only:   MessageShow, WTreeViewPutDoubleCell,WDNotebookSetCurrPage, &
-                                    WTreeViewPutDoubleArray,WDSetCheckMenuItem,pending_events, &
-                                    WDSetCheckButton,WDPutSelRadioMenu
+
         use Rw1,            only:   covppcalc
-        use top,            only:   idpt,WrStatusbar,dpafact,FieldUpdate,chupper_eq,CharModA1,IntModA1, &
+        use top,            only:   dpafact,chupper_eq,CharModA1,IntModA1, &
                                     RealModA1
         use Brandt,         only:   pnorm,qnorm,mtxchi,mean,sd
-        use UR_gtk_globals, only: consoleout_gtk
+
         use UWB,            only:   Resulta,upropa,RbtCalc,func_Fconst,func_Flinear
         use Num1,           only:   funcs
         use LF1,            only:   Linf
         use LF1G,           only:   Linfg1,Linfg1Ausf
         use CHF,            only:   FindLocT,ucase,testSymbol
         use file_io,        only:   logger
-        use LSTfillT,       only:   WDListstoreFill_table
+
         use translation_module, only: T => get_translation
         use DECH,           only: Decaysub1
         use UR_DecChain,    only: DChain,DChainEGr
@@ -142,11 +139,11 @@ contains
             write(log_str, '(*(g0))') '##################### Rechw2: ',Symbole(kEGr)%s,'  ##################'
             call logger(66, log_str)
         end if
-        if(consoleout_gtk) write(0,*) '##### Begin of Rechw2  ##########################'
+        ! if(consoleout_gtk) write(0,*) '##### Begin of Rechw2  ##########################'
 
-        if(.not.loadingPro) then
-            call WrStatusBar(4, T('Calculating') // '....' )
-        end if
+        ! if(.not.loadingPro) then
+        !     ! call WrStatusBar(4, T('Calculating') // '....' )
+        ! end if
 
         if(allocated(CVFormel) .and. ubound(CVFormel,dim=1) == 0)   &
             call CharModA1(CVFormel,ubound(IsymbA,dim=1))
@@ -210,7 +207,7 @@ contains
         end if
         ! Write this value again into the first row of the grid 'values, uncertainties' and
         ! also into the "Uncertaintey budget" schreiben:
-        call WTreeViewPutDoubleCell('treeview2', 5, kEGr, resultat)
+        ! call WTreeViewPutDoubleCell('treeview2', 5, kEGr, resultat)
 
         !  Save several array to arrays with 'SV' attached to the array name:
         imax = ngrs+ncov+numd
@@ -241,7 +238,7 @@ contains
         call upropa(kEGr)
         Ucomb = Ucomb * coverf
         if(LinTest) UEG_normal = Ucomb
-        call WDListstoreFill_table('liststore_budget',3, .true.)
+        !call WDListstoreFill_table('liststore_budget',3, .true.)
         UcombSV = Ucomb
         imax = ngrs+ncov+numd
         SensiSV(1:imax)    = Sensi(1:imax)
@@ -413,12 +410,12 @@ contains
                           T('The output quantity does not depend on the selected net conting rate'), &
                           " (" // symbole(knetto(kEGr))%s // ")!", new_line('A'), &
                           " Factor Flinear=0! " // T('Please, correct!')
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
 
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
+            ! call WrStatusBar(4, T('Eliminate error(s) in equations!'))
 
-            call WrStatusBar(4, T('Eliminate error(s) in equations!'))
-
-            call WDNotebookSetCurrPage('notebook1',2)
+            ! call WDNotebookSetCurrPage('notebook1',2)
             ifehl = 1
 
             call logger(66, 'RW2_392; Return because of ifehl=1')
@@ -431,11 +428,12 @@ contains
                               T('The coefficient of sensivity of the selected net count rate symbol is negative!'), &
                               symbole(knetto(kEGr))%s, new_line('A'), &
                               T('Please, select the appropriate symbol!')
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
 
-                call WrStatusBar(4, T('Select the correct net counting rate symbol!'))
+                ! call WrStatusBar(4, T('Select the correct net counting rate symbol!'))
 
-                call WDNotebookSetCurrPage('notebook1',2)
+                ! call WDNotebookSetCurrPage('notebook1',2)
                 ifehl = 1
                 goto 9000
             end if
@@ -463,11 +461,11 @@ contains
                     write(str1,*) T('Warning') // ": ",  T('The coefficient of sensivity of the selected gross count rate symbol is negative!'), &
                                   " (" // symbole(knetto(kEGr))%s // ")", new_line('A'), new_line('A'), &
                                   T('Please, select the appropriate symbol!')
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
+                    ! call WrStatusBar(4, T('Select the correct gross counting rate symbol!'))
 
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
-                    call WrStatusBar(4, T('Select the correct gross counting rate symbol!'))
-
-                    call WDNotebookSetCurrPage('notebook1',2)
+                    ! call WDNotebookSetCurrPage('notebook1',2)
                     ifehl = 1
                     goto 9000
                 end if
@@ -488,9 +486,9 @@ contains
                 write(str1,*) T('Warning') // ": ", &
                               T('The gross count rate is smaller then the net counting rate!'), new_line('A'), &
                               T('Please, correct or select other symbols!')
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
-                call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
+                ! call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
                 ifehl = 1
                 goto 9000
             end if
@@ -523,8 +521,9 @@ contains
                               T('The 2nd Fit parameter apparently competes against the third!'), &
                               new_line('A'), &
                               T("Try to set the fitting option of the 2nd parameter to 'omit'!")
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
-                call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp,mtype=GTK_MESSAGE_WARNING)
+                ! call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
 
                 ifehl = 1
                 goto 9000
@@ -590,8 +589,8 @@ contains
             end if
         end if
 
-        call WTreeViewPutDoubleArray('treeview2',5,ngrs+ncov+numd ,Messwert)
-        call WTreeViewPutDoubleArray('treeview2',11,ngrs+ncov+numd ,StdUnc)
+        ! call WTreeViewPutDoubleArray('treeview2',5,ngrs+ncov+numd ,Messwert)
+        ! call WTreeViewPutDoubleArray('treeview2',11,ngrs+ncov+numd ,StdUnc)
 !         write(66,*) '  '
         call logger(66, '  ')
 
@@ -708,10 +707,10 @@ contains
             kModelType = 2
             if(kmodelold /= kModelType) then
                 SaveP = .true.
-                call FieldUpdate()
+                ! call FieldUpdate()
             end if
-            call WDPutSelRadioMenu('MT_NegLin',2)
-            if(.not. loadingPro) call pending_events()
+            ! call WDPutSelRadioMenu('MT_NegLin',2)
+            ! if(.not. loadingPro) call pending_events()
         end if
 
 !         write(66,*) 'Rw2:  gum_restricted=', Gum_restricted,'   multi_eval=',multi_eval
@@ -735,7 +734,7 @@ contains
                 call logger(30, log_str)
             end if
 
-            call pending_events()                                                         !
+            ! call pending_events()                                                         !
 
             !  Restoring arrays:
             imax = ngrs+ncov+numd
@@ -769,8 +768,9 @@ contains
                        T('The StdDev formula of the gross count rate has not yet been defined.') // &
                        new_line('A') // &
                        T('Calculation of detection limits not possible!')
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, &
-                                 "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                    !    call MessageShow(trim(str1), GTK_BUTTONS_OK, &
+                    !              "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
             end if
             goto 9000
         END if
@@ -833,8 +833,8 @@ contains
                    T('The relative calibration factor w uncertainty is >= 1/k_1-beta!') // &
                    new_line('A') // &
                    T('Therefore, the detection limit cannot be calculated!')
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
         end if
         !-------------------------------------------
 
@@ -983,9 +983,9 @@ contains
             call logger(66, log_str)
         end if
         if(ifehl == 1) then
-            call WrStatusBar(4, T('Abortion!'))
-            call pending_events()
-            call pending_events()
+            ! call WrStatusBar(4, T('Abortion!'))
+            ! call pending_events()
+            ! call pending_events()
         end if
         if(ifehl == 1) goto 9000
 
@@ -1092,7 +1092,7 @@ contains
 
 !         write(66,*) '############################# Rechw2 End ############################'
         call logger(66, '############################# Rechw2 End ############################')
-        if(consoleout_gtk) write(0,*) '##### Rechw2 End ############################'
+        ! if(consoleout_gtk) write(0,*) '##### Rechw2 End ############################'
 
 
         ! Messwert(1:ngrs+ncov+numd) = MesswertSV(1:ngrs+ncov+numd)
@@ -1121,10 +1121,7 @@ contains
         USE UR_DLIM
         USE UR_Gspk1Fit
 
-        use gtk,               only: gtk_buttons_ok,GTK_MESSAGE_WARNING
-        use Rout,              only: MessageShow
-        use Top,               only: WrStatusbar
-        use UWB,               only: Resulta,upropa
+        use UWB,               only: Resulta, upropa
 
         use file_io,           only: logger
         use UR_MCC,            only: kqtypx
@@ -1285,8 +1282,8 @@ contains
                                new_line('A'), &
                                T('Please, check uncertainties of input quantities!')
 
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, 'DetLim_Iter:', resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, 'DetLim_Iter:', resp,mtype=GTK_MESSAGE_WARNING)
                 maxrelu = ZERO
                 ism = 0
                 do i=nab+1,ngrs
@@ -1302,8 +1299,8 @@ contains
                               new_line('A'), &
                               symbole(ism)%s // ": ", &
                               T('rel. uncertainty') // "= ", sngl(maxrelu)
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "DetLim_Iter:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "DetLim_Iter:", resp,mtype=GTK_MESSAGE_WARNING)
                 goto 1500
             end if
 
@@ -1470,7 +1467,7 @@ contains
         use UR_Perror,      only: ifehlp
         USE fparser,        ONLY: initf, parsef
         USE ur_general_globals,   only: Gum_restricted
-        use Top,            only: WrStatusbar,CharmodA1,dpafact
+        use Top,            only: CharmodA1,dpafact
         use UWB,            only: TextReplace,ResultA
         use KLF,            only: CalibInter
         use file_io,        only: logger
@@ -1650,8 +1647,8 @@ contains
             end if
             if(ifehl == 1) then
 
-                call WrStatusBar(3, T('Error') // ": SetupParser: klu=0")
-                call WrStatusBar(4, T('Abortion!'))
+                ! call WrStatusBar(3, T('Error') // ": SetupParser: klu=0")
+                ! call WrStatusBar(4, T('Abortion!'))
 
                 call logger(66, 'Error within SetupParser in Rechw2: klu=0')
                 return
@@ -1694,7 +1691,7 @@ contains
         USE UR_Gspk1Fit,       only: Gamspk1_Fit
         use ur_general_globals,      only: Gum_restricted
         use UR_DLIM,           only: FConst, FLinear, fvalueB, modeB, iteration_on, kluB
-        use Top,               only: WrStatusbar
+
         use translation_module, only: T => get_translation
         use UR_DecChain,       only: DChainEgr
 
@@ -1747,8 +1744,8 @@ contains
 
         if(klu == 0) then
             ifehl = 1
-            call WrStatusBar(3, T('Error') // ": RnetVal: klu=0")
-            call WrStatusBar(4, T('Abortion!'))
+            ! call WrStatusBar(3, T('Error') // ": RnetVal: klu=0")
+            ! call WrStatusBar(4, T('Abortion!'))
             goto 100   !return
         end if
         ! write(66,*) 'RnetVal:  Act=',sngl(Act),' Flinear=',sngl(Flinear),' Fconst=',sngl(Fconst), &
@@ -1789,8 +1786,8 @@ contains
         if(ifehl == 1) then
             if(xact < 1.e-10_rn) then
                 ifehl = 0
-                call WrStatusBar(3,'  ')
-                call WrStatusBar(4,'..')
+                ! call WrStatusBar(3,'  ')
+                ! call WrStatusBar(4,'..')
                 x1 = - x1
                 kluB = klu
                 itmax = 30
@@ -1801,8 +1798,8 @@ contains
                 if(ifehl == 0) goto 100
             end if
 
-            call WrStatusBar(3,T('Error') // ": " // "RnetVal: IT>10")
-            call WrStatusBar(4, T('Abortion!'))
+            ! call WrStatusBar(3,T('Error') // ": " // "RnetVal: IT>10")
+            ! call WrStatusBar(4, T('Abortion!'))
 
             goto 100       ! return
         end if

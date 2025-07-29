@@ -21,9 +21,9 @@ subroutine Save(mode, cnote)
     !     Copyright (C) 2014-2023  Günter Kanisch
 
     use UR_Gleich_globals,       only: ifehl
-    use ur_general_globals
+    use ur_general_globals, only: fname, FileTyp, savep
     use PSave,           only: ProSave
-    use Rout,            only: UpdateProName, FOpen
+
     use CHF,             only: ucase
 
     implicit none
@@ -38,7 +38,7 @@ subroutine Save(mode, cnote)
     mift = 0
     if (LEN_TRIM(FNAME) == 0 .OR. Mode == 1) then
 
-        call FOpen(ifehl,.true., cnote)
+        !call FOpen(ifehl,.true., cnote)
         if(ifehl == 0) then
             IF(FileTyp == 'P') then      ! if the extension ".txp" is missing, it will attached
                 ! fnameUcase = ucase(FNAME)
@@ -51,7 +51,7 @@ subroutine Save(mode, cnote)
 
                 call ProSave()
                 SaveP = .false.
-                if(mode == 1) call UpdateProName(fname)
+                ! if(mode == 1) call UpdateProName(fname)
             end if
             if(FileTyp == 'F') then
                 if(INDEX(ucase(fname), '.TXT') > 0) mift = 1

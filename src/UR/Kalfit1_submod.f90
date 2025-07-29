@@ -53,8 +53,7 @@ contains
         use, intrinsic :: iso_c_binding,    only: c_ptr
         use UR_Linft
         use ur_general_globals,     only: MCSim_on,fname,kModelType
-        USE UR_Gleich_globals,        only: missingval
-        use Rout,             only: WTreeViewPutDoubleArray,WDPutLabelString
+        USE UR_Gleich_globals,      only: missingval
 
         use UR_params,        only: EPS1MIN, ZERO, ONE
         use Brandt,           only: Lsqlin ! ,LfuncKB
@@ -144,28 +143,28 @@ contains
         do j=1,nkalpts
             call CalibInter(1, xkalib(j),ZERO, fval_k(j),fuval_k(j))
         end do
-        call WTreeViewPutDoubleArray('treeview7',6,nkalpts, fval_k)
-        call WTreeViewPutDoubleArray('treeview7',7,nkalpts, fuval_k)
+        ! call WTreeViewPutDoubleArray('treeview7',6,nkalpts, fval_k)
+        ! call WTreeViewPutDoubleArray('treeview7',7,nkalpts, fuval_k)
 
         ! 6.8.2024:
         if(kModelType == 2 .and. index(ucase(fname),'PEARSONYORK') > 0) then
             write(str1,'(a,*(es19.11))') T('Fit parameters:') // ' ', (a_kalib(j),j=1,maKB)
-            call WDPutLabelString('DKlabelFparms', trim(str1))
+            ! call WDPutLabelString('DKlabelFparms', trim(str1))
         else
             write(str1,'(a,*(es13.5))') T('Fit parameters:') // ' ', (a_kalib(j),j=1,maKB)
         end if
-        call WDPutLabelString('DKlabelFparms', trim(str1))
+        ! call WDPutLabelString('DKlabelFparms', trim(str1))
 
         if(kModelType == 2 .and. index(ucase(fname),'PEARSONYORK') > 0) then
             write(str1,'(a,*(es19.11))') T('their StdDevs:') // ' ', (sqrt(covar_kalib(j,j)),j=1,maKB)
-            call WDPutLabelString('DKlabelFsdev', trim(str1))
+            ! call WDPutLabelString('DKlabelFsdev', trim(str1))
         else
             write(str1,'(a,*(es13.5))') T('their StdDevs:') // ' ',(sqrt(covar_kalib(j,j)),j=1,maKB)
         end if
-        call WDPutLabelString('DKlabelFsdev', trim(str1))
+        ! call WDPutLabelString('DKlabelFsdev', trim(str1))
 
         write(str1,'(a,es13.5,a,es13.5)') 'ChisqR :',ChisqrKB,';    Root-MSE(SD) :',sqrt(ChisqrKB)
-        call WDPutLabelString('DKlabelChisqr', trim(str1))
+        ! call WDPutLabelString('DKlabelChisqr', trim(str1))
 
     end subroutine XKalfit
 
@@ -182,11 +181,7 @@ contains
         use UR_Gleich_globals,       only: loadingpro,ifehl
         use ur_general_globals,    only: MCSim_on
         use UR_MCC,          only: imc
-        use gtk,             only: GTK_BUTTONS_OK,GTK_MESSAGE_ERROR,GTK_MESSAGE_WARNING
-        use Rout,            only: MessageShow,WDNotebookSetCurrPage,WTreeViewPutDoubleArray, &
-                                   WDPutLabelString
 
-        use Top,             only: WrStatusbar
         use RND,             only: rnorm
         use file_io,         only: logger
         use UR_params,       only: EPS1MIN,ZERO
@@ -199,7 +194,7 @@ contains
         real(rn),intent(out)  :: zfit,uzfit    ! value and SD obtained from curve interpolation for xx, uxx
 
         character(:),allocatable  :: str1
-        integer                   :: mode2,resp
+        integer                   :: mode2
 
         mode2 = mode
         if(mode == 0) mode2 = 1
@@ -207,8 +202,9 @@ contains
         if(mode2 == 2 .and. kal_polgrad > 1) then
             str1 = T("Error: The inversion of the calibration polynomial is allowed only for a polynomial degree of 1!") // char(13) // &
                    T("Please, check the menu item Calibration curve!")
-            call MessageShow(str1, GTK_BUTTONS_OK, "Kalfit1:", resp, mtype=GTK_MESSAGE_ERROR)
-            call WrStatusBar(4, T("Please, check the menu item Calibration curve!"))
+            print *, str1
+            ! call MessageShow(str1, GTK_BUTTONS_OK, "Kalfit1:", resp, mtype=GTK_MESSAGE_ERROR)
+            ! call WrStatusBar(4, T("Please, check the menu item Calibration curve!"))
 !             write(66,*) 'CalibInter: mode = 2 and kal_polgrad > 1;  ifehl=1'
             call logger(66, 'CalibInter: mode = 2 and kal_polgrad > 1;  ifehl=1')
             ifehl = 1
@@ -229,11 +225,11 @@ contains
 
             str1 = T('Warning: The interpolated value from KALFIT is null!') // char(13) // &
                    T("Please, check the menu item Calibration curve!")
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "CalibInter:", resp, mtype=GTK_MESSAGE_WARNING)
+            ! call WrStatusBar(4, T("Please, check the menu item Calibration curve!"))
 
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "CalibInter:", resp, mtype=GTK_MESSAGE_WARNING)
-            call WrStatusBar(4, T("Please, check the menu item Calibration curve!"))
-
-            call WDNotebookSetCurrPage('notebook1', 3)
+            ! call WDNotebookSetCurrPage('notebook1', 3)
 
             ifehl = 1
             return

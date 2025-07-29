@@ -63,13 +63,9 @@ contains
         use ur_mcc
         use ur_perror
         use, intrinsic :: iso_c_binding,   only: c_int
-        use gtk,             only: gtk_widget_set_visible, &
-                                   gtk_buttons_ok_cancel, gtk_response_ok, gtk_response_cancel, &
-                                   gtk_buttons_ok, gtk_message_warning
-        use top,             only: idpt, charmodstr
-        use rout,            only: messageshow, pending_events, wdgetentrydouble
+
         use urdate,          only: get_formated_date_time
-        use ur_interfaces,   only: processloadpro_new
+        use top,             only: CharModStr
         use chf,             only: ucase, flfu
         use translation_module, only: T => get_translation
 
@@ -100,11 +96,11 @@ contains
         allocate(character(len=800) :: fnG,fncsv, str1,tpart,str2,cfnam,fname_auto_sep)
         allocate(character(len=1500) :: text18,text19,textb,text18b,btext)
 
-        call gtk_widget_set_visible(idpt('box3'), 0_c_int)
-        call gtk_widget_set_visible(idpt('box4'), 0_c_int)
-        call gtk_widget_set_visible(idpt('box5'), 0_c_int)
-        call gtk_widget_set_visible(idpt('grid5'), 0_c_int)
-        call gtk_widget_set_visible(idpt('box7'), 0_c_int)
+        ! call gtk_widget_set_visible(idpt('box3'), 0_c_int)
+        ! call gtk_widget_set_visible(idpt('box4'), 0_c_int)
+        ! call gtk_widget_set_visible(idpt('box5'), 0_c_int)
+        ! call gtk_widget_set_visible(idpt('grid5'), 0_c_int)
+        ! call gtk_widget_set_visible(idpt('box7'), 0_c_int)
 
         tdatum = get_formated_date_time()
 
@@ -144,13 +140,13 @@ contains
                                   " ios=", ios, new_line('A'), &
                                   T("If file is open: close it and then click OK, otherwise Cancel!")
 
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
-                    if(resp == GTK_RESPONSE_OK) goto 26
-                    if(resp == GTK_RESPONSE_CANCEL) then
-                        ifehl = 1
-                        return
-                    end if
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
+                    ! if(resp == GTK_RESPONSE_OK) goto 26
+                    ! if(resp == GTK_RESPONSE_CANCEL) then
+                    !     ifehl = 1
+                    !     return
+                    ! end if
                 end if
             end if
             !----------
@@ -180,13 +176,13 @@ contains
             write(str1,*) T("Error when opening") // " ", trim(fncsv), &
                           " ios=", ios, new_line('A'), &
                           T("If file is open: close it and then click OK, otherwise Cancel!")
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
-            if(resp == GTK_RESPONSE_OK) goto 28
-            if(resp == GTK_RESPONSE_CANCEL) then
-                ifehl = 1
-                return
-            end if
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
+            ! if(resp == GTK_RESPONSE_OK) goto 28
+            ! if(resp == GTK_RESPONSE_CANCEL) then
+            !     ifehl = 1
+            !     return
+            ! end if
         end if
 
         if (lexist) then
@@ -226,7 +222,8 @@ contains
                               T("One reason, e.g., might be an incompatible language selected in UR2."), new_line('A'), &
                               T("Please, check") //". " // T("See also Options - Pre-settings.")
 
-                call MessageShow(trim(str2), GTK_BUTTONS_OK, "SaveResults:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str2
+                ! call MessageShow(trim(str2), GTK_BUTTONS_OK, "SaveResults:", resp,mtype=GTK_MESSAGE_WARNING)
                 return
             end if
         end if
@@ -249,22 +246,22 @@ contains
         neg = 1        ! Number of the output quantity
 
 34      continue
-        if(neg == 1) call ProcessLoadPro_new(0,1)      ! call for the first output quantity
-        if(neg > 1)  call ProcessLoadPro_new(1,neg)    ! call for the output quanity number neg
+        ! if(neg == 1) call ProcessLoadPro_new(0,1)      ! call for the first output quantity
+        ! if(neg > 1)  call ProcessLoadPro_new(1,neg)    ! call for the output quanity number neg
         call CharModStr(str1,500)
         IF(ifehl == 1) GOTO 9000
-        call pending_events()
+        ! call pending_events()
 
         write(66,*) 'behind call ProcessLoadPro B :   autoreport=',autoreport
         IF(.not.FitDecay .AND. .not.Gamspk1_Fit .and. .not.SumEval_fit) Chisqr = -1._rn
 
-        call WDGetEntryDouble('TRentryValue', PE)
-        call WDGetEntryDouble('TRentryUnc', uPe)
-        call WDGetEntryDouble('TRentryValueBy', BE)
-        call WDGetEntryDouble('TRentryUncBy', uBe)
+        ! call WDGetEntryDouble('TRentryValue', PE)
+        ! call WDGetEntryDouble('TRentryUnc', uPe)
+        ! call WDGetEntryDouble('TRentryValueBy', BE)
+        ! call WDGetEntryDouble('TRentryUncBy', uBe)
 
-        call WDGetEntryDouble('TRentryLQBy', LQ)
-        call WDGetEntryDouble('TRentryUQBy', UQ)
+        ! call WDGetEntryDouble('TRentryLQBy', LQ)
+        ! call WDGetEntryDouble('TRentryUQBy', UQ)
         sLQ = KBgrenzuSH
         sUQ = KBgrenzoSH
 
@@ -273,10 +270,10 @@ contains
         write(cnum,'(es12.5)') sUQ
         read(cnum,*) sUQ
 
-        if(.not.gum_restricted) then
-            call WDGetEntryDouble('TRentryDT', DT)
-            call WDGetEntryDouble('TRentryDL', DL)
-        end if
+        ! if(.not.gum_restricted) then
+        !     call WDGetEntryDouble('TRentryDT', DT)
+        !     call WDGetEntryDouble('TRentryDL', DL)
+        ! end if
 
         if(outsepar) then
             ! Write to CSV file:
@@ -349,7 +346,7 @@ contains
 
 200     continue
 
-        call pending_events()
+        ! call pending_events()
 
         !---------------------------------------------------------------------------
 9000    continue
@@ -375,11 +372,9 @@ contains
         !     Copyright (C) 2010-2023  Günter Kanisch
 
         use, intrinsic :: iso_c_binding,   only: c_int
-        use Top,             only: CharModStr
         use UR_Gleich_globals,       only: ifehl
-        use gtk,             only: GTK_BUTTONS_OK_CANCEL, &
-                                   GTK_MESSAGE_WARNING
-        use Rout,            only: MessageShow
+        use top, only: charmodstr
+
         use translation_module, only: T => get_translation
 
         implicit none
@@ -410,28 +405,28 @@ contains
         if(.not.openf) then
             ios = 0
             WRITE(kunit,'(a)',IOSTAT=ios) TRIM(text18)
-            IF(ios /= 0) THEN
-                if(ios == 1 .or. ios == 6) then
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
-                    if(resp == 0) then
-                        ifehl = 1
-                        return
-                    end if
-                    if(resp == 1) then
-                        !   If answer 'Yes'
-                        goto 33
-                    END IF
-                end if
-            end if
+            ! IF(ios /= 0) THEN
+            !     if(ios == 1 .or. ios == 6) then
+            !         call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
+            !         if(resp == 0) then
+            !             ifehl = 1
+            !             return
+            !         end if
+            !         if(resp == 1) then
+            !             !   If answer 'Yes'
+            !             goto 33
+            !         END IF
+            !     end if
+            ! end if
         else
             ! after open file did fail at the first time:
             ifehl = 0
-            IF(ios /= 0) THEN
-                if(ios == 1 .or. ios == 6) then
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
-                    ifehl = 1
-                end if
-            end if
+            ! IF(ios /= 0) THEN
+            !     if(ios == 1 .or. ios == 6) then
+            !         call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "AutoReportWrite:", resp,mtype=GTK_MESSAGE_WARNING)
+            !         ifehl = 1
+            !     end if
+            ! end if
 
         end if
 
@@ -451,7 +446,7 @@ contains
         !     Copyright (C) 2014-2024  Günter Kanisch
 
         use, intrinsic :: iso_c_binding
-        use gtk,                    only: GTK_BUTTONS_OK, GTK_MESSAGE_WARNING
+
         USE ur_general_globals
         USE UR_Interfaces
 
@@ -460,8 +455,8 @@ contains
         USE UR_DLIM
         USE UR_Mcc
         USE UR_perror
-        use Rout,             only: WDGetEntryInt, WDGetEntryDouble, MessageShow
-        use top,              only: DRead, CharModStr
+        use top, only: charmodstr
+
         use URdate,           only: get_formated_date_time
         use UR_params,        only: EPS1MIN
         use translation_module, only: T => get_translation
@@ -507,7 +502,7 @@ contains
             OPEN (16,FILE=cfnam, STATUS='unknown',IOSTAT=ios)
             if(ios == 0) then
                 read(16,'(1x)')    ! 1 headline
-                call DRead(16,text16,ios)
+                ! call DRead(16,text16,ios)
                 i1 = index(text16,sListSeparator)
                 if(i1 == 0 .or. i1 > 50) then
                     ifehl = 1
@@ -529,8 +524,8 @@ contains
                               new_line('A'), new_line('A'), &
                               T("One reason, e.g., might be an incompatible language selected in UR2."), new_line('A'), &
                               T("Please, check") //". " // T("See also Options - Pre-settings.")
-
-                call MessageShow(trim(str2), GTK_BUTTONS_OK, "SaveResults:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str2
+                ! call MessageShow(trim(str2), GTK_BUTTONS_OK, "SaveResults:", resp,mtype=GTK_MESSAGE_WARNING)
                 return
             end if
         end if
@@ -549,16 +544,16 @@ contains
             end if
         end if
 
-        Call WDGetEntryInt('TRentryMCanzM', kcmx)
-        Call WDGetEntryInt('TRentryMCanzR', kcrun)
+        ! Call WDGetEntryInt('TRentryMCanzM', kcmx)
+        ! Call WDGetEntryInt('TRentryMCanzR', kcrun)
 
-        Call WDGetEntryDouble('TRentryMCValue', xmit1)
-        Call WDGetEntryDouble('TRentryMCunc', xsdv)
-        Call WDGetEntryDouble('TRentryMClq', xLQ)
-        Call WDGetEntryDouble('TRentryMCuq', xUQ)
+        ! Call WDGetEntryDouble('TRentryMCValue', xmit1)
+        ! Call WDGetEntryDouble('TRentryMCunc', xsdv)
+        ! Call WDGetEntryDouble('TRentryMClq', xLQ)
+        ! Call WDGetEntryDouble('TRentryMCuq', xUQ)
 
-        Call WDGetEntryDouble('TRentryMCdt', xDT)
-        Call WDGetEntryDouble('TRentryMCdl', xDL)
+        ! Call WDGetEntryDouble('TRentryMCdt', xDT)
+        ! Call WDGetEntryDouble('TRentryMCdl', xDL)
 
         nmctot = kcmx*kcrun
 
@@ -643,46 +638,42 @@ contains
 
 !#######################################################################
 
-    subroutine TransToTV2()
+!     subroutine TransToTV2()
 
-        ! this routine transfers the values of the arrays to the grid Treeview2.
-        !
-        !     Copyright (C) 2014-2023  Günter Kanisch
+!         ! this routine transfers the values of the arrays to the grid Treeview2.
+!         !
+!         !     Copyright (C) 2014-2023  Günter Kanisch
 
-        use UR_Gleich_globals
-        use ur_general_globals
-        use Rout,               only: WTreeViewPutStrArray,WTreeviewPutComboArray,    &
-            WTreeviewPutDoubleCell,WTreeviewPutComboCell,   &
-            WTreeviewPutStrCell,WTreeviewGetComboArray
-        use UR_gtk_globals,   only: consoleout_gtk
-        use UR_params,          only: EPS1MIN
+!         use UR_Gleich_globals
+!         use ur_general_globals
 
-        implicit none
+!         use UR_params,          only: EPS1MIN
 
-        integer :: i
-!----------------------------------------------------------------------------------
+!         implicit none
 
-        if(consoleout_gtk) write(0,*) '##### PMD: TransToTV2 beginning  ###########################'
-        ! write(0,*) 'Usub3_680:   ngrs=',int(ngrs,2),' ubound(Symbole)=',ubound(Symbole,dim=1)
-        call WTreeviewPutStrArray('treeview2',2,ngrs,Symbole)
-        call WTreeviewPutStrArray('treeview2',3,ngrs,symtyp)
-        call WTreeviewPutStrArray('treeview2',4,ngrs,Einheit)
-        call WTreeviewPutComboArray('treeview2',6,ngrs,IVTL)
-        call WTreeviewPutStrArray('treeview2',7,ngrs,sdformel)
-        call WTreeviewPutComboArray('treeview2',10,ngrs,IAR)
-        if(consoleout_gtk) write(0,*) 'nach Block 1'
+!         integer :: i
+! !----------------------------------------------------------------------------------
 
-        do i=1,ngrs
-            IF(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',5,i,Messwert(i))
-            IF(abs(SDWert(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',8,i,SDWert(i))
-            IF(abs(HBreite(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',9,i,HBreite(i))
-            IF(abs(StdUnc(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',11,i,StdUnc(i))
-        end do
-        if(consoleout_gtk) write(0,*) 'nach Loop 1'
 
-        if(consoleout_gtk) write(0,*) '##### PMD: TransToTV2  End  ###########################'
+!         call WTreeviewPutStrArray('treeview2',2,ngrs,Symbole)
+!         call WTreeviewPutStrArray('treeview2',3,ngrs,symtyp)
+!         call WTreeviewPutStrArray('treeview2',4,ngrs,Einheit)
+!         call WTreeviewPutComboArray('treeview2',6,ngrs,IVTL)
+!         call WTreeviewPutStrArray('treeview2',7,ngrs,sdformel)
+!         call WTreeviewPutComboArray('treeview2',10,ngrs,IAR)
 
-    end subroutine TransToTV2
+
+!         do i=1,ngrs
+!             IF(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',5,i,Messwert(i))
+!             IF(abs(SDWert(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',8,i,SDWert(i))
+!             IF(abs(HBreite(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',9,i,HBreite(i))
+!             IF(abs(StdUnc(i)-missingval) > EPS1MIN) call WTreeviewPutDoubleCell('treeview2',11,i,StdUnc(i))
+!         end do
+!         if(consoleout_gtk) write(0,*) 'nach Loop 1'
+
+!         if(consoleout_gtk) write(0,*) '##### PMD: TransToTV2  End  ###########################'
+
+!     end subroutine TransToTV2
 !#######################################################################
 
 

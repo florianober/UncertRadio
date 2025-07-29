@@ -30,11 +30,9 @@ contains
 
         use, intrinsic :: iso_c_binding,          only: c_int, c_double
 
-        use gtk,                    only: gtk_buttons_ok,GTK_MESSAGE_WARNING,gtk_progress_bar_set_fraction, &
-                                          gtk_widget_hide,gtk_widget_set_sensitive
 
-        USE ur_general_globals,           only: Gum_restricted
-        USE UR_Gleich_globals,              only: MEsswert,ifehl,kEGr,kfitcal,klinf,knumEGr,missingval, &
+        USE ur_general_globals,   only: Gum_restricted
+        USE UR_Gleich_globals,    only: MEsswert,ifehl,kEGr,kfitcal,klinf,knumEGr,missingval, &
                                           nab,ncov,ngrs,kpoint,nvar,ivtl,MesswertSV,HBreite,IAR,kbrutto,StdUnc, &
                                           iptr_time,iptr_cnt,covarval,cvformel,StdUncSV,isymbA,isymbB,covarvalSV,Symbole, &
                                           icovtyp,symboleG,nmumx,kbgv_binom,knetto,iptr_rate,  &
@@ -56,10 +54,7 @@ contains
 
 
         USE fparser,                ONLY: evalf
-        use Rout,                   only: WDPutEntryInt,MessageShow,pending_events,WDPutEntryInt
 
-        use Top,                    only: WrStatusbar
-        use top,                    only: idpt
         use Rw1,                    only: covppcalc
         use UWB,                    only: Resulta
         use Usub3,                  only: FindMessk
@@ -80,7 +75,6 @@ contains
 
         implicit none
 
-        integer(c_int)       :: resp
         integer              :: iv,i,k,j,icd1,icdmax,ii1,ii2,iij,icnt,nn,ks,kunit,mnj,jj
         integer(2)           :: mms_arr(nmumx),vfixed(200)
         character(len=60)    :: cminus
@@ -100,8 +94,8 @@ contains
         integer   ,allocatable   :: indx(:)
 
         !----------------------------------------------------------------------------------------------
-        call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), 0.d0)
-        call gtk_widget_set_sensitive(idpt('TRprogressbar'), 1_c_int)
+        ! call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), 0.d0)
+        ! call gtk_widget_set_sensitive(idpt('TRprogressbar'), 1_c_int)
 
         allocate(character(len=150)  :: str1)
 
@@ -144,7 +138,7 @@ contains
         if(kqtyp == 2 .and. mmkk >= 0) then
             ! the value of RD (modified net count rate) is set outside of MCsingRUN,
             ! e.g., in RootFindBS/PrFunc
-            call WDPutEntryInt('TRentryMCit', mmkk)
+            ! call WDPutEntryInt('TRentryMCit', mmkk)
             call ModVar(kqtyp, RD, ffx)
 
             if(kbrutto(kEGr) > 0) then
@@ -170,7 +164,7 @@ contains
                 write(63,*) 'MCsingrun:  rescue exit from DL iteration'
                 goto 9000
             end if
-            call WDPutEntryInt('TRentryMCit', mmkk)
+            ! call WDPutEntryInt('TRentryMCit', mmkk)
             call ModVar(kqtyp, RD, ffx)
             if(FitDecay .or. Gamspk1_Fit) then
                 fpa(kEgr) = RD
@@ -339,8 +333,8 @@ contains
 
             if(imc10*(imc/imc10) == imc) then
                 fracc = real(imc/imc10,8)/15.0_c_double
-                call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), fracc)
-                call pending_events
+                ! call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), fracc)
+                ! call pending_events
             END if
 
             if(FitDecay) then
@@ -1190,7 +1184,7 @@ contains
             if(kr == 1 .and. imc <= imcmax/50) then
                 if(ISNAN(MCWert)) then
                     ifehl = 1
-                    call WrStatusbar(3,'MCsingRun: MC value is NaN!')
+                    ! call WrStatusbar(3,'MCsingRun: MC value is NaN!')
                     write(63,*) 'MCSingRun failed: MC value is NaN:   values:'
                     goto 9000
                 end if
@@ -1235,10 +1229,11 @@ contains
                     if(mcnonvary) then
                         str1 = T("The MC values do not show any variation!") // new_line('A') // &
                                T("Therefore, the MC simulation is interrupted!")
-                        call MessageShow(str1, GTK_BUTTONS_OK, "MCcalc:", resp, &
-                                         mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(str1, GTK_BUTTONS_OK, "MCcalc:", resp, &
+                        !                  mtype=GTK_MESSAGE_WARNING)
 
-                        call gtk_widget_hide(windowPL)
+                        ! call gtk_widget_hide(windowPL)
                         ifehl = 1
                         do i=1,ngrs
                             write(63,*) 'i=',int(i,2),' MW(i)=',sngl(Messwert(i)),' MWSV(i)=',sngl(MesswertSV(i))
@@ -1351,14 +1346,14 @@ contains
 
         end do
         imc = 0
-        call pending_events
+        ! call pending_events
         if(imctrue == 0) then
             write(cminus,'(a,i0,a,i0,a,i0)') 'n_left: ',nminus,',  n_right: ',nplus,' kqt=',kqtyp
             str1 = T("imctrue is null (all sampled MC values outside the allowed range!)") // new_line('A') // &
                    trim(cminus) // new_line('A') // &
                    T("The MC simulation is stopped.")
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "MCCalc:", resp,mtype=GTK_MESSAGE_WARNING)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "MCCalc:", resp,mtype=GTK_MESSAGE_WARNING)
             ifehl = 1
             write(63,*) 'imctrue=',imctrue,' letzter Datensatz:'
             do k=1,ngrs+ncov+numd

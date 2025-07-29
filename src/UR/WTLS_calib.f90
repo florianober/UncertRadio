@@ -24,7 +24,6 @@ subroutine GlsqCalib(maKB,nkalpts,a_kalib,covar_kalib,ykalib,zuykalib,xkalib,uxk
     use UR_types, only: rn
     use UR_Linft, only: mfit,mxind,posdef,ncofact,IfitKB
 
-    use Top,      only: WrStatusbar
     use UR_LSQG
     use translation_module, only: T => get_translation
 
@@ -75,7 +74,7 @@ subroutine GlsqCalib(maKB,nkalpts,a_kalib,covar_kalib,ykalib,zuykalib,xkalib,uxk
     if(.not.posdef) then
         if(ncofact > 3) then
             ifehl = 1
-            call WrStatusBar(4, T("Abortion. Matrix not posdef!"))
+            !call WrStatusBar(4, T("Abortion. Matrix not posdef!"))
 
             return
         else
@@ -126,7 +125,6 @@ SUBROUTINE E7LSQ1Cal(x,list,m,n,nr,t,dt,s,ds,covar,chisq,nstep,  &
     use UR_params,     only: ZERO, TWO
     use Num1,          only: matwrite
     use WTLS,          only: LsqGen
-    use Top,           only: WrStatusbar
 
     implicit none
 

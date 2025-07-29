@@ -24,33 +24,33 @@ module top
     interface
 
 
-        module function idpt(strid) result(ptr)
-            type(c_ptr)                   :: ptr
-            character(len=*),intent(in)   :: strid      ! name des id-labels aus dem glade-file
-        end function idpt
+        ! module function idpt(strid) result(ptr)
+        !     type(c_ptr)                   :: ptr
+        !     character(len=*),intent(in)   :: strid      ! name des id-labels aus dem glade-file
+        ! end function idpt
 
 
-        pure module subroutine finditemp(ptr, ncitem)
+        ! pure module subroutine finditemp(ptr, ncitem)
 
-            type(c_ptr),value,intent(in)  :: ptr
-            integer   ,intent(out)        :: ncitem
-        end subroutine finditemp
-
-
-        module subroutine finditems(dialogstr, ncitem)
-            character(len=*),intent(in)   :: dialogstr
-            integer   ,intent(out)        :: ncitem
-        end subroutine finditems
+        !     type(c_ptr),value,intent(in)  :: ptr
+        !     integer   ,intent(out)        :: ncitem
+        ! end subroutine finditemp
 
 
-        module subroutine fieldupdate()
-        end subroutine fieldupdate
+        ! module subroutine finditems(dialogstr, ncitem)
+        !     character(len=*),intent(in)   :: dialogstr
+        !     integer   ,intent(out)        :: ncitem
+        ! end subroutine finditems
 
 
-        module subroutine wrstatusbar(k,string)
-            integer   ,intent(in)         :: k       ! statusbar number
-            character(len=*),intent(in)   :: string  ! output text
-        end subroutine wrstatusbar
+        ! module subroutine fieldupdate()
+        ! end subroutine fieldupdate
+
+
+        ! module subroutine wrstatusbar(k,string)
+        !     integer   ,intent(in)         :: k       ! statusbar number
+        !     character(len=*),intent(in)   :: string  ! output text
+        ! end subroutine wrstatusbar
 
         module real(rn) function dpafact(x)
             real(rn),intent(in)    :: x    !
@@ -66,11 +66,11 @@ module top
             integer,intent(in)     :: k_datvar
         end subroutine mdcalc
 
-        module subroutine pixelperstring(dialog,string,wdpixel,htpixel)
-            type(c_ptr), value           :: dialog
-            character(len=*),intent(in)  :: string
-            integer,intent(out)          :: wdpixel,htpixel
-        end subroutine pixelperstring
+        ! module subroutine pixelperstring(dialog,string,wdpixel,htpixel)
+        !     type(c_ptr), value           :: dialog
+        !     character(len=*),intent(in)  :: string
+        !     integer,intent(out)          :: wdpixel,htpixel
+        ! end subroutine pixelperstring
 
 
         module subroutine charmoda1(array,n1)

@@ -64,7 +64,7 @@ contains
 
     subroutine LoadDecayChains
         use UR_DecChain,   only: DCList,nDCL
-        use Rout,          only: WDListstoreFill_1
+        ! use Rout,          only: WDListstoreFill_1
         use ur_general_globals, only: work_path
         use CHF, only: flfu
 
@@ -93,300 +93,296 @@ contains
         enddo
         close (nio)
 
-        call WDListstoreFill_1('liststore_Dchains', nDCL, DClist)
+        ! call WDListstoreFill_1('liststore_Dchains', nDCL, DClist)
 
     end subroutine LoadDecayChains
 
     !##################################################################################
 
-    subroutine DCPrepareTable(numChain)
+    ! subroutine DCPrepareTable(numChain)
 
-    !------------------------------------------------------------------------------
-    ! Purpose: Introducing a radioactive decay chain and associated properties
-    !
-    !          This routine refers to introducing a radionuclide decay chain into a
-    !          table of a corresponding GUI set up dialog for defining variable names
-    !          (symbols) for the nuclide's half-lives (T12) or decay  constants
-    !          (Lambda), for branching ratios (Zji) and for the measurement
-    !          conditions as described by detection efficiencies, chemical yields and
-    !          other parameters.
-    !
-    !          For the case of applying a LSC counter with more than one energy window,
-    !          up to three efficiency symbols (indicated by A, B, C attached) can be
-    !          defined per radionuclide.
-    !
-    !          The variable names (symbols), defined in the dialog, enter into UncertRadio's
-    !          common list of symbols, where values and uncertainties are attributed
-    !          to them by the user.
-    !
-    !          The corresponding UncertRadio dialog is invoked by the appearance of the
-    !          UncertRadio-specific function "SDECAY" on the right-hand side of an equation.
-    !
-    !          Introduced by Günter Kanisch in January 2025.
-    !              Copyright (C) 2024-2025  Günter Kanisch
-    !------------------------------------------------------------------------------
+    ! !------------------------------------------------------------------------------
+    ! ! Purpose: Introducing a radioactive decay chain and associated properties
+    ! !
+    ! !          This routine refers to introducing a radionuclide decay chain into a
+    ! !          table of a corresponding GUI set up dialog for defining variable names
+    ! !          (symbols) for the nuclide's half-lives (T12) or decay  constants
+    ! !          (Lambda), for branching ratios (Zji) and for the measurement
+    ! !          conditions as described by detection efficiencies, chemical yields and
+    ! !          other parameters.
+    ! !
+    ! !          For the case of applying a LSC counter with more than one energy window,
+    ! !          up to three efficiency symbols (indicated by A, B, C attached) can be
+    ! !          defined per radionuclide.
+    ! !
+    ! !          The variable names (symbols), defined in the dialog, enter into UncertRadio's
+    ! !          common list of symbols, where values and uncertainties are attributed
+    ! !          to them by the user.
+    ! !
+    ! !          The corresponding UncertRadio dialog is invoked by the appearance of the
+    ! !          UncertRadio-specific function "SDECAY" on the right-hand side of an equation.
+    ! !
+    ! !          Introduced by Günter Kanisch in January 2025.
+    ! !              Copyright (C) 2024-2025  Günter Kanisch
+    ! !------------------------------------------------------------------------------
 
-        use UR_DecChain
-        use UR_Gleich_globals,   only: charv
-        use CHF,                 only: ucase
-        use Rout,                only: WTreeViewPutStrArray,WTreeViewPutDoubleArray, &
-                                    WTreeViewPutIntArray,WTreeViewPutCheckArray, &
-                                    WDPutEntryString,WDPutTreeViewColumnLabel, &
-                                    WDGetCheckButton,WDGetEntryInt,WDGetComboboxAct, &
-                                    WDListstoreFill_1,WDSetComboboxAct
-        implicit none
+    !     use UR_DecChain
+    !     use UR_Gleich_globals,   only: charv
+    !     use CHF,                 only: ucase
 
-        integer(4),intent(in)  :: numChain    ! is the index of a chain within a list of
-                                                ! pre-defined decay chains
+    !     implicit none
 
-        integer(4)           :: i,i1,i2,i3,nc,i1_minus,iv,ni,L,ncc,nst,i1_m
-        type(charv)          :: cnuk
-        character(len=150)   :: text
-        character(len=30)    :: Zjistr
+    !     integer(4),intent(in)  :: numChain    ! is the index of a chain within a list of
+    !                                             ! pre-defined decay chains
 
-        call WDGetComboboxAct('comboboxtextDCNCH',DCchannels)
-        call WDGetCheckButton('DCcheckCommMeasmt',i)
-        DCcommMeasmt = .false.
-        if(i == 1) DCcommMeasmt = .true.
-        call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
-        if(allocated(DCindx)) deallocate(DCindx)
+    !     integer(4)           :: i,i1,i2,i3,nc,i1_minus,iv,ni,L,ncc,nst,i1_m
+    !     type(charv)          :: cnuk
+    !     character(len=150)   :: text
+    !     character(len=30)    :: Zjistr
 
-        if(.not.DChain_read_data) then
-        if(allocated(DCnuclide)) then
-            deallocate(DCnuclide,DCnuclide_sh,DCsymbT12,DCsymbLambda,DCsymbEffiA,DCsymbEffiB)
-            deallocate(DCsymbEffiC,DCsymbYield,DCZji,DCZjivAL)
-        end if
-        endif
+    !     call WDGetComboboxAct('comboboxtextDCNCH',DCchannels)
+    !     call WDGetCheckButton('DCcheckCommMeasmt',i)
+    !     DCcommMeasmt = .false.
+    !     if(i == 1) DCcommMeasmt = .true.
+    !     call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
+    !     if(allocated(DCindx)) deallocate(DCindx)
 
-        call WDListstoreFill_1('liststore_Dchains', nDCL, DClist)
-        call WDSetComboboxAct('ComboboxDCchains',numChain)        ! 30.4.2025
+    !     if(.not.DChain_read_data) then
+    !     if(allocated(DCnuclide)) then
+    !         deallocate(DCnuclide,DCnuclide_sh,DCsymbT12,DCsymbLambda,DCsymbEffiA,DCsymbEffiB)
+    !         deallocate(DCsymbEffiC,DCsymbYield,DCZji,DCZjivAL)
+    !     end if
+    !     endif
+
+    !     call WDListstoreFill_1('liststore_Dchains', nDCL, DClist)
+    !     call WDSetComboboxAct('ComboboxDCchains',numChain)        ! 30.4.2025
 
 
-        text = DCList(numChain)%s
-                    write(66,*) 'DC_chains(numChain)=text=',trim(text)
+    !     text = DCList(numChain)%s
+    !                 write(66,*) 'DC_chains(numChain)=text=',trim(text)
 
-        ! ncc        : number of nuclides within the decay chain (Sr-90, Y-90 in case of a Sr analysis)
-        ! N_nuclides : all nuclides taken from the grid (Sr-90, Y-90, Sr-89, Sr-85 in case of a Sr analysis)
-        !              In the example indicated, for Sr-89 and Sr-85, the F-matrix is extended, only
-        !              their decay factors are used as diagonal elements of F (non-diagonal elements of F
-        !              are all equal to zero)
+    !     ! ncc        : number of nuclides within the decay chain (Sr-90, Y-90 in case of a Sr analysis)
+    !     ! N_nuclides : all nuclides taken from the grid (Sr-90, Y-90, Sr-89, Sr-85 in case of a Sr analysis)
+    !     !              In the example indicated, for Sr-89 and Sr-85, the F-matrix is extended, only
+    !     !              their decay factors are used as diagonal elements of F (non-diagonal elements of F
+    !     !              are all equal to zero)
 
-        nc = 0
-        nst = 1
-        i1 = index(text,':')
-        chaincode%s = trim(adjustL(text(1:i1-1)))
-        L = len_trim(chaincode%s)
-        read(chaincode%s(L-1:L-1),*) ncc  ! number of nuclides within the decay chain
-        text = text(i1+1:)
-        write(66,*) 'chaincode%s=',chaincode%s, ' ncc=',int(ncc,2),' text=',trim(text)
-        write(66,*) 'ubound(DCNuclide)=',ubound(DCNuclide,dim=1)
+    !     nc = 0
+    !     nst = 1
+    !     i1 = index(text,':')
+    !     chaincode%s = trim(adjustL(text(1:i1-1)))
+    !     L = len_trim(chaincode%s)
+    !     read(chaincode%s(L-1:L-1),*) ncc  ! number of nuclides within the decay chain
+    !     text = text(i1+1:)
+    !     write(66,*) 'chaincode%s=',chaincode%s, ' ncc=',int(ncc,2),' text=',trim(text)
+    !     write(66,*) 'ubound(DCNuclide)=',ubound(DCNuclide,dim=1)
 
-        if(.not.DChain_read_data) then
-        allocate(DCnuclide(ncc + 5),DCsymbT12(ncc + 5),DCsymbLambda(ncc + 5))
-        allocate(DCsymbEffiA(ncc + 5),DCsymbEffiB(ncc + 5))
-        allocate(DCsymbEffiC(ncc + 5),DCsymbYield(ncc + 5))
-        allocate(DCZji(15),DCZjivAL(15),DCindx(ncc+5))
+    !     if(.not.DChain_read_data) then
+    !     allocate(DCnuclide(ncc + 5),DCsymbT12(ncc + 5),DCsymbLambda(ncc + 5))
+    !     allocate(DCsymbEffiA(ncc + 5),DCsymbEffiB(ncc + 5))
+    !     allocate(DCsymbEffiC(ncc + 5),DCsymbYield(ncc + 5))
+    !     allocate(DCZji(15),DCZjivAL(15),DCindx(ncc+5))
 
-        allocate(DCnuclide_sh(ncc))      ! does not appear in the grid
-        else
-        if(.not.allocated(DCindx)) then
-            if(N_nuclides <= ncc) allocate(DCindx(ncc+5))
-            if(N_nuclides > ncc) allocate(DCindx(N_nuclides+5))
-        end if
-        if(.not.allocated(DCZji)) allocate(DCZji(15))
-        if(.not.allocated(DCZjival)) allocate(DCZjival(15))
-        end if
+    !     allocate(DCnuclide_sh(ncc))      ! does not appear in the grid
+    !     else
+    !     if(.not.allocated(DCindx)) then
+    !         if(N_nuclides <= ncc) allocate(DCindx(ncc+5))
+    !         if(N_nuclides > ncc) allocate(DCindx(N_nuclides+5))
+    !     end if
+    !     if(.not.allocated(DCZji)) allocate(DCZji(15))
+    !     if(.not.allocated(DCZjival)) allocate(DCZjival(15))
+    !     end if
 
-        nst = 2
-        do
-        if(nst == 3) exit
-        if(nst == 2) then
-            nc = nc + 1
-            if(nc < ncc) then
-            i1 = index(text,'#')
-            else
-            i1 = index(text,':')
-            endif
-            if(i1 > 0) then
-            DCnuclide(nc)%s = trim(adjustL(text(1:i1-1)))
-            text = text(i1+1:)
-            DCindx(nc) = nc
-                write(66,*) 'nc=',nc,' text=',trim(text),'     DCnuclide=',DCnuclide(nc)%s
-            if(nc == ncc) then
-                nst = 3
-            end if
-            endif
-        endif
-        end do
-        DCListZ(numChain) = trim(text)
-        if(DChain_read_data .and. N_nuclides >= nc .and. nc > 0) then
-        nc = N_nuclides
-        else
-        N_nuclides = nc
-        end if
+    !     nst = 2
+    !     do
+    !     if(nst == 3) exit
+    !     if(nst == 2) then
+    !         nc = nc + 1
+    !         if(nc < ncc) then
+    !         i1 = index(text,'#')
+    !         else
+    !         i1 = index(text,':')
+    !         endif
+    !         if(i1 > 0) then
+    !         DCnuclide(nc)%s = trim(adjustL(text(1:i1-1)))
+    !         text = text(i1+1:)
+    !         DCindx(nc) = nc
+    !             write(66,*) 'nc=',nc,' text=',trim(text),'     DCnuclide=',DCnuclide(nc)%s
+    !         if(nc == ncc) then
+    !             nst = 3
+    !         end if
+    !         endif
+    !     endif
+    !     end do
+    !     DCListZ(numChain) = trim(text)
+    !     if(DChain_read_data .and. N_nuclides >= nc .and. nc > 0) then
+    !     nc = N_nuclides
+    !     else
+    !     N_nuclides = nc
+    !     end if
 
-            ! write(0,*) 'first loop finished: DCListZ=',DCListZ(numChain)
-                write(66,*) 'PrepTable:  nc=',int(nc,2),' N_nuclides=',int(N_nuclides,2)
-                write(66,*) 'PrepTable: DCnuclide=',(DCnuclide(i)%s,i=1,4)
+    !         ! write(0,*) 'first loop finished: DCListZ=',DCListZ(numChain)
+    !             write(66,*) 'PrepTable:  nc=',int(nc,2),' N_nuclides=',int(N_nuclides,2)
+    !             write(66,*) 'PrepTable: DCnuclide=',(DCnuclide(i)%s,i=1,4)
 
-        do i=nc+1,nc+5
-        DCindx(i) = i
-        end do
-        do ni=1,nc+5
-        if(ni <= nc) then
-            DCindx(ni) = ni
-            if(DChain_read_data) cycle
+    !     do i=nc+1,nc+5
+    !     DCindx(i) = i
+    !     end do
+    !     do ni=1,nc+5
+    !     if(ni <= nc) then
+    !         DCindx(ni) = ni
+    !         if(DChain_read_data) cycle
 
-            i1_minus = index(DCnuclide(ni)%s,'-')
-            cnuk%s = DCnuclide(ni)%s(1:i1_minus-1) // DCnuclide(ni)%s(i1_minus+1:)
-            DCnuclide_sh(ni)%s = cnuk%s      ! 12.1.2025  GK
-            if(i1_minus > 0) then
-            ! pre-define the names of variables (UR symbols) as arrays for nuclides
-            DCsymbT12(ni)%s = 't' // cnuk%s
-            DCsymbLambda(ni)%s = 'lam' // cnuk%s
-            ! DCisChain(ni) = .true.
-            DCsymbEffiA(ni)%s = 'eps'// cnuk%s
-            DCsymbEffiB(ni)%s = ''
-            DCsymbEffiC(ni)%s = ''
-            if(DCchannels > 1) DCsymbEffiA(ni)%s = 'eps' // cnuk%s // 'A'
-            if(DCchannels > 1) DCsymbEffiB(ni)%s = 'eps' // cnuk%s // 'B'
-            if(DCchannels > 2) DCsymbEffiC(ni)%s = 'eps' // cnuk%s // 'C'
-            DCsymbYield(ni)%s = 'eta' // DCnuclide(ni)%s(1:i1_minus-1)
-            if(DCcommMeasmt .and. ni == DCBuildupAtSepar) then
-                i1_m = index(DCnuclide(ni-1)%s,'-')
-                DCsymbYield(ni)%s = 'eta' // DCnuclide(ni-1)%s(1:i1_m-1)
-            end if
-            end if
-        else
-            ! add the following for attached empty grid rows
-            DCindx(ni) = ni
-            DCnuclide(ni)%s = ''
-            DCsymbT12(ni)%s = ''
-            DCsymbLambda(ni)%s = ''
-            DCsymbEffiA(ni)%s = ''
-            DCsymbEffiB(ni)%s = ''
-            DCsymbEffiC(ni)%s = ''
-            DCsymbYield(ni)%s = ''
-        endif
-        end do
-        N_nuclides = nc
+    !         i1_minus = index(DCnuclide(ni)%s,'-')
+    !         cnuk%s = DCnuclide(ni)%s(1:i1_minus-1) // DCnuclide(ni)%s(i1_minus+1:)
+    !         DCnuclide_sh(ni)%s = cnuk%s      ! 12.1.2025  GK
+    !         if(i1_minus > 0) then
+    !         ! pre-define the names of variables (UR symbols) as arrays for nuclides
+    !         DCsymbT12(ni)%s = 't' // cnuk%s
+    !         DCsymbLambda(ni)%s = 'lam' // cnuk%s
+    !         ! DCisChain(ni) = .true.
+    !         DCsymbEffiA(ni)%s = 'eps'// cnuk%s
+    !         DCsymbEffiB(ni)%s = ''
+    !         DCsymbEffiC(ni)%s = ''
+    !         if(DCchannels > 1) DCsymbEffiA(ni)%s = 'eps' // cnuk%s // 'A'
+    !         if(DCchannels > 1) DCsymbEffiB(ni)%s = 'eps' // cnuk%s // 'B'
+    !         if(DCchannels > 2) DCsymbEffiC(ni)%s = 'eps' // cnuk%s // 'C'
+    !         DCsymbYield(ni)%s = 'eta' // DCnuclide(ni)%s(1:i1_minus-1)
+    !         if(DCcommMeasmt .and. ni == DCBuildupAtSepar) then
+    !             i1_m = index(DCnuclide(ni-1)%s,'-')
+    !             DCsymbYield(ni)%s = 'eta' // DCnuclide(ni-1)%s(1:i1_m-1)
+    !         end if
+    !         end if
+    !     else
+    !         ! add the following for attached empty grid rows
+    !         DCindx(ni) = ni
+    !         DCnuclide(ni)%s = ''
+    !         DCsymbT12(ni)%s = ''
+    !         DCsymbLambda(ni)%s = ''
+    !         DCsymbEffiA(ni)%s = ''
+    !         DCsymbEffiB(ni)%s = ''
+    !         DCsymbEffiC(ni)%s = ''
+    !         DCsymbYield(ni)%s = ''
+    !     endif
+    !     end do
+    !     N_nuclides = nc
 
-        text = DCListZ(numChain)
-        nzji = 0
-        do
-        if(len_trim(text) == 0) exit
-        i2 = index(text,'=')
-        i1 = index(ucase(text),'Z')
-        i3 = index(text,'#')
-        if(i1 > 0 .and. i2 > i1) then
-            nzji = nzji + 1
-            DCZji(nzji)%s = 'z' // trim(adjustL(text(i1+1:i2-1)))
-            if(i3 > i2) then
-            read(text(i2+1:i3-1),*) DCZjival(nzji)
-            elseif (i3 == 0) then
-            read(text(i2+1:),*) DCZjival(nzji)
-            exit
-            end if
-            text = text(i3+1:)
-        end if
-        end do
+    !     text = DCListZ(numChain)
+    !     nzji = 0
+    !     do
+    !     if(len_trim(text) == 0) exit
+    !     i2 = index(text,'=')
+    !     i1 = index(ucase(text),'Z')
+    !     i3 = index(text,'#')
+    !     if(i1 > 0 .and. i2 > i1) then
+    !         nzji = nzji + 1
+    !         DCZji(nzji)%s = 'z' // trim(adjustL(text(i1+1:i2-1)))
+    !         if(i3 > i2) then
+    !         read(text(i2+1:i3-1),*) DCZjival(nzji)
+    !         elseif (i3 == 0) then
+    !         read(text(i2+1:),*) DCZjival(nzji)
+    !         exit
+    !         end if
+    !         text = text(i3+1:)
+    !     end if
+    !     end do
 
-        ! transfer the arrays of variable-names to the grid:
-        call WDGetCheckButton('DCcheckVorLam',iv)
-        if(iv == 1) then
-        call WDPutTreeViewColumnLabel('treeview9', 3, 'Lambda'//char(13)//'Symbol')
-        else
-        call WDPutTreeViewColumnLabel('treeview9', 3, 'T12'//char(13)//'Symbol')
-        endif
+    !     ! transfer the arrays of variable-names to the grid:
+    !     call WDGetCheckButton('DCcheckVorLam',iv)
+    !     if(iv == 1) then
+    !     call WDPutTreeViewColumnLabel('treeview9', 3, 'Lambda'//char(13)//'Symbol')
+    !     else
+    !     call WDPutTreeViewColumnLabel('treeview9', 3, 'T12'//char(13)//'Symbol')
+    !     endif
 
-        write(66,*) 'DCnuclide:',(DCnuclide(i)%s,' ',i=1,3)
-        write(66,*) 'DCsymbLambda:',(DCsymbLambda(i)%s,' ',i=1,3)
-        write(66,*) 'DCsymbEffiA:',(DCsymbEffiA(i)%s,' ',i=1,3)
+    !     write(66,*) 'DCnuclide:',(DCnuclide(i)%s,' ',i=1,3)
+    !     write(66,*) 'DCsymbLambda:',(DCsymbLambda(i)%s,' ',i=1,3)
+    !     write(66,*) 'DCsymbEffiA:',(DCsymbEffiA(i)%s,' ',i=1,3)
 
-        call WTreeViewPutIntArray('treeview9',1,nc+4,DCindx)
-        call WTreeViewPutStrArray('treeview9',2,nc+4,DCnuclide)
-        if(iv == 0) call WTreeViewPutStrArray('treeview9',3,nc+4,DCsymbT12)
-        if(iv == 1) call WTreeViewPutStrArray('treeview9',3,nc+4,DCsymbLambda)
-        call WTreeViewPutStrArray('treeview9',4,nc+4,DCsymbEffiA)
-        call WTreeViewPutStrArray('treeview9',5,nc+4,DCsymbEffiB)
-        call WTreeViewPutStrArray('treeview9',6,nc+4,DCsymbEffiC)
-        call WTreeViewPutStrArray('treeview9',7,nc+4,DCsymbYield)
+    !     call WTreeViewPutIntArray('treeview9',1,nc+4,DCindx)
+    !     call WTreeViewPutStrArray('treeview9',2,nc+4,DCnuclide)
+    !     if(iv == 0) call WTreeViewPutStrArray('treeview9',3,nc+4,DCsymbT12)
+    !     if(iv == 1) call WTreeViewPutStrArray('treeview9',3,nc+4,DCsymbLambda)
+    !     call WTreeViewPutStrArray('treeview9',4,nc+4,DCsymbEffiA)
+    !     call WTreeViewPutStrArray('treeview9',5,nc+4,DCsymbEffiB)
+    !     call WTreeViewPutStrArray('treeview9',6,nc+4,DCsymbEffiC)
+    !     call WTreeViewPutStrArray('treeview9',7,nc+4,DCsymbYield)
 
-        ZjiStr = ' '
-        if(nzji > 0) then
-        ZjiStr = DCZji(1)%s
-        do i=2,nzji
-            ZjiStr = trim(ZjiStr) // ' ' // DCZji(i)%s
-        end do
-        end if
-        call WDPutEntryString('entryDCZji',trim(ZjiStr))
+    !     ZjiStr = ' '
+    !     if(nzji > 0) then
+    !     ZjiStr = DCZji(1)%s
+    !     do i=2,nzji
+    !         ZjiStr = trim(ZjiStr) // ' ' // DCZji(i)%s
+    !     end do
+    !     end if
+    !     call WDPutEntryString('entryDCZji',trim(ZjiStr))
 
 
-    end subroutine DCPrepareTable
+    ! end subroutine DCPrepareTable
 
     !##################################################################################
 
-    subroutine DCReadGrid
+    ! subroutine DCReadGrid
 
-    !------------------------------------------------------------------------------
-    ! Purpose: After having re-edited by the user, the routine stores the data prepared
-    !          in the setup-dialog for the radioactive decay chain and transfers the
-    !          columns of its table back into string arrays.
-    !
-    !          Introduced by G�nter Kanisch in January 2025.
-    !              Copyright (C) 2024-2025  G�nter Kanisch
-    !------------------------------------------------------------------------------
+    ! !------------------------------------------------------------------------------
+    ! ! Purpose: After having re-edited by the user, the routine stores the data prepared
+    ! !          in the setup-dialog for the radioactive decay chain and transfers the
+    ! !          columns of its table back into string arrays.
+    ! !
+    ! !          Introduced by G�nter Kanisch in January 2025.
+    ! !              Copyright (C) 2024-2025  G�nter Kanisch
+    ! !------------------------------------------------------------------------------
 
-        use UR_DecChain
-        use UR_Gleich_globals,     only: charv
-        use Rout,                 only: WDGetCheckButton,WDGetCheckButton,WDGetComboboxAct, &
-                                        WDGetEntryString,WTreeViewGetStrArray,WDGetEntryInt
+    !     use UR_DecChain
+    !     use UR_Gleich_globals,     only: charv
+    !     ! use Rout,                 only: WDGetCheckButton,WDGetCheckButton,WDGetComboboxAct, &
+    !     !                                 WDGetEntryString,WTreeViewGetStrArray,WDGetEntryInt
 
-        implicit none
+    !     implicit none
 
-        integer(4)         :: i,iv,nc,i1
-        character(len=50)  :: ZjiStr
+    !     integer(4)         :: i,iv,nc,i1
+    !     character(len=50)  :: ZjiStr
 
-        call WDGetCheckButton('DCcheckVorLam',iv)
-        nc = N_nuclides
-        call WDGetCheckButton('DCcheckSepar',i)
-        apply_separation =.false.
-        if(i == 1) apply_separation = .true.
-        call WDGetComboboxAct('comboboxtextDCNCH',DCchannels)
-        call WDGetCheckButton('DCcheckCommMeasmt',i)
-        DCcommMeasmt = .false.
-        if(i == 1) DCcommMeasmt = .true.
-        call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
+    !     call WDGetCheckButton('DCcheckVorLam',iv)
+    !     nc = N_nuclides
+    !     call WDGetCheckButton('DCcheckSepar',i)
+    !     apply_separation =.false.
+    !     if(i == 1) apply_separation = .true.
+    !     call WDGetComboboxAct('comboboxtextDCNCH',DCchannels)
+    !     call WDGetCheckButton('DCcheckCommMeasmt',i)
+    !     DCcommMeasmt = .false.
+    !     if(i == 1) DCcommMeasmt = .true.
+    !     call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
 
-        call WTreeViewGetStrArray('treeview9',2,10,DCnuclide)
-        do i=10,1,-1
-        if(len_trim(DCnuclide(i)%s) > 0) then
-            N_nuclides = i
-            nc = i
-            exit
-        end if
-        end do
-        if(iv == 0) call WTreeViewGetStrArray('treeview9',3,nc,DCsymbT12)
-        if(iv == 1) call WTreeViewGetStrArray('treeview9',3,nc,DCsymbLambda)
-        call WTreeViewGetStrArray('treeview9',4,nc,DCsymbEffiA)
-        if(DCchannels > 1) call WTreeViewGetStrArray('treeview9',5,nc,DCsymbEffiB)
-        if(DCchannels > 2) call WTreeViewGetStrArray('treeview9',6,nc,DCsymbEffiC)
-        call WTreeViewGetStrArray('treeview9',7,nc,DCsymbYield)
-        call WDGetEntryString('entryDCZji',ZjiStr)
-        nzji = 0
-        if(len_trim(ZjiStr) > 0) then
-        do
-            i1 = index(ZjiStr,' ')
-            if(i1 > 3) then
-            nzji = nzji + 1
-            DCZji(nzji)%s = adjustL(ZjiStr(1:i1-1))
-            ZjiStr = ZjiStr(i1+1:)
-            if(len_trim(ZjiStr) == 0) exit
-            end if
-        end do
-        end if
+    !     call WTreeViewGetStrArray('treeview9',2,10,DCnuclide)
+    !     do i=10,1,-1
+    !     if(len_trim(DCnuclide(i)%s) > 0) then
+    !         N_nuclides = i
+    !         nc = i
+    !         exit
+    !     end if
+    !     end do
+    !     if(iv == 0) call WTreeViewGetStrArray('treeview9',3,nc,DCsymbT12)
+    !     if(iv == 1) call WTreeViewGetStrArray('treeview9',3,nc,DCsymbLambda)
+    !     call WTreeViewGetStrArray('treeview9',4,nc,DCsymbEffiA)
+    !     if(DCchannels > 1) call WTreeViewGetStrArray('treeview9',5,nc,DCsymbEffiB)
+    !     if(DCchannels > 2) call WTreeViewGetStrArray('treeview9',6,nc,DCsymbEffiC)
+    !     call WTreeViewGetStrArray('treeview9',7,nc,DCsymbYield)
+    !     call WDGetEntryString('entryDCZji',ZjiStr)
+    !     nzji = 0
+    !     if(len_trim(ZjiStr) > 0) then
+    !     do
+    !         i1 = index(ZjiStr,' ')
+    !         if(i1 > 3) then
+    !         nzji = nzji + 1
+    !         DCZji(nzji)%s = adjustL(ZjiStr(1:i1-1))
+    !         ZjiStr = ZjiStr(i1+1:)
+    !         if(len_trim(ZjiStr) == 0) exit
+    !         end if
+    !     end do
+    !     end if
 
-    end subroutine DCReadGrid
+    ! end subroutine DCReadGrid
 
     !##################################################################################
 
@@ -404,11 +400,12 @@ contains
     !              Copyright (C) 2024-2025  G�nter Kanisch
     !------------------------------------------------------------------------------
         use UR_types,     only: rn
+        use top, only: charmoda1
         use UR_DecChain
         use UR_Gleich_globals,     only: charv,FormeltextFit
         use CHF,           only: ucase
-        use Top,           only: CharModA1
-        use Rout,          only: WDPutTextviewString
+
+
 
         implicit none
 
@@ -606,7 +603,7 @@ contains
 
         end do   ! do jj=1,
 
-        call WDPutTextviewString('textviewModelEQ', FormeltextFit)
+        ! call WDPutTextviewString('textviewModelEQ', FormeltextFit)
 
         DChain = .true.
 

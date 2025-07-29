@@ -52,7 +52,6 @@ contains
 
         use, intrinsic :: iso_c_binding
         use ur_general_globals,    only: Gum_restricted, savep
-        use gtk_hl,          only: gtk_buttons_OK,GTK_BUTTONS_OK_CANCEL,GTK_RESPONSE_CANCEL
         use UR_Gleich_globals,       only: meanID,Symbole,SymboleG,RSSy,symbole_CP,Formeltext,linfit_rename, &
                                    Rseite,CVFormel,CVFormel_CP,SDFormel,SDFormel_CP,FormeltextFit,nRSsy, &
                                    knetto,kbrutto,nRSsyanf,Formelt,nglp,nglp_read,  &
@@ -60,20 +59,18 @@ contains
         use UR_Loadsel,      only: kopt,sname,soldname
         use UR_Linft,        only: FitDecay,SumEval_fit
         use UR_Gspk1Fit,     only: Gamspk1_Fit
-        use Rout,            only: MessageShow, WDPutTextviewString, WTreeViewPutStrArray, &
-                                   WDSetComboboxAct, WDPutEntryInt, WDPutEntryString, &
-                                   WDListstoreFill_1
-        use Top,             only: Wrstatusbar, FieldUpdate, CharModA1, CharModStr
+
+        use Top,             only: CharModA1, CharModStr
         use LF1,             only: Linf
         use UR_perror
-        use gtk,             only: GTK_MESSAGE_WARNING
+
         use CHF,             only: ucase
         use RG,              only: modify_Formeltext
         use translation_module, only: T => get_translation
 
         implicit none
 
-        integer             :: i1, resp, i, k
+        integer             :: i1, i, k
         character(len=60)   :: oldname,newname,oldnameg,newnameg
         character(:),allocatable  :: text,str1
 
@@ -99,13 +96,13 @@ contains
                 str1 = T('Error') // ": " // T('The new symbol name is already existing') //": " // trim(newname) // &
                     new_line('A') // T('Change anyway?')
 
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "ChangeSname:", resp,mtype=GTK_MESSAGE_WARNING)
 
-                call MessageShow(trim(str1), GTK_BUTTONS_OK_CANCEL, "ChangeSname:", resp,mtype=GTK_MESSAGE_WARNING)
-
-                if(resp == GTK_RESPONSE_CANCEL) then
-                    ifehl = 1
-                    return
-                end if
+                ! if(resp == GTK_RESPONSE_CANCEL) then
+                !     ifehl = 1
+                !     return
+                ! end if
             end if
         end do
 
@@ -114,7 +111,8 @@ contains
             IF(TRIM(oldnameG) == 'RBL' .or. TRIM(oldnameG) == 'TMESS' .or. TRIM(oldnameG) == 'TSTART') THEN
                 call CharModStr(str1,300)
                 str1 = T('Error') // ": " // T('This symbol name must not be changed') // ": " // trim(oldname)
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "ChangeSname:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "ChangeSname:", resp,mtype=GTK_MESSAGE_WARNING)
                 ifehl = 1
                 return
             end if
@@ -181,7 +179,7 @@ contains
                     meanID(i)%s = trim(newname) // '_' // trim(meanID(i)%s(i1+1:))
                 end if
             end do
-            call WDListstoreFill_1('liststore_MDvars', nvarsMD, meanID)
+            ! call WDListstoreFill_1('liststore_MDvars', nvarsMD, meanID)
         end if
 
 
@@ -199,32 +197,32 @@ contains
             end if
             call modify_formeltext(2)
             write(66,*) 'Exchg: nglp_read=',nglp_read,' nglp=',nglp,' size(Formtext)=',size(Formeltext)
-            call WDPutTextviewString('textview2', Formeltext)
-            if(FitDecay) call WDPutTextviewString('textviewModelEQ', FormeltextFit)
+            ! call WDPutTextviewString('textview2', Formeltext)
+            ! if(FitDecay) call WDPutTextviewString('textviewModelEQ', FormeltextFit)
         end if
 22      continue
 
-        call WTreeViewPutStrArray('treeview1', 2, ngrs, symbole)
-        call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
+        ! call WTreeViewPutStrArray('treeview1', 2, ngrs, symbole)
+        ! call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
 
-        if(.not.Gum_restricted) then
-            IF(.not.FitDecay .AND. .NOT.Gamspk1_Fit .and. .not.SumEval_fit) call WDSetComboboxAct('comboboxNetRate', knetto(kEGr))
-            IF(.not.FitDecay .AND. .NOT.Gamspk1_Fit .and. .not.SumEval_fit) call WDSetComboboxAct('comboboxGrossRate', kbrutto(kEGr))
-        end if
+        ! if(.not.Gum_restricted) then
+        !     IF(.not.FitDecay .AND. .NOT.Gamspk1_Fit .and. .not.SumEval_fit) call WDSetComboboxAct('comboboxNetRate', knetto(kEGr))
+        !     IF(.not.FitDecay .AND. .NOT.Gamspk1_Fit .and. .not.SumEval_fit) call WDSetComboboxAct('comboboxGrossRate', kbrutto(kEGr))
+        ! end if
 
         call CharModStr(str1,300)
         str1 = T('Selected output quantity:') // ": " // TRIM(Symbole(kEGr)%s)
 
-        call WDPutEntryString('LBOutpQuantity', trim(str1))
-        call WDPutEntryString('entryActiveKegr', TRIM(Symbole(kEGr)%s))
+        ! call WDPutEntryString('LBOutpQuantity', trim(str1))
+        ! call WDPutEntryString('entryActiveKegr', TRIM(Symbole(kEGr)%s))
 
-        call WTreeViewPutStrArray('treeview2', 2, ngrs, symbole)
-        call WTreeViewPutStrArray('treeview2', 7, ngrs, sdformel)
-        call WTreeViewPutStrArray('treeview3', 5, ncov, CVformel)
+        ! call WTreeViewPutStrArray('treeview2', 2, ngrs, symbole)
+        ! call WTreeViewPutStrArray('treeview2', 7, ngrs, sdformel)
+        ! call WTreeViewPutStrArray('treeview3', 5, ncov, CVformel)
 
-        SaveP = .TRUE.
-        call FieldUpdate()
-        call WrStatusBar(3, T('Unsaved', .true.) // "!")
+        ! SaveP = .TRUE.
+        ! call FieldUpdate()
+        ! call WrStatusBar(3, T('Unsaved', .true.) // "!")
 
     end subroutine ChangeSname
 
@@ -1782,10 +1780,7 @@ contains
         use ur_general_globals, only: actual_grid
         use UR_Gleich_globals
         use Sym1,       only: Readj_kbrutto,Readj_knetto
-        ! use UR_Linft,    only: FitDecay
-        ! use UR_Gspk1fit, only: Gamspk1_Fit
-        use Rout,       only: WTreeViewPutStrArray,WTreeViewPutDoubleArray,WTreeViewPutComboArray, &
-                              WDListstoreFill_1
+
         use CHF,        only: ucase
 
         implicit none
@@ -1860,7 +1855,7 @@ contains
             IAR(i) = 1
             STDUnc(i) = missingval
         end do
-        call WDListstoreFill_1('liststore_symbols', ngrs_new, symbole)
+        ! call WDListstoreFill_1('liststore_symbols', ngrs_new, symbole)
 
         call Readj_knetto()
         call Readj_kbrutto()
@@ -1893,16 +1888,16 @@ contains
                 ! perc_CP(k) = perc(k)
             end do
             ngrs_CP = ngrs
-            call WTreeViewPutStrArray('treeview2', 2, ngrs, symbole)
-            call WTreeViewPutStrArray('treeview2', 3, ngrs, symtyp)
-            call WTreeViewPutStrArray('treeview2', 4, ngrs, einheit)
-            call WTreeViewPutDoubleArray('treeview2', 5, ngrs, Messwert)
-            call WTreeViewPutComboArray('treeview2', 6, ngrs, IVTL)
-            call WTreeViewPutStrArray('treeview2', 7, ngrs, SDformel)
-            call WTreeViewPutDoubleArray('treeview2', 8, ngrs, SDwert)
-            call WTreeViewPutDoubleArray('treeview2', 8, ngrs, HBreite)
-            call WTreeViewPutComboArray('treeview2', 10, ngrs, IAR)
-            call WTreeViewPutDoubleArray('treeview2', 11, ngrs, StdUnc)
+            ! call WTreeViewPutStrArray('treeview2', 2, ngrs, symbole)
+            ! call WTreeViewPutStrArray('treeview2', 3, ngrs, symtyp)
+            ! call WTreeViewPutStrArray('treeview2', 4, ngrs, einheit)
+            ! call WTreeViewPutDoubleArray('treeview2', 5, ngrs, Messwert)
+            ! call WTreeViewPutComboArray('treeview2', 6, ngrs, IVTL)
+            ! call WTreeViewPutStrArray('treeview2', 7, ngrs, SDformel)
+            ! call WTreeViewPutDoubleArray('treeview2', 8, ngrs, SDwert)
+            ! call WTreeViewPutDoubleArray('treeview2', 8, ngrs, HBreite)
+            ! call WTreeViewPutComboArray('treeview2', 10, ngrs, IAR)
+            ! call WTreeViewPutDoubleArray('treeview2', 11, ngrs, StdUnc)
         end if
 ! ---------------
 
@@ -2134,8 +2129,7 @@ contains
                                     nmodf,Formeltext,FormeltextFit,ngrs,sensi,sensiSV, &
                                     perc,percSV,kegr,knetto,kbrutto,knumEGr,ncov,kbrutto_gl
         use UR_Linft,         only: FitDecay,kfitp,nchannels,numd,ifit
-        use Rout,             only: WDSetComboboxAct,WDPutTextviewString,WDPutLabelString,WDListstoreFill_1
-        use LSTfillT,         only: WDListstoreFill_table
+
         use CHF,              only: ucase
         use Top,              only: CharModA1
         use RG,               only: modify_Formeltext
@@ -2171,8 +2165,8 @@ contains
                 kbrutto_gl(kEGr) = kbrutto_gl(kEGrneu)
                 kbrutto_gl(kEGrneu) = ibrut
             end if
-            IF(knetto(kEGrneu) > 0) call WDSetComboboxAct('comboboxNetRate', knetto(kEGrneu))
-            IF(kbrutto(kEGrneu) > 0) call WDSetComboboxAct('comboboxGrossRate', kbrutto(kEGrneu))
+            ! IF(knetto(kEGrneu) > 0) call WDSetComboboxAct('comboboxNetRate', knetto(kEGrneu))
+            ! IF(kbrutto(kEGrneu) > 0) call WDSetComboboxAct('comboboxGrossRate', kbrutto(kEGrneu))
             ! write(66,*)' kEGrneu=',kEGrneu,'   knetto=',knetto(kEGrneu),' kbrutto=',kbrutto(kEGrneu)
         end if
         oldname1 = Symbole(k1_exchg)%s
@@ -2259,10 +2253,10 @@ contains
             if(k2_exchg > 3) k2_exchg = k2_exchg - (kfitp(1) - 1)
         end if
 
-        call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
-        call WDListstoreFill_table('liststore_symtable',1, .false.)
-        call WDListstoreFill_table('liststore_valunc',2, .true.)
-        call WDListstoreFill_table('liststore_budget',3, .false.)
+        ! call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
+        ! call WDListstoreFill_table('liststore_symtable',1, .false.)
+        ! call WDListstoreFill_table('liststore_valunc',2, .true.)
+        ! call WDListstoreFill_table('liststore_budget',3, .false.)
         !--------------------------------------------------
 
         if(FitDecay .and. nmodf > 0) then
@@ -2273,9 +2267,9 @@ contains
             kk = ifit(k2_exchg)
             ifit(k2_exchg) = ifit(k1_exchg)
             ifit(k1_exchg) = kk
-            call WDSetComboboxAct('comboboxA1', ifit(1))
-            call WDSetComboboxAct('comboboxA2', ifit(2))
-            call WDSetComboboxAct('comboboxA3', ifit(3))
+            ! call WDSetComboboxAct('comboboxA1', ifit(1))
+            ! call WDSetComboboxAct('comboboxA2', ifit(2))
+            ! call WDSetComboboxAct('comboboxA3', ifit(3))
 
             text = Formelt(k2_exchg)%s
             textG = trim(ucase(text))
@@ -2311,14 +2305,14 @@ contains
 
         call CharModA1(Formeltext,ifk)
         call CharModA1(FormeltextFit,ifk -ifk1)         ! nglf+iandk)
-        call WDPutTextviewString('textview2',Formeltext)
-        call WDPutTextviewString('textviewModelEQ',FormeltextFit)
+        ! call WDPutTextviewString('textview2',Formeltext)
+        ! call WDPutTextviewString('textviewModelEQ',FormeltextFit)
 
-        do i=1,knumEGr
-            if(i == 1) call WDPutLabelString('QFirst',symbole(i)%s)
-            if(i == 2) call WDPutLabelString('QSecond',symbole(i)%s)
-            if(i == 3) call WDPutLabelString('QThird',symbole(i)%s)
-        end do
+        ! do i=1,knumEGr
+        !     if(i == 1) call WDPutLabelString('QFirst',symbole(i)%s)
+        !     if(i == 2) call WDPutLabelString('QSecond',symbole(i)%s)
+        !     if(i == 3) call WDPutLabelString('QThird',symbole(i)%s)
+        ! end do
 
     end subroutine Exchange2Symbols
 
@@ -2395,7 +2389,6 @@ contains
         use fparser,          only: EvalErrMsg, evalf
         use ur_general_globals, only: MCSim_on
         use UR_Linft,         only: numd
-        use Top,              only: WrStatusbar
 
         IMPLICIT NONE
 
@@ -2444,7 +2437,7 @@ contains
                         write(cnum,'(i3)') kbgv_binom
                         ifehl_string = 'Error: Binomial/Poisson: setup case again! kbgv_binom=' // cnum
                         write(66,*) trim(ifehl_string)
-                        call wrstatusbar(3,ifehl_string)
+                        ! call wrstatusbar(3,ifehl_string)
                         return
                     end if
                     xng = mw(k)            ! number of gross counts

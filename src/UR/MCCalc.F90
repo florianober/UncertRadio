@@ -33,11 +33,7 @@ contains
         !     Copyright (C) 2014-2025  Günter Kanisch
 
         use, intrinsic :: iso_c_binding, only: c_ptr, c_int
-        use plplot, only: plsstrm
 
-        use gtk,                    only: gtk_widget_set_sensitive, gtk_progress_bar_set_fraction, &
-                                          GTK_STATE_FLAG_NORMAL
-        use UR_gtk_globals,         only: plot_setintern,plinit_done,item_setintern
 
         use ur_general_globals,     only: fname,frmtres, Gum_restricted, MCsim_on, &
                                           batf_mc,gtk_strm,MCsim_localOff
@@ -60,11 +56,7 @@ contains
                                           var_brutto_auto,ffx,RD
         use UR_MCC
         use fparser,                only: evalf
-        use Rout,                   only: WDPutEntryInt,pending_events,WDPutEntryInt,  &
-                                          WDPutLabelColorF,WDPutEntryDouble,WDGetCheckButton, &
-                                          WDPutLabelString
-        use Top,                    only: WrStatusbar
-        use top,                    only: idpt
+
         use Rw1,                    only: covppcalc
         use Rw2,                    only: rnetval
         use UWB,                    only: Resulta,RbtCalc,median
@@ -83,7 +75,6 @@ contains
         use CHF,                    only: FindlocT, testSymbol
 
         use UR_plotp
-        use UR_interfaces,          only: plot3fig
         use color_theme
         use translation_module,     only: T => get_translation
         use DECH,                   only: Decaysub1
@@ -127,7 +118,7 @@ contains
         yplt = ZERO
         test_mg = .false.
 
-        call plsstrm(gtk_strm)
+        ! call plsstrm(gtk_strm)
 
         use_brent = .true.
         do i=1,ngrs+ncov+numd
@@ -161,7 +152,7 @@ contains
             end if
         end do
 
-        call plsstrm(gtk_strm)
+        ! call plsstrm(gtk_strm)
         Messwert(1:ngrs+ncov+numd) = MesswertSV(1:ngrs+ncov+numd)
 
         write(63,*) 'File:  ',trim(fname),'  *********************************'
@@ -352,18 +343,18 @@ contains
         ! write(0,*) 'Start MCCalc:  after MCPrepCovars: plinit_done=',plinit_done
 !----------------------------------------------------------------------------------------
 
-        call WDPutLabelString('TRLBUnit22', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit21', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit22', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit21', Einheit(1)%s)
 
-        call WDPutLabelString('TRLBUnit9', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit10', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit11', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit12', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit13', Einheit(1)%s)
-        call WDPutLabelString('TRLBUnit14', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit9', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit10', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit11', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit12', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit13', Einheit(1)%s)
+        ! call WDPutLabelString('TRLBUnit14', Einheit(1)%s)
 
-        call WrStatusBar(4, T("Calculating") // "....")
-        call pending_events
+        ! call WrStatusBar(4, T("Calculating") // "....")
+        ! call pending_events
         imc10 = imcmax/15
 
         iteration_on = .FALSE.
@@ -530,9 +521,9 @@ contains
 
         if(allocated(xxDT)) deallocate(xxDT); allocate(xxDT(kcrun)); xxDT = ZERO
 
-        plot_setintern = .true.
-        item_setintern = .true.
-        plinit_done = .true.
+        ! plot_setintern = .true.
+        ! item_setintern = .true.
+        ! plinit_done = .true.
 
         ! write(0,*) 'Start MCCalc:  do kqtypDL: plinit_done=',plinit_done
 
@@ -541,7 +532,7 @@ contains
 
             WTLS_wild = .false.
             MCsim_done = .true.
-            call pending_events
+            ! call pending_events
 
             if(kqtyp == 3 .and. abs(xxmit1) > EPS1MIN) then
                 if(xDT/abs(xxmit1)   < 1.E-7_rn) exit
@@ -554,13 +545,13 @@ contains
                 ( (kbrutto_gl(kEGr) == 0 .and. .not.var_brutto_auto) .and. .not.FitDecay .AND. &
                                              .not.Gamspk1_Fit .and. .not. DChain       &   ! 27.4.2025
                                              .and. .not.SumEval_fit))) then
-                call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))    ! 'black')
-                call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))    ! 'black')
+                ! call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                ! call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
                 write(63,*)
                 write(63,*) 'Warning: no MC simulation of DT and DL, because the gross uncertainty formula not defined!'
                 cycle ! exit
@@ -628,9 +619,9 @@ contains
 
                 mmkk = 0   ! Iteration counter
 
-                call WDPutEntryInt('TRentryMCarun', ivalue=kr)
-                call WDPutEntryInt('TRentryMCit', ivalue=1)
-                call pending_events
+                ! call WDPutEntryInt('TRentryMCarun', ivalue=kr)
+                ! call WDPutEntryInt('TRentryMCit', ivalue=1)
+                ! call pending_events
 
                 if(FitDecay) then
                     kmode = 2
@@ -651,13 +642,13 @@ contains
                     LQprob = (ONE-W1minusG)/TWO
                     ! for extremely small uncertainty:
                     ! urelx = max(1.E-5_rn, (StdUncSV(kEGr)/coverf)/ MesswertSV(kEGr))
-                    call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,'red')
-                    call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,'red')
+                    ! call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,'red')
 
                     if(kr == 1) WRITE(63,*) 'MC: kqtyp = 1:  Output Quantity: ',Symbole(kEgr)%s
 
@@ -688,15 +679,15 @@ contains
 
                   case (2)
                     ! DT: upper quantile for output quantity=0, i.e. for y_tilde = 0:
-                    call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
-                    call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCvalPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCvalUPE',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCValue',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCunc',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCuncrel',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMClq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
+                    ! call WDPutLabelColorF('TRentryMCuq',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))
 
-                    if(.not.Gum_restricted) call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,'red')
+                    ! if(.not.Gum_restricted) call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,'red')
 
                     UQprob = (ONE - alpha)
                     RDlast = ZERO
@@ -853,9 +844,9 @@ contains
 
                   case (3)
                     ! DL:  lower quantile for output quantity --> defines detection limit
-                    call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))    ! 'black')
+                    ! call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))    ! 'black')
 
-                    if(.not.Gum_restricted) call WDPutLabelColorF('TRentryMCdl',GTK_STATE_FLAG_NORMAL,'red')
+                    ! if(.not.Gum_restricted) call WDPutLabelColorF('TRentryMCdl',GTK_STATE_FLAG_NORMAL,'red')
 
                     write(cct,'(es11.4)') real(xxDT(kr),8)
                     read(cct,*,iostat=ios) dummy
@@ -907,7 +898,7 @@ contains
                 end select
 
 20              CONTINUE       ! Label for the end of the DL iteration (of run kr, for kqtpy=3)
-                call pending_events
+                ! call pending_events
 
 
 
@@ -959,20 +950,20 @@ contains
 
                 select case (kqtyp)
                   case (1)
-                    call WDPutEntryDouble('TRentryMCvalPE', xmit1PE, frmtres)
-                    call WDPutEntryDouble('TRentryMCvalUPE', xsdvPE*coverf, frmtres)
-                    call WDPutEntryDouble('TRentryMCValue', xmit1, frmtres)
-                    call WDPutEntryDouble('TRentryMCunc', xsdv*coverf, frmtres)
-                    call WDPutEntryDouble('TRentryMCuncrel', xsdv*coverf/xmit1*100._rn, frmtres)
-                    if(.not.use_BCI) then
-                        call WDPutEntryDouble('TRentryMClq', estLQ, frmtres)
-                        call WDPutEntryDouble('TRentryMCuq', estUQ, frmtres)
-                    else
-                        !call WDPutEntryDouble('TRentryMClq', estLQ_BCI, frmtres)
-                        !call WDPutEntryDouble('TRentryMCuq', estUQ_BCI, frmtres)
-                        call WDPutEntryDouble('TRentryMClq', estLQ_BCI2, frmtres)
-                        call WDPutEntryDouble('TRentryMCuq', estUQ_BCI2, frmtres)
-                    end if
+                    ! call WDPutEntryDouble('TRentryMCvalPE', xmit1PE, frmtres)
+                    ! call WDPutEntryDouble('TRentryMCvalUPE', xsdvPE*coverf, frmtres)
+                    ! call WDPutEntryDouble('TRentryMCValue', xmit1, frmtres)
+                    ! call WDPutEntryDouble('TRentryMCunc', xsdv*coverf, frmtres)
+                    ! call WDPutEntryDouble('TRentryMCuncrel', xsdv*coverf/xmit1*100._rn, frmtres)
+                    ! if(.not.use_BCI) then
+                    !     call WDPutEntryDouble('TRentryMClq', estLQ, frmtres)
+                    !     call WDPutEntryDouble('TRentryMCuq', estUQ, frmtres)
+                    ! else
+                    !     !call WDPutEntryDouble('TRentryMClq', estLQ_BCI, frmtres)
+                    !     !call WDPutEntryDouble('TRentryMCuq', estUQ_BCI, frmtres)
+                    !     call WDPutEntryDouble('TRentryMClq', estLQ_BCI2, frmtres)
+                    !     call WDPutEntryDouble('TRentryMCuq', estUQ_BCI2, frmtres)
+                    ! end if
                     Title(1) = trim(Symbole(kEGr)%s) // ':  ' // T('Output quantity')
 
                     if(FitDecay) then
@@ -986,11 +977,11 @@ contains
                     VertLines(2) = estUQ
                     VertLines(3) = xmit1
                   case (2)
-                    call WDPutEntryDouble('TRentryMCdt', estUQ, frmtres)
+                    ! call WDPutEntryDouble('TRentryMCdt', estUQ, frmtres)
                     Title(2) = trim(Symbole(kEGr)%s) // ':  ' // T('Decision threshold')
                     VertLines(4) = estUQ
                   case (3)
-                    call WDPutEntryDouble('TRentryMCdl', xzDL(kr), frmtres)
+                    ! call WDPutEntryDouble('TRentryMCdl', xzDL(kr), frmtres)
 
                     Title(3) = trim(Symbole(kEGr)%s) // ':  ' // T('Detection limit')
 
@@ -998,11 +989,11 @@ contains
                     VertLines(6) = xmit1
                   case default
                 end select
-                call pending_events
+                ! call pending_events
 
                 IF(kqtyp == 1) THEN
-                    call Plotsteps(kqtyp,' ')
-                    call pending_events
+                    ! call Plotsteps(kqtyp,' ')
+                    ! call pending_events
                     if(.true.) then
                         mean1 = ZERO
                         sd1 = ZERO
@@ -1018,12 +1009,12 @@ contains
                     end if
                 end if
                 IF(kqtyp == 2) THEN
-                    call Plotsteps(kqtyp,' ')
-                    call pending_events
+                    ! call Plotsteps(kqtyp,' ')
+                    ! call pending_events
                 end if
                 IF(kqtyp == 3) THEN
-                    call Plotsteps(kqtyp,' ')
-                    call pending_events
+                    ! call Plotsteps(kqtyp,' ')
+                    ! call pending_events
                 end if
                 if(k_rbl > 0) Messwert(kpoint(k_rbl)) = MesswertSV(kpoint(k_rbl))
 
@@ -1035,7 +1026,7 @@ contains
 
             end do
 
-            call pending_events
+            ! call pending_events
 
             select case (kqtyp)
               case (1)
@@ -1127,30 +1118,30 @@ contains
                     rx1UQbci = rxUQBci
                 end if
 
-                call WDPutEntryDouble('TRentryMCvalPE', xxmit1PE, frmtres)
-                call WDPutEntryDouble('TRentryMCvalUPE', xxsdvPE*coverf, frmtres)
+                ! call WDPutEntryDouble('TRentryMCvalPE', xxmit1PE, frmtres)
+                ! call WDPutEntryDouble('TRentryMCvalUPE', xxsdvPE*coverf, frmtres)
 
-                call WDPutEntryDouble('TRentryMCValue', xxmit1, frmtres)
-                call WDPutEntryDouble('TRentryMCunc', xxsdv*coverf, frmtres)
-                call WDPutEntryDouble('TRentryMCuncrel', xxsdv*coverf/xxmit1*100._rn, frmtres)
-                call WDgetCheckButton('TRcheckbutton2',kkk)
-                if(kkk == 0) then
-                    call WDPutEntryDouble('TRentryMClq', xLQ, frmtres)
-                    call WDPutEntryDouble('TRentryMCuq', xUQ, frmtres)
-                    call WDPutEntryDouble('TRentryMClqRSD', rxLQ, rmcformF(rxLQ))
-                    call WDPutEntryDouble('TRentryMCuqRSD', rxUQ, rmcformF(rxUQ))
-                else
-                    call WDPutEntryDouble('TRentryMClq', estLQ_BCI2, frmtres)
-                    call WDPutEntryDouble('TRentryMCuq', estUQ_BCI2, frmtres)
-                    call WDPutEntryDouble('TRentryMClqRSD', rxLQbci, rmcformF(rxLQbci))
-                    call WDPutEntryDouble('TRentryMCuqRSD', rxUQbci, rmcformF(rxUQbci))
-                end if
+                ! call WDPutEntryDouble('TRentryMCValue', xxmit1, frmtres)
+                ! call WDPutEntryDouble('TRentryMCunc', xxsdv*coverf, frmtres)
+                ! call WDPutEntryDouble('TRentryMCuncrel', xxsdv*coverf/xxmit1*100._rn, frmtres)
+                ! call WDgetCheckButton('TRcheckbutton2',kkk)
+                ! if(kkk == 0) then
+                !     call WDPutEntryDouble('TRentryMClq', xLQ, frmtres)
+                !     call WDPutEntryDouble('TRentryMCuq', xUQ, frmtres)
+                !     call WDPutEntryDouble('TRentryMClqRSD', rxLQ, rmcformF(rxLQ))
+                !     call WDPutEntryDouble('TRentryMCuqRSD', rxUQ, rmcformF(rxUQ))
+                ! else
+                !     call WDPutEntryDouble('TRentryMClq', estLQ_BCI2, frmtres)
+                !     call WDPutEntryDouble('TRentryMCuq', estUQ_BCI2, frmtres)
+                !     call WDPutEntryDouble('TRentryMClqRSD', rxLQbci, rmcformF(rxLQbci))
+                !     call WDPutEntryDouble('TRentryMCuqRSD', rxUQbci, rmcformF(rxUQbci))
+                ! end if
 
-                call WDPutEntryDouble('TRentryMCvalPERSD', rxmit1PE, rmcformF(rxmit1PE))
-                call WDPutEntryDouble('TRentryMCvalUPERSD', rxsdvPE, rmcformF(rxsdvPE))
+                ! call WDPutEntryDouble('TRentryMCvalPERSD', rxmit1PE, rmcformF(rxmit1PE))
+                ! call WDPutEntryDouble('TRentryMCvalUPERSD', rxsdvPE, rmcformF(rxsdvPE))
 
-                call WDPutEntryDouble('TRentryMCValueRSD', rxmit1, rmcformF(rxmit1))
-                call WDPutEntryDouble('TRentryMCuncRSD', rxsdv, rmcformF(rxsdv))
+                ! call WDPutEntryDouble('TRentryMCValueRSD', rxmit1, rmcformF(rxmit1))
+                ! call WDPutEntryDouble('TRentryMCuncRSD', rxsdv, rmcformF(rxsdv))
 
                 write(63,*) 'rxLQ=',sngl(rxLQ),'  rxLQbci=',sngl(rxLQbci)
 
@@ -1163,16 +1154,16 @@ contains
                 rxDT = rxDT/xDT*100._rn
                 IF(kcrun == 1) rxDT = -1.
                 WRITE(63,*) 'rxDT, % =',sngl(rxDT)
-                call WDPutEntryDouble('TRentryMCdt', xDT, frmtres)
-                call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
+                ! call WDPutEntryDouble('TRentryMCdt', xDT, frmtres)
+                ! call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
 
                 call Xfit (xzmit, sx, kcrun, 0, xxmit2, sigmam, rxmit2)
                 uqt = SDQt((ONE-alpha), imctrue, xxmit2, xDT/kalpha)
                 uxxDT(1) = uqt
                 write(63,*) 'estimated SD of xDT: absolut: ',sngl(uqt),' ,  in %: ',sngl(uqt/xDT*100._rn)
                 if(kcrun == 1) rxDT = uqt/xDT*100._rn
-                call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
-                call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))   ! 'black')
+                ! call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
+                ! call WDPutLabelColorF('TRentryMCdt',GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))   ! 'black')
 
                 mcafull(kqtyp,1:mcmax) = mcafull2(1:mcmax)
                 mcasum(kqtyp) = mcasum2
@@ -1184,9 +1175,9 @@ contains
                 rxDL = rxDL/xDL*100._rn
                 IF(kcrun == 1) rxDL = -1.
                 WRITE(63,*) 'rxDL, % =',sngl(rxDL)
-                call WDPutEntryDouble('TRentryMCdl', xDL, frmtres)
-                call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
-                call WDPutLabelColorF('TRentryMCdl', GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))   ! 'black')
+                ! call WDPutEntryDouble('TRentryMCdl', xDL, frmtres)
+                ! call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
+                ! call WDPutLabelColorF('TRentryMCdl', GTK_STATE_FLAG_NORMAL,get_color_string('entry_fg'))   ! 'black')
 
                 call Xfit (xzmit, sx, kcrun, 0, xxmit3, sigmam, rxmit3)
                 call Xfit (xzsdv, sx, kcrun, 0, xxsdv3, sigmam, dummy)
@@ -1195,7 +1186,7 @@ contains
                 write(63,*) 'estimated SD of xDL:  absolut:',sngl(uxxDL(1)),' ,   in %: ',sngl(uxxDL(1)/xDL*100._rn), &
                     '  sigma=',sngl(xxsdv),'  xDL=',sngl(xDL)
                 if(kcrun == 1) rxDL = uxxDL(1)/xDL*100._rn
-                call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
+                ! call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
 
                 mcafull(kqtyp,1:mcmax) = mcafull3(1:mcmax)
                 mcasum(kqtyp) = mcasum3
@@ -1214,7 +1205,7 @@ contains
                 ksv = kqtyp
                 kqtyp = 2
                 call MCDistrib(kcrun,imctrue, xmin1, xmax1)
-                call Plotsteps(kqtyp,' ')
+                ! call Plotsteps(kqtyp,' ')
                 kqtyp = ksv
                 ksv = kqtyp
                 kqtyp = 3
@@ -1224,13 +1215,13 @@ contains
                 IF(xDL > ZERO) THEN
                     ksv = kqtyp
                     kqtyp = 3
-                    call Plotsteps(kqtyp,' ')
+                    ! call Plotsteps(kqtyp,' ')
                     kqtyp = ksv
                 end if
               case default
             end select
-            call pending_events
-            call pending_events
+            ! call pending_events
+            ! call pending_events
 
             call MCtables(kr,kqtyp)
 
@@ -1280,10 +1271,10 @@ contains
 !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 9000    CONTINUE
 
-        call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), 0.d0)
-        call gtk_widget_set_sensitive(idpt('TRprogressbar'), 0_c_int)
+        ! call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), 0.d0)
+        ! call gtk_widget_set_sensitive(idpt('TRprogressbar'), 0_c_int)
 
-        call WrStb_Ready(ifehl)
+        ! call WrStb_Ready(ifehl)
 
 !------------------------------------------------------
 
@@ -1334,32 +1325,23 @@ contains
         !     Copyright (C) 2014-2024  Günter Kanisch
 
         use, intrinsic :: iso_c_binding, only: c_ptr, c_int, c_associated
-        use plplot, only: plclear, plend1
 
-        use gtk,                    only: gtk_widget_set_sensitive, gtk_widget_show
-        use gdk_pixbuf_hl,          only: hl_gdk_pixbuf_save
-        use cairo,                  only: cairo_get_reference_count
-        use gtk_draw_hl,            only: hl_gtk_drawing_area_get_gdk_pixbuf, &
-                                          hl_gtk_drawing_area_cairo_destroy
 
         use ur_general_globals,     only: actual_plot, bat_mc, fname, frmtres, &
                                           Gum_restricted, results_path, kfi, linebat, &
                                           dir_sep, MCsim_on,pngfile,png_to_cairo_surface, &
                                           cairo_png_reloaded
-        use UR_gtk_globals,         only: item_setintern, plinit_done, plot_setintern, zoomf
 
-        use Rout,                   only: WDGetEntryInt,WDGetCheckButton,pending_events, &
-                                          WDPutEntryDouble,ClearMCfields
-        use Top,                    only: idpt
+
         use UR_MCC,                 only: kcrun,use_BCI,xxmit1,xxsdv,xLQ,xUQ,xDT,xDL,imcmax, &
                                           rxDT,rxDL,rxmit1,rxsdv,rxLQ,rxUQ,xmit1,xsdv,xmit2,iopt_copygr, &
                                           mcafull,mcafull2,mcafull3,arraymc,xxmit1PE,xxsdvPE, &
                                           rxmit1PE,rxsdvPE
-        use plplot_code_sub1,       only: scalable, familying, gform, three_in_one, PrepareF
+
         use common_sub1,            only: cc, width_da, height_da, drawing
         use UR_Linft,               only: fitmeth
         use UR_Gleich_globals,      only: kEGr, coverf
-        use PLsubs,                 only: CairoPlplotPrepare,Printplot,reload_pngfile
+
 
         use RdSubs,                 only: rmcformF
         use CHF,                    only: flfu
@@ -1375,43 +1357,43 @@ contains
         !-----------------------------------------------------------------------------------------------
 
         ifehl = 0
-        call WDGetEntryInt('TRentryMCanzM', kcmx)
-        call WDGetEntryInt('TRentryMCanzR', kcrun)
-        call WDGetCheckButton('TRcheckbutton2', ix)
+        ! call WDGetEntryInt('TRentryMCanzM', kcmx)
+        ! call WDGetEntryInt('TRentryMCanzR', kcrun)
+        ! call WDGetCheckButton('TRcheckbutton2', ix)
         use_BCI = .FALSE.
         IF(ix == 1) use_BCI = .TRUE.
 
-        call ClearMCFields(0)
+        ! call ClearMCFields(0)
 
-        call pending_events
+        ! call pending_events
         !-------------------------------------------------------------------------
 
         png_to_cairo_surface = .false.         ! 16.5.2025 GK
         actual_plot = 'MCplot'
-        call CairoPlplotPrepare(actual_plot)
-        scalable = .false.
-        familying = .false.
-        gform = 'png'
-        gform = 'jpeg'
+        ! call CairoPlplotPrepare(actual_plot)
+        ! scalable = .false.
+        ! familying = .false.
+        ! gform = 'png'
+        ! gform = 'jpeg'
         ! gform = 'svg'
         ! gform = 'pdf'
-        three_in_one = .true.
-        if(Gum_restricted) three_in_one = .false.
-        call PrepareF(actual_plot)
+        ! three_in_one = .true.
+        ! if(Gum_restricted) three_in_one = .false.
+        ! call PrepareF(actual_plot)
 
         sizewh = (/ width_da(1)+0, height_da(1)+0 /)
-        sizewh(1) = int(sizewh(1) * zoomf)
-        sizewh(2) = int(sizewh(2) * zoomf)
+        ! sizewh(1) = int(sizewh(1) * zoomf)
+        ! sizewh(2) = int(sizewh(2) * zoomf)
 
-        call gtk_widget_set_sensitive(idpt('TRButtonStartMC'), 0_c_int)
-        call gtk_widget_set_sensitive(idpt('TRButtonStartMC1'), 0_c_int)
+        ! call gtk_widget_set_sensitive(idpt('TRButtonStartMC'), 0_c_int)
+        ! call gtk_widget_set_sensitive(idpt('TRButtonStartMC1'), 0_c_int)
 
         !-------------------------------------------------------------------------
         open(63,file=flfu(results_path)//'MC_Tables.txt', status='unknown')
         write(63,*) ' MCC: kcmx=',kcmx,'  kcrun=',int(kcrun,2)
-        write(63,*) 'plinit_done=',plinit_done
+        ! write(63,*) 'plinit_done=',plinit_done
 
-        call plclear()
+        ! call plclear()
 
         ! starts MCcalc:
         xmit1 = ZERO
@@ -1419,37 +1401,37 @@ contains
         xsdv  = ZERO
         imcmax = kcmx
         call MCCalc()
-        if(ifehl == 1) then
-            call plend1()
-            plinit_done = .false.
-            goto 900
-        end if
+        ! if(ifehl == 1) then
+        !     call plend1()
+        !     plinit_done = .false.
+        !     goto 900
+        ! end if
 
         !  pixbuf = hl_gtk_drawing_area_get_gdk_pixbuf(drawing(1))
         !  write(63,*) 'before Plot end:  pixbuf=',pixbuf
-        call pending_events()
-        call plend1()
-        ! plotting output closed here.
+        ! call pending_events()
+        ! call plend1()
+        ! ! plotting output closed here.
 
-        plinit_done = .false.
+        ! plinit_done = .false.
 
-        call gtk_widget_show(drawing(2))
+        ! call gtk_widget_show(drawing(2))
 
-        do while(cairo_get_reference_count(cc(1)) > 1_c_int)
-            if(c_associated(cc(1))) call hl_gtk_drawing_area_cairo_destroy(cc(1))
-        end do
-        ccounts = cairo_get_reference_count(cc(1))
+        ! do while(cairo_get_reference_count(cc(1)) > 1_c_int)
+        !     if(c_associated(cc(1))) call hl_gtk_drawing_area_cairo_destroy(cc(1))
+        ! end do
+        ! ccounts = cairo_get_reference_count(cc(1))
 
         ! call gtk_window_set_keep_above(windowPL,0_c_int)
-        call pending_events
-        if(ifehl == 1) goto 900   ! return
+        ! call pending_events
+        ! if(ifehl == 1) goto 900   ! return
 
-        pixbuf = hl_gtk_drawing_area_get_gdk_pixbuf(drawing(1))
+        ! pixbuf = hl_gtk_drawing_area_get_gdk_pixbuf(drawing(1))
 
-        if(trim(actual_plot) == 'MCplot') then
-           if(c_associated(cc(1))) call hl_gtk_drawing_area_cairo_destroy(cc(1))  ! desactivated 16.5.2025
-        end if
-        call pending_events
+        ! if(trim(actual_plot) == 'MCplot') then
+        !    if(c_associated(cc(1))) call hl_gtk_drawing_area_cairo_destroy(cc(1))  ! desactivated 16.5.2025
+        ! end if
+        ! call pending_events
 
         if( .not. bat_mc) then
             !
@@ -1493,66 +1475,52 @@ contains
         end if
         pngfile = plfile       ! 16.5.2025
 
-        if( .false. ) then
-            call hl_gdk_pixbuf_save(pixbuf, plfile, 'png')
-        else
-            ! instead of saving the extcairo pixbuf (which can have small optical problems):
-            ! repeat the steps for the whole graphics output, but now directly into a png file
-            ! 16.5.2025 GK
-            png_to_cairo_surface = .true.
-            actual_plot = 'MCplot'
-            call CairoPlplotPrepare(actual_plot)
-            scalable = .false.
-            familying = .false.
-            gform = 'png'
-            iopt_copygr = 1
-            call Printplot()
-            call reload_pngfile(pngfile)
-            cairo_png_reloaded = .true.            ! <--  added 20.5.2025
-        endif
+        ! if( .false. ) then
+        !     call hl_gdk_pixbuf_save(pixbuf, plfile, 'png')
+        ! else
+        !     ! instead of saving the extcairo pixbuf (which can have small optical problems):
+        !     ! repeat the steps for the whole graphics output, but now directly into a png file
+        !     ! 16.5.2025 GK
+        !     png_to_cairo_surface = .true.
+        !     actual_plot = 'MCplot'
+        !     call CairoPlplotPrepare(actual_plot)
+        !     ! scalable = .false.
+        !     ! familying = .false.
+        !     ! gform = 'png'
+        !     iopt_copygr = 1
+        !     ! call Printplot()
+        !     ! call reload_pngfile(pngfile)
+        !     cairo_png_reloaded = .true.            ! <--  added 20.5.2025
+        ! endif
 
 
+        ! call WDPutEntryDouble('TRentryMCvalPE', xxmit1PE, frmtres)
+        ! call WDPutEntryDouble('TRentryMCvalUPE', xxsdvPE*coverf, frmtres)
 
-        if( .false. .and.  bat_mc) then          ! 18.6.2024
-            write(cnum,'(i2.2)') lineBat
-            plfile = 'MCplotfile_' // trim(cnum) // '.png'
-            plfile = trim(results_path) // trim(plfile)
-            call hl_gdk_pixbuf_save(pixbuf, plfile, 'png')
-        end if
+        ! call WDPutEntryDouble('TRentryMCValue', xxmit1, frmtres)
+        ! call WDPutEntryDouble('TRentryMCunc', xxsdv*coverf, frmtres)
+        ! call WDPutEntryDouble('TRentryMCuncrel', xxsdv*coverf/xxmit1*100._rn, frmtres)
+        ! call WDPutEntryDouble('TRentryMClq', xLQ, frmtres)
+        ! call WDPutEntryDouble('TRentryMCuq', xUQ, frmtres)
+        ! call WDPutEntryDouble('TRentryMCdt', xDT, frmtres)
+        ! call WDPutEntryDouble('TRentryMCdl', xDL, frmtres)
 
-        if( .false. .and. (bat_mc)) then
-            iopt_copygr = 4
-            call PrintPlot()
-            call pending_events
-        end if
+        ! call WDPutEntryDouble('TRentryMCvalPERSD', rxmit1PE, rmcformF(rxmit1PE))
+        ! call WDPutEntryDouble('TRentryMCvalUPERSD', rxsdvPE, rmcformF(rxsdvPE))
 
-        call WDPutEntryDouble('TRentryMCvalPE', xxmit1PE, frmtres)
-        call WDPutEntryDouble('TRentryMCvalUPE', xxsdvPE*coverf, frmtres)
-
-        call WDPutEntryDouble('TRentryMCValue', xxmit1, frmtres)
-        call WDPutEntryDouble('TRentryMCunc', xxsdv*coverf, frmtres)
-        call WDPutEntryDouble('TRentryMCuncrel', xxsdv*coverf/xxmit1*100._rn, frmtres)
-        call WDPutEntryDouble('TRentryMClq', xLQ, frmtres)
-        call WDPutEntryDouble('TRentryMCuq', xUQ, frmtres)
-        call WDPutEntryDouble('TRentryMCdt', xDT, frmtres)
-        call WDPutEntryDouble('TRentryMCdl', xDL, frmtres)
-
-        call WDPutEntryDouble('TRentryMCvalPERSD', rxmit1PE, rmcformF(rxmit1PE))
-        call WDPutEntryDouble('TRentryMCvalUPERSD', rxsdvPE, rmcformF(rxsdvPE))
-
-        call WDPutEntryDouble('TRentryMCValueRSD', rxmit1, rmcformF(rxmit1))
-        call WDPutEntryDouble('TRentryMCuncRSD', rxsdv, rmcformF(rxsdv))
-        call WDPutEntryDouble('TRentryMClqRSD', rxLQ, rmcformF(rxLQ))
-        call WDPutEntryDouble('TRentryMCuqRSD', rxUQ, rmcformF(rxUQ))
-        call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
-        call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
+        ! call WDPutEntryDouble('TRentryMCValueRSD', rxmit1, rmcformF(rxmit1))
+        ! call WDPutEntryDouble('TRentryMCuncRSD', rxsdv, rmcformF(rxsdv))
+        ! call WDPutEntryDouble('TRentryMClqRSD', rxLQ, rmcformF(rxLQ))
+        ! call WDPutEntryDouble('TRentryMCuqRSD', rxUQ, rmcformF(rxUQ))
+        ! call WDPutEntryDouble('TRentryMCdtRSD', rxDT, rmcformF(rxDT))
+        ! call WDPutEntryDouble('TRentryMCdlRSD', rxDL, rmcformF(rxDL))
 
 900     continue
 
-        call gtk_widget_set_sensitive(idpt('TRButtonStartMC'), 1_c_int)
-        call gtk_widget_set_sensitive(idpt('TRButtonStartMC1'), 1_c_int)
-        item_setintern = .false.
-        plot_setintern = .false.
+        ! call gtk_widget_set_sensitive(idpt('TRButtonStartMC'), 1_c_int)
+        ! call gtk_widget_set_sensitive(idpt('TRButtonStartMC1'), 1_c_int)
+        ! item_setintern = .false.
+        ! plot_setintern = .false.
         MCsim_on = .false.              ! <--   19.11.2024 GK
 
         if(allocated(mcafull)) deallocate(mcafull)

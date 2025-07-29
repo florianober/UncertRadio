@@ -31,11 +31,8 @@ subroutine PrepReport()
     use ur_dlim
     use ur_gspk1fit
     use ur_mcc
-    use top,                only: finditems
-    use rout,               only: wdgettextviewstring, wtreeviewgetdoublearray, wdgetlabelstring,  &
-                                  wdgetentryint, wdgetcheckbutton, wdgetentrydouble
+
     use urdate,             only: get_formated_date_time
-    use ur_interfaces,      only: processloadpro_new
     use ur_params,          only: EPS1MIN
     use ur_general_globals,       only: kmodeltype,cmodeltype, ur_version_tag
     use rdsubs,             only: writemdvec
@@ -101,11 +98,11 @@ subroutine PrepReport()
     i1 = 1
     i2 = filen
 
-    if(knumegr > 1 .and. kegr /= 1) then
-        kEGr = 1
-        call FindItemS('QFirst', ncitem)
-        call ProcMenu(ncitem)
-    end if
+    ! if(knumegr > 1 .and. kegr /= 1) then
+    !     kEGr = 1
+    !     call FindItemS('QFirst', ncitem)
+    !     call ProcMenu(ncitem)
+    ! end if
 
     if(filen > 50) i2= 50
 
@@ -126,7 +123,7 @@ subroutine PrepReport()
     write(unit,'(1x)')
     izeil = 5
 
-    call WDGetTextviewString('textview1', Titeltext)
+    ! call WDGetTextviewString('textview1', Titeltext)
 
     call WriteTiteltext(unit,izlen,izeil)
 !-----------------------------------------------------------------------
@@ -505,8 +502,8 @@ subroutine PrepReport()
         write(unit,'(104a1)') ('-',i=1,104)
         izeil = izeil + 2
         if(allocated(fval_k)) deallocate(fval_k,fuval_k)
-        call WTreeViewGetDoubleArray('treeview7', 6, nkalpts, fval_k)
-        call WTreeViewGetDoubleArray('treeview7', 7, nkalpts, fuval_k)
+        ! call WTreeViewGetDoubleArray('treeview7', 6, nkalpts, fval_k)
+        ! call WTreeViewGetDoubleArray('treeview7', 7, nkalpts, fuval_k)
 
         do i=1,nkalpts
             tchx(1) = ' '
@@ -525,15 +522,15 @@ subroutine PrepReport()
         write(unit,'(104a1)') ('-',i=1,104)
         izeil = izeil + 1
 
-        call WDGetLabelString('DKlabelFparms', str1)
-        write(unit,'(3x,a)') trim(str1)
+        ! call WDGetLabelString('DKlabelFparms', str1)
+        ! write(unit,'(3x,a)') trim(str1)
 
-        call WDGetLabelString('DKlabelFsdev', str1)
-        write(unit,'(3x,a)') trim(str1)
+        ! call WDGetLabelString('DKlabelFsdev', str1)
+        ! write(unit,'(3x,a)') trim(str1)
 
-        call WDGetLabelString('DKlabelChisqr', str1)
-        write(unit,'(3x,a)') trim(str1)
-        izeil = izeil + 3
+        ! call WDGetLabelString('DKlabelChisqr', str1)
+        ! write(unit,'(3x,a)') trim(str1)
+        ! izeil = izeil + 3
 
     end if
 
@@ -551,7 +548,7 @@ subroutine PrepReport()
         kEGr = ker
         if(ker == 2 .and. ifit(2) > 1) goto 270
         if(ker == 3 .and. ifit(3) > 1) goto 270
-        call ProcessLoadPro_new(1, ker)
+        ! call ProcessLoadPro_new(1, ker)
         write(66,*) '....................   kEGr=',kEgr
     end if
 
@@ -585,10 +582,10 @@ subroutine PrepReport()
     write(unit,'(104a1)') ('-',i=1,104)
 
     izeil = izeil + 3
-    call WTreeViewGetDoubleArray('treeview4',6, ngrs+ncov+numd, xstdunc)
-    call WTreeViewGetDoubleArray('treeview4',7, ngrs+ncov+numd, sensi)
-    if(Ucontyp == 1) call WTreeViewGetDoubleArray('treeview4',8, ngrs+ncov+numd, perc)
-    if(Ucontyp == 2) call WTreeViewGetDoubleArray('treeview4',8, ngrs+ncov+numd, Ucontrib)
+    ! call WTreeViewGetDoubleArray('treeview4',6, ngrs+ncov+numd, xstdunc)
+    ! call WTreeViewGetDoubleArray('treeview4',7, ngrs+ncov+numd, sensi)
+    ! if(Ucontyp == 1) call WTreeViewGetDoubleArray('treeview4',8, ngrs+ncov+numd, perc)
+    ! if(Ucontyp == 2) call WTreeViewGetDoubleArray('treeview4',8, ngrs+ncov+numd, Ucontrib)
     do i=1,ngrs+ncov+numd
         if(i > ngrs .AND. i <= ngrs+ncov) Messwert(i) = CovarVal(i-ngrs)
         cmesswert = ' '
@@ -694,14 +691,14 @@ subroutine PrepReport()
 
     write(unit,'(3x,a,f8.6,2x,a,f8.6,2x,a,a)') 'alpha=', alpha,', beta=', beta
 
-    call WDGetEntryInt('TRentryMCanzM', kcmx)
-    call WDGetEntryInt('TRentryMCanzR', kcrun)
+    ! call WDGetEntryInt('TRentryMCanzM', kcmx)
+    ! call WDGetEntryInt('TRentryMCanzR', kcrun)
 
-    call WDGetEntryDouble('TRentryMCValue', xmit1)
-    call WDGetEntryDouble('TRentryMCunc', xsdv)           ! contains already coverf
+    ! call WDGetEntryDouble('TRentryMCValue', xmit1)
+    ! call WDGetEntryDouble('TRentryMCunc', xsdv)           ! contains already coverf
 
-    call WDGetEntryDouble('TRentryMCValueRSD', rxmit1)
-    call WDGetEntryDouble('TRentryMCuncRSD', rxsdv)
+    ! call WDGetEntryDouble('TRentryMCValueRSD', rxmit1)
+    ! call WDGetEntryDouble('TRentryMCuncRSD', rxsdv)
 
     if(xmit1 > 0._rn .AND. xsdv > 0._rn) then
         cbci = ' '
@@ -763,9 +760,9 @@ subroutine PrepReport()
     end if
 
     if(FitDecay) then
-        call WDGetEntryDouble('TRentryUfit', stabw_lsq)
-        call WDGetEntryDouble('TRentryUprop', stabw_prop)
-        call WDGetEntryDouble('TRentryChisqr', Chisqr)
+        ! call WDGetEntryDouble('TRentryUfit', stabw_lsq)
+        ! call WDGetEntryDouble('TRentryUprop', stabw_prop)
+        ! call WDGetEntryDouble('TRentryChisqr', Chisqr)
 
         klinx = klinf
         if(kfitp(1) > 0) klinx = kfitp(1)-1+kEGr

@@ -52,27 +52,7 @@ program UncertRadio
 
     use, intrinsic :: iso_c_binding
 
-    use gtk,              only: gtk_init, &
-                                gtk_main, &
-                                gtk_main_quit, &
-                                gtk_widget_set_visible, &
-                                gtk_buttons_OK, &
-                                gtk_widget_get_allocation, &
-                                gtk_window_resize, &
-                                gtk_widget_set_size_request, &
-                                gtk_widget_set_sensitive, &
-                                gtk_window_move, &
-                                FALSE, &
-                                GTK_MESSAGE_WARNING
-
-    use gdk,              only: gdk_screen_get_monitor_at_point
-    use gtk_sup,          only: is_UNIX_OS, convert_c_string
     use UR_types,         only: rn
-    use gui_functions,    only: create_window, show_window
-    use UR_gtk_globals,   only: UR_widgets, &
-                                item_setintern, winPL_shown, prout_gldsys,  &
-                                scrwidth_min, scrwidth_max, scrheight_min, monitorUR, gscreen, &
-                                monitor_at_point
 
     use ur_general_globals, only: automode, fname_getarg, runbatser, runauto, &
                                   work_path, log_path, results_path, help_path, example_path, &
@@ -84,18 +64,14 @@ program UncertRadio
                                   done_simul_ProSetup,open_project_parts, dir_sep, UR_git_hash, UR_version_tag, &
                                   fileToSimulate
 
-    use g,                  only: g_get_current_dir, g_path_is_absolute, g_chdir, &
-                                  g_get_home_dir, g_get_user_config_dir, g_get_user_data_dir
-
-    use Rout,               only: MessageShow, pending_events, WDNotebookSetCurrPage
     use Usub3,              only: AutoReportWrite
-    use UR_interfaces,      only: ProcessLoadPro_new
     use CHF,                only: ucase, StrReplace, fltu, flfu
-    use gtk_draw_hl,        only: gtkallocation
+
     use UR_Loadsel,         only: NBcurrentPage
-    use Top,                only: CharModA1, idpt
+
     use urInit,             only: READ_CFG
     use UR_Gleich_globals,  only: ifehl
+    use top,                only: CharModA1
 
     use UR_params,          only: UR2_CFG_FILE, LOCKFILENAME, GPL_HEADER, GLADEORG_FILE
     use translation_module, only: T => get_translation
@@ -111,7 +87,6 @@ program UncertRadio
     character(:), allocatable  :: message, title
 
     real(rn)                   :: start, finish
-    integer(c_int)             :: resp, mposx, mposy
 
     logical                    :: lexist, ur_runs
 
@@ -120,7 +95,7 @@ program UncertRadio
     allocate(character(512) :: fname_getarg)
     ! Check the os; i think atm the convinient way to do this is to use
     ! the is_UNIX_OS function from gtk_sup
-    wpunix = is_UNIX_OS()
+
     if (wpunix) then
         dir_sep = '/'
     else
@@ -144,14 +119,14 @@ program UncertRadio
 
     ! get the current directory using the GLib function
     allocate(character(len=len(tmp_str))  :: actpath)
-    call convert_c_string(g_get_current_dir(), actpath)
+    !call convert_c_string(g_get_current_dir(), actpath)
     actpath = trim(actpath) // dir_sep
     ! write(*,*) 'curr_dir = ', trim(actpath)
 
     ! if the work path is relativ, convert to an absolute path
-    if (g_path_is_absolute(work_path) == 0) then
-        work_path = actpath // work_path(3:)
-    end if
+    ! if (g_path_is_absolute(work_path) == 0) then
+    !     work_path = actpath // work_path(3:)
+    ! end if
 
     ! get the (relative) log path from config file
     call read_config('log_path', log_path, work_path // UR2_CFG_FILE)
@@ -171,7 +146,7 @@ program UncertRadio
     endif
 
     ! change the current path to the work path.
-    i1 = g_chdir(work_path // c_null_char)
+    !i1 = g_chdir(work_path // c_null_char)
     if (i1 /= 0) then
         call logger(66, "CRITICAL ERROR: could not change current dir to work path")
         call quit_uncertRadio(3)
@@ -215,7 +190,7 @@ program UncertRadio
 #endif
     call logger(66, "")
 	! initiate gtk to show show gui error-messages
-    call gtk_init()
+    ! call gtk_init()
 
     NBcurrentPage = 0
 
@@ -227,31 +202,27 @@ program UncertRadio
 
 
     ! check Glade file:
-    inquire(file=flfu(work_path // GLADEORG_FILE), exist=lexist)
-    call logger(66, "gladefile= " // work_path // GLADEORG_FILE)
+!     inquire(file=flfu(work_path // GLADEORG_FILE), exist=lexist)
+!     call logger(66, "gladefile= " // work_path // GLADEORG_FILE)
 
 
-    if (.not. lexist) then
-!         write(66,*) 'No Glade file found!'
-        call logger(66, "No Glade file found!")
-        call quit_uncertradio(4)
-    end if
+!     if (.not. lexist) then
+! !         write(66,*) 'No Glade file found!'
+!         call logger(66, "No Glade file found!")
+!         call quit_uncertradio(4)
+!     end if
 
     ! read the config file (UR2_cfg.dat)
     call Read_CFG()
 
-    call monitor_coordinates()
+    ! call monitor_coordinates()
 
     if(ifehl == 1) then
-        call gtk_main_quit()
+        ! call gtk_main_quit()
         call quit_uncertradio(3)
     end if
 
-    prout_gldsys = .false.
-
     call cpu_time(start)
-
-    call create_window(UR_widgets, ifehl)
 
     if(ifehl == 1) then
         call logger(66, "Create window NOT successful!")
@@ -266,11 +237,6 @@ program UncertRadio
         tmp_str = T('An UR2 instance is already running! A second one is not allowed!\n' // &
                     'If this is an error, please delete the file: ') // c_new_line // &
                     '"'// work_path // lockFileName // '"'
-        call MessageShow(trim(tmp_str), &
-                         GTK_BUTTONS_OK, &
-                         T("Warning"), &
-                         resp, &
-                         mtype=GTK_MESSAGE_WARNING)
 
         call quit_uncertradio(2)
     end if
@@ -285,8 +251,6 @@ program UncertRadio
 
     write(log_str, '(A, F0.2, A)') " Create window1 successful!  cpu-time: ", finish - start, " s"
     call logger(66, log_str)
-
-    call gtk_widget_set_visible(idpt('dialog_LoadPro'), False)
 
     !------------------------------------------------------------
     ! get the number of given command arguments
@@ -360,45 +324,21 @@ program UncertRadio
 
                 message = T('The file is not a project file!')
                 title = T("Open project")
-
-                call messageshow(message=message, &
-                                 button_set=gtk_buttons_ok, &
-                                 title=title, &
-                                 resp=resp, &
-                                 mtype=gtk_message_warning)
                 fname = ''
                 fname_getarg = ''
             else
                 fname = trim(fname_getarg)
                 call logger(66, 'iosargument: ' // trim(fname_getarg))
                 ifehl= 0
-                call processloadpro_new(0, 1)       ! start calculations with the first output quantity
-                call wdnotebooksetcurrpage('notebook1', 5)
+                ! call processloadpro_new(0, 1)       ! start calculations with the first output quantity
+                ! call wdnotebooksetcurrpage('notebook1', 5)
                 nbcurrentpage = 5
             end if
         end if
     end if
 
-    !---------------------------------------------------------------------------------
-    if ( .not. runauto) call show_window(UR_widgets)
     call cpu_time(finish)
     !---------------------------------------------------------------------------------
-
-    if(monitorUR > 0) then
-        ! don't use this setting for monitor 0 !
-        ! mposx = scrwidth_min + int(real(scrwidth_max - scrwidth_min,rn)*0.05_rn)
-        mposx = scrwidth_min + int(real(scrwidth_max - scrwidth_min,rn)*0.10_rn)
-
-        mposy = scrheight_min + 50
-        write(log_str, '(a,2I5)') '***  Main window: first Show:  upper-left pos: mposx,mposy=',mposx,mposy
-        call logger(66, log_str)
-        call gtk_window_move(UR_widgets%window1, mposx, mposy)
-
-        monitor_at_point = gdk_screen_get_monitor_at_point(gscreen,mposx+10_c_int,mposy+10_c_int)+1_c_int
-        write(log_str, '(a,I5)') '***  Main window: Monitor# at mposx+10,mposy+10= ',monitor_at_point
-        call logger(66, log_str)
-
-    end if
 
     call logger(66, '------------------------------------------------------------------------------')
 
@@ -453,31 +393,25 @@ program UncertRadio
         done_simul_ProSetup = .true.
     end if
 
-    write(log_str, '(*(g0))') 'Main:  after show_window:   MonitorUR=',int(MonitorUR,2)
-    call logger(66, log_str)
 
     batest_on = .false.
     if(NBcurrentPage == 0) NBcurrentPage = 1
-    winPL_shown = .false.
 
     bat_serial = .false.
     bat_mc = .false.
-    call gtk_widget_set_sensitive(idpt('SerialEval'), 1_c_int)
+
 
     !-----------------------------------------------------------
 
     if(runauto) then
-        call pending_events()
+        ! call pending_events()
         call AutoReportWrite()
     elseif(runbatser) then
-        call pending_events()
+        ! call pending_events()
         bat_serial = .true.
         kfrom_se = 1
         kto_se = 1000
         call Batch_proc()
-    else
-        item_setintern = .false.
-        call gtk_main()
     end if
 
     !-----------------------------------------------------------
@@ -490,13 +424,13 @@ end program UncertRadio
 subroutine quit_uncertradio(error_code)
     use, intrinsic :: iso_c_binding, only : c_null_char
 
-    use ur_general_globals,             only: work_path, actpath, runauto
-    use UR_params,                only: LOCKFILENAME
+    use ur_general_globals, only: work_path, actpath, runauto
+    use UR_params,          only: LOCKFILENAME
 
     use UR_Gleich_globals,                only: ifehl
 
     use file_io,                  only: logger
-    use g,                        only: g_chdir
+
     use chf,                      only: flfu
 
     implicit none
@@ -529,7 +463,7 @@ subroutine quit_uncertradio(error_code)
     end if
 
     ! change the current path back to the current path, when UR was started.
-    stat = g_chdir(actpath // c_null_char)
+    !stat = g_chdir(actpath // c_null_char)
     if (stat /= 0) then
         call logger(66, "Warning: Could not revert the curr_dir")
     end if
@@ -591,137 +525,137 @@ end subroutine check_if_running
 
 
 !------------------------------------------------------------------------------!
-subroutine monitor_coordinates()
+! subroutine monitor_coordinates()
 
-    ! finds the number of monitors combined within a screen;
-    ! it then estimates the coordinates (height, width) of the monitor(s)
-    !
-    ! calls FindMonitorRect
-    !
-    ! See chapter 1.3 "Using several monitors" of the UncertRadio CHM Help
-    ! file for more details.
+!     ! finds the number of monitors combined within a screen;
+!     ! it then estimates the coordinates (height, width) of the monitor(s)
+!     !
+!     ! calls FindMonitorRect
+!     !
+!     ! See chapter 1.3 "Using several monitors" of the UncertRadio CHM Help
+!     ! file for more details.
 
-    !   Copyright (C) 2020-2023  Günter Kanisch
+!     !   Copyright (C) 2020-2023  Günter Kanisch
 
-    use, intrinsic :: iso_c_binding, only:  c_int, &
-                                            c_ptr, &
-                                            c_loc, &
-                                            c_f_pointer, &
-                                            c_associated, &
-                                            c_char, &
-                                            c_size_t, &
-                                            c_null_ptr
+!     use, intrinsic :: iso_c_binding, only:  c_int, &
+!                                             c_ptr, &
+!                                             c_loc, &
+!                                             c_f_pointer, &
+!                                             c_associated, &
+!                                             c_char, &
+!                                             c_size_t, &
+!                                             c_null_ptr
 
-    use gdk,  only: gdk_display_get_default, &
-                    gdk_display_get_default_screen, &
-                    gdk_screen_get_n_monitors, &
-                    gdk_screen_get_primary_monitor, &
-                    gdk_display_get_monitor, &
-                    gdk_monitor_get_workarea, &
-                    gdk_monitor_get_geometry
+!     use gdk,  only: gdk_display_get_default, &
+!                     gdk_display_get_default_screen, &
+!                     gdk_screen_get_n_monitors, &
+!                     gdk_screen_get_primary_monitor, &
+!                     gdk_display_get_monitor, &
+!                     gdk_monitor_get_workarea, &
+!                     gdk_monitor_get_geometry
 
-    use UR_gtk_globals, only: monitorUR, &
-                                scrwidth_min, &
-                                scrwidth_max, &
-                                scrheight_min, &
-                                scrheight_max, &
-                                gscreen
+!     use UR_gtk_globals, only: monitorUR, &
+!                                 scrwidth_min, &
+!                                 scrwidth_max, &
+!                                 scrheight_min, &
+!                                 scrheight_max, &
+!                                 gscreen
 
-    use Top,              only: idpt
-    use UR_Gleich_globals,        only: ifehl
+!     use Top,              only: idpt
+!     use UR_Gleich_globals,        only: ifehl
 
-    use file_io,          only: logger
+!     use file_io,          only: logger
 
-    implicit none
+!     implicit none
 
-    type :: GdkRectangle
-        integer(c_int)   :: x       ! the x coordinate of the left edge of the rectangle.
-        integer(c_int)   :: y       ! the y coordinate of the top of the rectangle.
-        integer(c_int)   :: width   ! the width of the rectangle.
-        integer(c_int)   :: height  ! the height of the rectangle.
-    end type GdkRectangle
+!     type :: GdkRectangle
+!         integer(c_int)   :: x       ! the x coordinate of the left edge of the rectangle.
+!         integer(c_int)   :: y       ! the y coordinate of the top of the rectangle.
+!         integer(c_int)   :: width   ! the width of the rectangle.
+!         integer(c_int)   :: height  ! the height of the rectangle.
+!     end type GdkRectangle
 
-    integer :: monisel, nprim, tmon, tmonx
+!     integer :: monisel, nprim, tmon, tmonx
 
-    integer(c_int)              :: nmonit, atmonx
-    type(GdkRectangle),pointer  :: URgdkRect
-    type(c_ptr), target         :: cgdkrect
-    type(c_ptr)                 :: monitor, display
-    logical                     :: m0out
-    character(len=512)          :: log_str
-    integer, allocatable        :: widthmin(:), &
-                                   widthmax(:), &
-                                   heightmin(:), &
-                                   heightmax(:)
+!     integer(c_int)              :: nmonit, atmonx
+!     type(GdkRectangle),pointer  :: URgdkRect
+!     type(c_ptr), target         :: cgdkrect
+!     type(c_ptr)                 :: monitor, display
+!     logical                     :: m0out
+!     character(len=512)          :: log_str
+!     integer, allocatable        :: widthmin(:), &
+!                                    widthmax(:), &
+!                                    heightmin(:), &
+!                                    heightmax(:)
 
-    ! GDK: a single GdkScreen combines several physical monitors.
+!     ! GDK: a single GdkScreen combines several physical monitors.
 
-    ifehl = 0
-    allocate(URgdkRect)
-    display = c_null_ptr
-    gscreen = c_null_ptr
-    display = gdk_display_get_default()
-    gscreen = gdk_display_get_default_screen(display)
+!     ifehl = 0
+!     allocate(URgdkRect)
+!     display = c_null_ptr
+!     gscreen = c_null_ptr
+!     display = gdk_display_get_default()
+!     gscreen = gdk_display_get_default_screen(display)
 
-    nmonit = max(0_c_int, gdk_screen_get_n_monitors(gscreen))
-    tmonx = nmonit
-    !     write(66,'(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
-    write(log_str, '(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
-    call logger(66, log_str)
-    allocate(widthmin(nmonit), widthmax(nmonit), heightmin(nmonit), heightmax(nmonit))
-    widthmin(:) = 0
-    widthmax(:) = 0
-    heightmin(:) = 0
-    heightmax(:) = 0
+!     nmonit = max(0_c_int, gdk_screen_get_n_monitors(gscreen))
+!     tmonx = nmonit
+!     !     write(66,'(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
+!     write(log_str, '(a,i0,a,i0)') 'number of monitors:',int(tmonx,2),'   nmonit=',nmonit
+!     call logger(66, log_str)
+!     allocate(widthmin(nmonit), widthmax(nmonit), heightmin(nmonit), heightmax(nmonit))
+!     widthmin(:) = 0
+!     widthmax(:) = 0
+!     heightmin(:) = 0
+!     heightmax(:) = 0
 
-    monitor = c_null_ptr
-    monitor = gdk_display_get_monitor(display, nmonit)
+!     monitor = c_null_ptr
+!     monitor = gdk_display_get_monitor(display, nmonit)
 
-    ! Note: monitorx or monitor should be created only once; for further creations of the
-    ! C-pointer monitorx with the GDK function, it must first be reset by monitorx = c_null_ptr;
-    ! if not, GDK-critical warnings appear.
+!     ! Note: monitorx or monitor should be created only once; for further creations of the
+!     ! C-pointer monitorx with the GDK function, it must first be reset by monitorx = c_null_ptr;
+!     ! if not, GDK-critical warnings appear.
 
-    m0out = .false.
-    do tmon=1,tmonx
-        !         if(tmon == 1) write(66,'(a)') '***  Monitors:'
-        if(tmon == 1)  then
-            write(log_str, '(a)') '***  Monitors:'
-            call logger(66, log_str)
-        end if
-        call gdk_monitor_get_geometry(gdk_display_get_monitor(display,tmon - 1_c_int), c_loc(cGdkRect))        !
-        call c_f_pointer(c_loc(cGdkRect), URGdkRect)
+!     m0out = .false.
+!     do tmon=1,tmonx
+!         !         if(tmon == 1) write(66,'(a)') '***  Monitors:'
+!         if(tmon == 1)  then
+!             write(log_str, '(a)') '***  Monitors:'
+!             call logger(66, log_str)
+!         end if
+!         call gdk_monitor_get_geometry(gdk_display_get_monitor(display,tmon - 1_c_int), c_loc(cGdkRect))        !
+!         call c_f_pointer(c_loc(cGdkRect), URGdkRect)
 
-        if(m0out) then
-            write(0,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
-                                     URGdkRect%width,URGdkRect%height
-            !             write(66,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
-            !                 URGdkRect%width,URGdkRect%height
-            write(log_str, '(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
-                                            URGdkRect%width,URGdkRect%height
-            call logger(66, log_str)
-        endif
+!         if(m0out) then
+!             write(0,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+!                                      URGdkRect%width,URGdkRect%height
+!             !             write(66,'(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+!             !                 URGdkRect%width,URGdkRect%height
+!             write(log_str, '(a,i2,a,4I6)') 'tmon=',tmon,'  URGdkRect=',URGdkRect%x,URGdkRect%y, &
+!                                             URGdkRect%width,URGdkRect%height
+!             call logger(66, log_str)
+!         endif
 
-        widthmin(tmon) = URGdkRect%x
-        heightmin(tmon) = URGdkRect%y
-        widthmax(tmon) = URGdkRect%x + URGdkRect%width
-        heightmax(tmon) = URGdkRect%y + URGdkRect%height
+!         widthmin(tmon) = URGdkRect%x
+!         heightmin(tmon) = URGdkRect%y
+!         widthmax(tmon) = URGdkRect%x + URGdkRect%width
+!         heightmax(tmon) = URGdkRect%y + URGdkRect%height
 
-    end do
-    write(log_str, '(A,i0)') '***  Monitor number selected as given in UR2_cfg.dat: ', monitorUR
-    call logger(66, log_str)
-    nprim = gdk_screen_get_primary_monitor(gscreen)+0_c_int
-    monisel = 1
+!     end do
+!     write(log_str, '(A,i0)') '***  Monitor number selected as given in UR2_cfg.dat: ', monitorUR
+!     call logger(66, log_str)
+!     nprim = gdk_screen_get_primary_monitor(gscreen)+0_c_int
+!     monisel = 1
 
-    atmonx = max(0_c_int, monitorUR - 0_c_int)
-    tmon = atmonx + 0_c_int
+!     atmonx = max(0_c_int, monitorUR - 0_c_int)
+!     tmon = atmonx + 0_c_int
 
-    scrwidth_min = widthmin(tmon) + 1
-    scrwidth_max = widthmax(tmon) - 1
-    scrheight_min = heightmin(tmon) + 2
-    scrheight_max = heightmax(tmon) - int(0.032 * real(heightmax(tmon)-heightmin(tmon)) + 0.4999)
+!     scrwidth_min = widthmin(tmon) + 1
+!     scrwidth_max = widthmax(tmon) - 1
+!     scrheight_min = heightmin(tmon) + 2
+!     scrheight_max = heightmax(tmon) - int(0.032 * real(heightmax(tmon)-heightmin(tmon)) + 0.4999)
 
-    write(log_str, '(a,i0,2(a,i0,a,i0))') '***  Selected monitor: ',monitorUR,'; Screen min-max horiz.: ',  &
-          scrwidth_min,' - ',scrwidth_max,'  min-max vertical: ',scrheight_min,' - ',scrheight_max
-    call logger(66, log_str)
+!     write(log_str, '(a,i0,2(a,i0,a,i0))') '***  Selected monitor: ',monitorUR,'; Screen min-max horiz.: ',  &
+!           scrwidth_min,' - ',scrwidth_max,'  min-max vertical: ',scrheight_min,' - ',scrheight_max
+!     call logger(66, log_str)
 
-end subroutine monitor_coordinates
+! end subroutine monitor_coordinates

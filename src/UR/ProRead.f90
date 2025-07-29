@@ -38,13 +38,13 @@ contains
 
         use, intrinsic :: iso_c_binding,       only: c_null_ptr,c_null_char, c_associated, c_ptr
 
-        use gtk,                    only: GTK_BUTTONS_OK,GTK_MESSAGE_ERROR
-        use top,                    only: FinditemS,idpt,WrStatusbar,RealModA1,CharModA1,IntModA1,LogModA1, &
+
+        use top,                    only: RealModA1,CharModA1,IntModA1,LogModA1, &
                                           InitVarsTV6,DRead,ModVarsTV2,CharModStr
-        USE ur_general_globals,           only: open_project_parts,modSymb,copyEQ,batest_user,fname,gross_negative, &
+        USE ur_general_globals,     only: open_project_parts,modSymb,copyEQ,batest_user,fname,gross_negative, &
                                           gum_restricted,kmodeltype,project_loadw,proStartNew, &
                                           fileToSimulate,FDecM,GspkDT,covTB,FcalDT,MDDT
-        USE UR_Gleich_globals,              only: Messwert,Stdunc,Symbole,symtyp,einheit,bedeutung,IVTl,IAR,SDformel, &
+        USE UR_Gleich_globals,      only: Messwert,Stdunc,Symbole,symtyp,einheit,bedeutung,IVTl,IAR,SDformel, &
                                           SDwert,HBreite,Titeltext,Formeltext,FormeltextFit,cvformel, &
                                           SymboleG,ixdanf,coverf,icovtyp,ifehl,ilam_binom,ip_binom,itm_binom, &
                                           kbgv_binom,ISymbA,IsymbB,knumEGr,kEGr,ngrs,nab,nmu,SymboleA, &
@@ -62,18 +62,12 @@ contains
         USE UR_Gspk1Fit,            only: ecorruse,FBT,Gamspk1_Fit,varadd_rn,WMextSD,unitradio,erg,gnetrate, &
                                           RateCB,RateBG,SDRateBG,effi,sdeffi,pgamm,sdpgamm,fatt,sdfatt, &
                                           fcoinsu,SDfcoinsu,kdatmax,guse,UnitR_effi_old,UnitR_pgamm_old, kmwtyp  !!!! 2025.01.23 GK
-        use Rout,                   only: MessageShow,UpdateProName,WDPutSelRadio,WDPutEntryDouble, &
-                                          WDPutEntryDouble,WDGetCheckMenuItem,WDSetCheckMenuItem,   &
-                                          WDSetComboboxAct,WDPutSelRadioMenu,WDPutEntryString, &
-                                          WTreeViewGetStrArray,WTreeViewPutDoubleCell, &
-                                          WDSetCheckButton,WDputEntryInt,WDGetComboboxAct
+
 
         use Brandt,                 only: pnorm
-        use UR_gtk_globals,       only: consoleout_gtk,item_setintern
-        use RdSubs,                 only: TransferToGTK
+
         use UR_params,              only: EPS1MIN
         use CHF,                    only: ucase, flfu
-        use LSTfillT,               only: WDListstoreFill_table
         use translation_module,     only: T => get_translation
 
         use UR_DecChain,            only: apply_separation,DCBuildupAtSepar,DCcommMeasmt, &
@@ -89,7 +83,7 @@ contains
         character(:), allocatable :: ttext,text,text2,str1
         character(len=60)         :: csymbol
         integer                   :: k,ios,i,i1,i2,i3,imenu1,i22,kuseUfit,nv,j,jj              ! kmwtyp
-        integer                   :: kWTLS,kk, iz0,k22,rmode,nbb,nddanf,kkL, nrec, resp
+        integer                   :: kWTLS,kk, iz0,k22,rmode,nbb,nddanf,kkL, nrec
 
         LOGICAL                   :: ugr,cvgr,fit,abgr,gsp1gr,conda
         character(len=150)        :: subs,tmeanid
@@ -121,7 +115,7 @@ contains
             RETURN
         end if
 
-        item_setintern = .true.
+        ! item_setintern = .true.
 
         if(.not.open_project_parts .or. (open_project_parts .and. copyEQ)) then
             if(allocated(Formeltext)) deallocate(Formeltext)
@@ -155,25 +149,26 @@ contains
                                            'to local encoding: ' // trim(fname_tmp)
 
         open (25, file=trim(fname_tmp), STATUS='old', IOSTAT=ios)
-        if(.not. open_project_parts) call UpdateProName(fname)
+        ! if(.not. open_project_parts) call UpdateProName(fname)
 
         IF(ios /= 0) THEN
             str1 = T('File cannot be opened') // ": " // trim(fname)
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead:", resp,mtype=GTK_MESSAGE_ERROR)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "ProRead:", resp,mtype=GTK_MESSAGE_ERROR)
             ifehl = 1
             close (25)
             goto 9000             ! RETURN
         end if
 
 
-        if(consoleout_gtk) WRITE(0,*) 'PR: A',' ios=',int(ios,2)
+        ! if(consoleout_gtk) WRITE(0,*) 'PR: A',' ios=',int(ios,2)
         if(open_project_parts .and. FDecM) goto 1030
         if(open_project_parts .and. GspkDT) goto 1050
         if(open_project_parts .and. covTB) goto 50
         if(open_project_parts .and. FcalDT) goto 65
 
         if(open_project_parts .and. MDDT) goto 1115      ! 21.9.2023
-        if(consoleout_gtk) WRITE(0,*) 'PR: B',' ios=',int(ios,2)
+        ! if(consoleout_gtk) WRITE(0,*) 'PR: B',' ios=',int(ios,2)
         if(.not.open_project_parts .or. (open_project_parts .and. copyEQ)) then
             do
                 call DRead(25,ttext,ios)
@@ -200,7 +195,7 @@ contains
                 end if
             end do
             call CharModA1(Titeltext,nrec)
-            if(consoleout_gtk) WRITE(0,*) 'PR: B1',' ios=',int(ios,2)
+            ! if(consoleout_gtk) WRITE(0,*) 'PR: B1',' ios=',int(ios,2)
             nrec = 0
             do
                 nrec = nrec + 1
@@ -225,10 +220,10 @@ contains
                     end if
                 end if
             end do
-            if(consoleout_gtk) WRITE(0,*) 'PR: B2',' ios=',int(ios,2)
+            ! if(consoleout_gtk) WRITE(0,*) 'PR: B2',' ios=',int(ios,2)
             call CharModA1(Formeltext,nrec)
             ! write(55,*) 'Formeltext: nrec=',nrec,' ubound=',ubound(Formeltext,dim=1)
-            if(consoleout_gtk) WRITE(0,*) 'PR: B3',' ios=',int(ios,2)
+            ! if(consoleout_gtk) WRITE(0,*) 'PR: B3',' ios=',int(ios,2)
             if(index(ttext,'@FormeltextFit:') > 0) then
                 nrec = 0
                 do
@@ -252,7 +247,7 @@ contains
                 deallocate(FormeltextFit)
                 fit = .false.
             end if
-            if(consoleout_gtk) WRITE(0,*) 'PR: B4',' ios=',int(ios,2)
+            ! if(consoleout_gtk) WRITE(0,*) 'PR: B4',' ios=',int(ios,2)
             ! write(55,*) 'fit=',fit,' SumEval_fit=',SumEval_fit,'FitDecay=',FitDecay
 
             !write(66,*) 'ProRead: Titeltext ======================================'
@@ -295,7 +290,7 @@ contains
         end if
 
         deallocate(ttext)
-        if(consoleout_gtk) write(0,*) 'PR: C',' ios=',int(ios,2)
+        ! if(consoleout_gtk) write(0,*) 'PR: C',' ios=',int(ios,2)
 
         if(.not.open_project_parts .or. (open_project_parts .and. modSymb)) then
             rewind 25
@@ -354,7 +349,7 @@ contains
 
             if(nmu < ngrs-nab) nmu = ngrs - nab
         end if
-        if(consoleout_gtk) WRITE(0,*) 'PR: D',' ios=',int(ios,2)
+        ! if(consoleout_gtk) WRITE(0,*) 'PR: D',' ios=',int(ios,2)
 
         if(.not.batest_user) then
             WRITE(55,'(1x)')
@@ -434,7 +429,7 @@ contains
                 end if
 
             end do
-            if(consoleout_gtk) WRITE(0,*) 'PR: E',' ios=',int(ios,2),' next=@menu1'
+            ! if(consoleout_gtk) WRITE(0,*) 'PR: E',' ios=',int(ios,2),' next=@menu1'
 
             backspace (25)
             backspace (25)
@@ -556,10 +551,10 @@ contains
 
 50      CONTINUE
 
-        if(open_project_parts .and. modSymb) then
-            call WDListstoreFill_table('liststore_valunc',2, .true.)
-            goto 120
-        endif
+        ! if(open_project_parts .and. modSymb) then
+        !     call WDListstoreFill_table('liststore_valunc',2, .true.)
+        !     goto 120
+        ! endif
 
         do
             call DRead(25,text,ios)
@@ -725,20 +720,20 @@ contains
                 read(text2(6:),*,IOSTAT=ios) kc,ksep,iv,nnch,kim,DCBuildupAtSepar,N_nuclides
                     write(55,'(6(a,i3),a,L1)') 'DChain: kc=',kc,' ksep=',ksep,' iv=',iv,' nnch=',nnch,' kim=',kim, &
                               ' N_Nuclides=',N_nuclides,' DCbuildupAtSepar=',DCBuildupAtSepar
-              call WDSetComboboxAct('ComboboxDCchains',kc)
+            !   call WDSetComboboxAct('ComboboxDCchains',kc)
                 ChainSelected = kc
-                          call WDGetComboboxAct('ComboboxDCchains',kc)
+                        !   call WDGetComboboxAct('ComboboxDCchains',kc)
                 write(55,*) 'chainSelected=',kc
                 write(66,*) 'chainSelected=',kc
               apply_separation = .false.
               if(ksep == 1) apply_separation = .true.
-              call WDSetComboboxAct('DCcheckSepar', ksep)
-              call WDSetCheckButton('DCcheckVorLam',iv)
-              call WDSetComboboxAct('comboboxtextDCNCH', nnch)
+            !   call WDSetComboboxAct('DCcheckSepar', ksep)
+            !   call WDSetCheckButton('DCcheckVorLam',iv)
+            !   call WDSetComboboxAct('comboboxtextDCNCH', nnch)
               DCcommMeasmt = .false.
               if(kim == 1) DCcommMeasmt = .true.
-              call WDSetCheckButton('DCcheckCommMeasmt',kim)
-              call WDPutEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
+            !   call WDSetCheckButton('DCcheckCommMeasmt',kim)
+            !   call WDPutEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
 
               i = N_Nuclides
               if(allocated(DCnuclide)) deallocate(DCnuclide,DCsymbT12,DCsymbLambda,DCsymbEffiA, &
@@ -1321,7 +1316,7 @@ contains
             if(.false. .and. i1 > 0) then
                 write(55,*) 'means: entry "meantyp=" not found! Or, it is misspelled: '    ,trim(text)
                 write(66,*) 'means: entry "meantyp=" not found! Or, it is misspelled: '    ,trim(text)
-                call WrStatusbar(3,'Stopped: means: entry "meantyp=" not found!')
+                ! call WrStatusbar(3,'Stopped: means: entry "meantyp=" not found!')
                 ifehl = 1
                 return
             end if
@@ -1421,7 +1416,7 @@ contains
                     if(ios /= 0) then
                         write(66,*) 'ProRead: Error when reading the BinPoi parameter values'
                         ifehl = 1
-                        call WrStatusBar(3,'Errors with BinPoi parms...' )
+                        ! call WrStatusBar(3,'Errors with BinPoi parms...' )
                         ifehl = 1
                         close (25)
                         goto 9000     !return
@@ -1453,12 +1448,12 @@ contains
                 if(abs(SDwert(i) - missingval) > EPS1MIN) SDwert(i) = SDwert(i)/coverin
                 if(abs(HBreite(i) - missingval) > EPS1MIN) HBreite(i) = HBreite(i)/coverin
 
-                if(abs(Stdunc(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
-                if(abs(SDwert(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
-                if(abs(HBreite(i) - missingval) > EPS1MIN) &
-                    call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
+                ! if(abs(Stdunc(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                ! if(abs(SDwert(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
+                ! if(abs(HBreite(i) - missingval) > EPS1MIN) &
+                !     call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
 
             end do
         end if
@@ -1467,8 +1462,7 @@ contains
 
     !call WDGetComboboxAct('ComboboxDCchains',kc)
     !   write(66,*) 'End Proread, vor TrToGTK: Chainselected=',kc
-        if(.not.open_project_parts) &
-            call TransferToGTK(ugr,cvgr,fit,abgr,gsp1gr,imenu1,kmwtyp)
+        ! if(.not.open_project_parts) call TransferToGTK(ugr,cvgr,fit,abgr,gsp1gr,imenu1,kmwtyp)
 
     !call WDGetComboboxAct('ComboboxDCchains',kc)
     !   write(66,*) 'End Proread, vor 9000: Chainselected=',kc
@@ -1476,15 +1470,15 @@ contains
 
 9000    continue
 
-    call WDSetComboboxAct('ComboboxDCchains',kc)
-    call WDGetComboboxAct('ComboboxDCchains',kc)
+    ! call WDSetComboboxAct('ComboboxDCchains',kc)
+    ! call WDGetComboboxAct('ComboboxDCchains',kc)
        ! write(66,*) 'End Proread, nach 9000: Chainselected=',kc
 
-        item_setintern = .false.
+        ! item_setintern = .false.
         close (25)
 
         WRITE(66,*) '########## End of ProRead  ##############################'
-        if(consoleout_gtk) WRITE(0,*) '##### End of ProRead  ##############################'
+        ! if(consoleout_gtk) WRITE(0,*) '##### End of ProRead  ##############################'
 
         if(.not.batest_user) WRITE(55,*) 'End of ProRead: ngrs,ncov,numd,nvarsMD=',ngrs,ncov,numd,nvarsMD
 

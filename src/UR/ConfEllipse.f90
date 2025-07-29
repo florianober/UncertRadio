@@ -41,12 +41,9 @@ contains
 
         use UR_Gleich_globals, only: Symbole, knumEGr
         use UR_Linft,  only: valEGr, uncEGr, corrEGr, covEGr
-        use top,       only: FindItemS
+
         use UR_DLIM,   only: W1minusG
-        use Rout,      only: WDPutTreeViewColumnLabel, &
-                             WTreeViewPutStrCell, &
-                             WTreeViewPutDoubleCell, WDPutLabelString, WDSetCheckButton, &
-                             WDSetComboboxAct, WTreeViewSetColorRow
+
         use color_theme
 
         implicit none
@@ -177,26 +174,18 @@ contains
         !   Copyright (C) 2014-2023  Günter Kanisch
 
         use, intrinsic :: iso_c_binding
-        use gtk,             only: gtk_widget_queue_draw, gtk_window_set_keep_above, &
-                                   gtk_widget_show_all, gtk_container_get_children
-        use gdk_pixbuf_hl,   only: hl_gdk_pixbuf_save
+
         use ur_general_globals,    only: plot_ellipse,plot_confidoid
         use UR_Gleich_globals,       only: Symbole
         use UR_Linft,        only: valEGr,covEGr,igsel,eliRS
         use UR_DLIM,         only: W1minusG
         use UR_GaussInt
-        use top,             only: FindItemS,idpt
-        use Rout,            only: WDPutTreeViewColumnLabel,WTreeViewPutStrCell, &
-                                   WTreeViewPutDoubleCell,WDPutLabelString,WDSetCheckButton, &
-                                   pending_events
+
         use Brandt,          only: mtxchi,mtxchl,qchi2,gincgm
         use Num1,            only: kaiser
         use RND,             only: Rndu
-        use PLsubs,          only: CairoPlplotPrepare
-        use PLsubs,          only: PlotEli
-        use gtk_draw_hl,     only: hl_gtk_drawing_area_get_gdk_pixbuf
+
         use UR_eli
-        use plplot,          only: plend
 
 
         implicit none
@@ -352,7 +341,7 @@ contains
         call PlotEli()
 
         !--------------------------------------------------------------------------------------
-        call gtk_widget_show_all(idpt('dialogELI'))
+        ! call gtk_widget_show_all(idpt('dialogELI'))
         call pending_events
 
         if(allocated(amat0))   deallocate(amat0)

@@ -45,7 +45,6 @@ module fparser
     use, intrinsic :: iso_c_binding,         only: c_int, c_null_char
     use UR_types
     use ur_params,             only: EPS1MIN
-    use gtk,                   only: gtk_buttons_ok
     use UR_Gleich_globals,             only: charv
 
     implicit none
@@ -146,10 +145,8 @@ contains
         use, intrinsic :: iso_c_binding,      only: c_int
         use ur_perror
         use ur_general_globals,       only: fd_found
-
-        use rout,               only: messageshow
         use UR_Gleich_globals,  only: fp_numeq,fp_equat,ifehl
-        use gtk,                only: gtk_message_warning
+
         use chf,                only: ucase
         use translation_module, only: T => get_translation
 
@@ -161,7 +158,6 @@ contains
         character(len=150)                   :: str1
         character(len=len(funcstr)+2*120)    :: fupper
         character(len=len(funcstr)+2*120)    :: funcmodif
-        integer(c_int)                       :: resp
         integer                              :: iret,j,nnv,ixx,maxlen
         type(charv),allocatable              :: var(:)       ! array with variable names  ! 2020-04-30 kn
         !----- -------- --------- --------- --------- --------- --------- --------- -------
@@ -183,8 +179,7 @@ contains
         if (i < 1 .or. i > size(comp)) then
             write(str1,*) T("Parser error: Equation number") // " ", i, &
                           T("out of range") // " ", Size(Comp)
-
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "fparser:", resp,mtype=GTK_MESSAGE_WARNING)
+            print *, str1
             ifehlp = 1
             return
         end if
@@ -532,10 +527,6 @@ contains
         ! print error message and terminate program
         !----- -------- --------- --------- --------- --------- --------- --------- -------
         use ur_perror
-
-        use gtk,                  only: gtk_buttons_yes_no,gtk_response_yes,gtk_message_warning
-        use rout,                 only: messageshow
-        use top,                  only: charmoda1
         use chf,                  only: ucase
         use translation_module,   only: T => get_translation
 
@@ -544,12 +535,12 @@ contains
         character(len=*),            intent(in) :: funcstr       ! original function string
         character(len=*), optional,  intent(in) :: msg
 
-        integer                     :: k,i,jjh,i1,nfd
+        integer                     :: i,jjh,i1
         character(len=200)          :: str1
         character(len=400)          :: str2
         character(len=600)          :: str3
         character(len=60)           :: str0,symbb,str4
-        integer(c_int)              :: resp
+
         logical                     :: invalidsymb
         !----- -------- --------- --------- --------- --------- --------- --------- -------
 
@@ -573,7 +564,8 @@ contains
         str3 = trim(str0)// char(13) // char(13) // trim(str1) //char(13) //char(13) //  &
             trim(str4) // char(13) // trim(str2)
         if(.not.invalidSymb) then
-            call MessageShow(trim(str3), GTK_BUTTONS_OK, "ParseErrMsg:", resp,mtype=GTK_MESSAGE_WARNING)
+            print *, trim(str3)
+
             ifehlp = 1
         else
             ifehlp = 1
@@ -592,20 +584,6 @@ contains
             if(jjh == 0 .and. len_trim(symbb) > 0) then
                 str3 = trim(str3) // char(13) // char(13) // T("Accept invalid (or new) symbol?")
 
-                call MessageShow(trim(str3), GTK_BUTTONS_YES_NO, "ParseErrMsg:", &
-                                 resp, mtype=GTK_MESSAGE_WARNING)
-                if (resp == gtk_response_yes) then
-                    ifehlp = 0
-                    nfd = 0
-                    do k=1,nsymbnew
-                        if(trim(symb_new(k)%s) == trim(symbb)) nfd = 1
-                    end do
-                    if(nfd == 0) then
-                        nsymbnew = nsymbnew + 1
-                        call charmoda1(symb_new,nsymbnew)
-                        symb_new(nsymbnew)%s = symbb
-                    end if
-                end if
             end if
         end if
 
@@ -739,8 +717,6 @@ contains
         ! compile i-th function string f into bytecode
         !----- -------- --------- --------- --------- --------- --------- --------- -------
         use ur_perror
-        use rout,                only: messageshow
-        use gtk,                 only: gtk_message_warning
         use translation_module,  only: T => get_translation
 
         implicit none
@@ -748,7 +724,6 @@ contains
         character (len=*),               intent(in) :: f         ! function string
         type(charv), dimension(:), intent(in)       :: var       ! array with variable names
         integer                                     :: istat
-        integer(c_int)             :: resp
         !----- -------- --------- --------- --------- --------- --------- --------- -------
         if (associated(comp(i)%bytecode)) deallocate ( comp(i)%bytecode, &
             comp(i)%immed)
@@ -761,9 +736,7 @@ contains
             comp(i)%immed(comp(i)%immedsize),       &
             stat = istat                            )
         if (istat /= 0) then
-            call MessageShow(T("Parser error: Memory allocation for byte code failed"), &
-                             GTK_BUTTONS_OK, "fparser-compile:", &
-                             resp,mtype=GTK_MESSAGE_WARNING)
+            print *, T("Parser error: Memory allocation for byte code failed")
             ifehlp = 1
         else
             comp(i)%bytecodesize = 0
@@ -1080,8 +1053,6 @@ contains
     subroutine FdExpand(func, funcnew, iret)
         use UR_Perror
 
-        use Rout,                only: MessageShow
-        use gtk,                 only: GTK_MESSAGE_WARNING
         use translation_module,  only: T => get_translation
 
         implicit none
@@ -1089,7 +1060,7 @@ contains
         character(len=len(func)+2*120),intent(out)    :: funcnew
         integer   , intent(out)                       :: iret
 
-        integer             :: i1,i2,i3,iend,k,j,jj,nc,ntrial,i,ie2,iend2,resp,jlen
+        integer             :: i1,i2,i3,iend,k,j,jj,nc,ntrial,i,ie2,iend2,jlen
         integer             :: m0
         integer             :: nbopen,nbclose
         type(charv)         :: var1(3)                     ! variable type changed
@@ -1133,17 +1104,14 @@ contains
                 ie2 = index(funcnew(iend2:),',')
                 if(ie2 == 0) then
                     ifehlp = 1
-
-                    call MessageShow("k1 " // T("Parser error: less than 3 arguments of function fd( , , ) found"), &
-                                     GTK_BUTTONS_OK, "FdExpand:", resp,mtype=GTK_MESSAGE_WARNING)
+                    print *, "k1 " // T("Parser error: less than 3 arguments of function fd( , , ) found")
                     return
                 end if
             end if
             ntrial = ntrial + 1
             if(ntrial == 4 .or. nc > 2) then
                 ifehlp = 1
-                call MessageShow("k2 " // T("Parser error: less than 3 arguments of function fd( , , ) found"), &
-                                     GTK_BUTTONS_OK, "FdExpand:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, "k2 " // T("Parser error: less than 3 arguments of function fd( , , ) found")
                 return
             elseif( nc < 2) then
                 iend = iend + index(funcnew(i1+iend:),')')

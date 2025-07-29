@@ -146,25 +146,20 @@ contains
         use UR_MCC,           only: kqtypx
 
         use, intrinsic :: iso_c_binding,    only: c_int,c_null_char,c_ptr
-        use gtk,              only: gtk_buttons_OK, gtk_widget_set_sensitive,GTK_MESSAGE_WARNING
 
-        use UR_gtk_globals, only: dialogstr,ioption,consoleout_gtk
-        use top,              only: FinditemS,idpt,wrstatusbar,dpafact,MDcalc,chupper_eq,CharModA1, &
+        use top,              only: dpafact,MDcalc,chupper_eq,CharModA1, &
                                     IntModA1,RealModA1,LogModA1,ModVarsTV2,CharModStr
 
         use CHF,              only: FindLocT,ucase
         use Sym1,             only: pointnach,RS_numbers
-        use Rout,             only: WDListstoreClearCell,WTreeViewPutDoubleCell,WTreeViewGetDoubleCell,    &
-                                    WTreeViewPutComboCell,WTreeViewPutComboArray,WDListstoreClearCell, &
-                                    WDListstoreFill_1,MessageShow,WTreeViewPutStrCell, WTreeViewPutDoubleArray, &
-                                    WTreeViewSetColorCell
+
         use URdate,           only: datdif6
         use UWB,              only: gevalf,resulta,upropa
         use Num1,             only: funcs,dpi_funcs,matwrite
         use KLF,              only: CalibInter
         use LF1,              only: LinfAusf,StoreLinfParms
         use LF1G,             only: Linfg1Ausf
-        use LDN,              only: Loadsel_diag_new
+
         use UR_params,        only: EPS1MIN,ZERO,ONE,TWO
         use PMD,              only: GamPeakVals
         use color_theme
@@ -217,7 +212,7 @@ contains
         allocate(character(len=800) :: str1,RseiteG,cxkb,sdfSave,sdfG,crsG,rst )
 
         write(66,*) '##################### Rechw1: ',Symbole(kEGr)%s,'  ##################'
-        if(consoleout_gtk) write(0,*) '##### Rechw1: ',Symbole(kEGr)%s,'  ##################'
+        ! if(consoleout_gtk) write(0,*) '##### Rechw1: ',Symbole(kEGr)%s,'  ##################'
 
         write(66,'(a,i3,i3,a,L1,a,i2)') ' knumEGr , kEGr=',knumEGr , kEGr,'  FitDecay=',FitDecay,'  ncov=',ncov
 
@@ -440,10 +435,10 @@ contains
                               T('The gross count rate is not the first count rate in the equation for the net count rate!'), &
                               new_line('A'), &
                               T('Has the correct symbol been selected for it?')
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
 
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw2:", resp, mtype=GTK_MESSAGE_WARNING)
-
-                call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
+                ! call WrStatusBar(4, T('Remove problem with gross/net counting rates!'))
 
                 ifehl = 1
                 goto 9000
@@ -496,7 +491,7 @@ contains
             if(abs(messwert(kfitp(1)+2)-missingval) < EPS1MIN) Messwert(kfitp(1)+2) = ONE
         end if
 
-        call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 1_c_int)
+        ! call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 1_c_int)
 !!!! if(FitDecay .and. ( knumEGr+1 > numd .or. knumEGr > 2 .or. nchannels > 1 ) ) then
         if(FitDecay .and. ( knumEGr+1 > numd .or. nchannels > 1 ) ) then        ! 5.6.2024
             ! Under this condition, it is forbidden to use PMLE
@@ -600,10 +595,10 @@ contains
         ifehlp = ifehlps
         if(ifehl == 1) write(66,*) 'Rw1_390  ifehl=1'
 
-        tree = idpt('treeview2')
-        do i=1,nab
-            call WDListstoreClearCell('treeview2', 5, i)
-        end do
+        ! tree = idpt('treeview2')
+        ! do i=1,nab
+        !     call WDListstoreClearCell('treeview2', 5, i)
+        ! end do
         if(rw1pro) then
             do i=1,ngrs
                 write(66,*) 'before finding nhp:  i=',int(i,2),'  ',symbole(i)%s,'  Messwert=',sngl(Messwert(i))
@@ -612,10 +607,10 @@ contains
 
         if(Gamspk1_fit) write(66,'(a,i0)') 'Rechw1: kpoint(2)=',kpoint(2)
 
-        if(Gamspk1_fit) then
-            if(.not.batest_on .and. .not.automode)   &
-                call WDListstoreFill_1('liststore_symbols', ngrsP, Symbole)
-        end if
+        ! if(Gamspk1_fit) then
+        !     if(.not.batest_on .and. .not.automode)   &
+        !         call WDListstoreFill_1('liststore_symbols', ngrsP, Symbole)
+        ! end if
 
 !#############################
 ! 126  continue
@@ -626,19 +621,19 @@ contains
                 ! This loop is required when by subsequent editing
                 ! of the equations shifts within the symbol list occur, and this
                 ! refers also to the BinPoi parameters
-                if(consoleout_gtk) write(0,'(a,i0)') 'RW1_424: kbgv_binom',kbgv_binom
+                ! if(consoleout_gtk) write(0,'(a,i0)') 'RW1_424: kbgv_binom',kbgv_binom
                 nfd = 0
                 if(kbgv_binom > 0) then
                     if(iptr_time(kbgv_binom) == 0) nfd = 1
                 end if
                 if(kbgv_binom <= 0 .or. nfd == 1) then
 
-                    call WrStatusbar(4,'Check BinPoi-Parameters:')
-                    dialogstr = 'dialog_BinPoi'
-                    ioption = 71
-                    call FindItemS(trim(dialogstr), ncitem2)
-                    call Loadsel_diag_new(1, ncitem2)
-                    iptr_cnt(i) = i
+                    ! call WrStatusbar(4,'Check BinPoi-Parameters:')
+                    ! dialogstr = 'dialog_BinPoi'
+                    ! ioption = 71
+                    ! call FindItemS(trim(dialogstr), ncitem2)
+                    ! call Loadsel_diag_new(1, ncitem2)
+                    ! iptr_cnt(i) = i
                     write(66,'(a,4(i0,1x))') 'itm_binom,ip_binom,ilam_binom=',itm_binom,ip_binom,ilam_binom
                     if(ifehl == 1) goto 9000
                 end if
@@ -666,10 +661,10 @@ contains
                 end do
                 if(j /= kbrutto(kEGr) .and. nfd == 0) SDFormel(j)%s = ' '
                 StdUnc(j) = SDwert(j)
-                call WTreeViewPutDoubleCell('treeview2', 5, j, Messwert(j))
-                call WTreeViewPutStrCell('treeview2', 7, j, SDFormel(j)%s)
-                call WTreeViewPutDoubleCell('treeview2', 8, j, SDwert(j))
-                call WTreeViewPutDoubleCell('treeview2', 9, j, Hbreite(j))
+                ! call WTreeViewPutDoubleCell('treeview2', 5, j, Messwert(j))
+                ! call WTreeViewPutStrCell('treeview2', 7, j, SDFormel(j)%s)
+                ! call WTreeViewPutDoubleCell('treeview2', 8, j, SDwert(j))
+                ! call WTreeViewPutDoubleCell('treeview2', 9, j, Hbreite(j))
                 cycle
             end if
         end do
@@ -736,7 +731,7 @@ contains
                                               Symbole(j)%s // " ", &
                                               T('is not defined!')
                                 write(66,'(a,i0)') 'Rechw1: j>nab: ifehl=',ifehl
-                                call WrStatusbar(4, T('Complement missing values'))
+                                ! call WrStatusbar(4, T('Complement missing values'))
 
                                 goto 9000
                             end if
@@ -748,9 +743,9 @@ contains
                             write(str1,*) T('The distribution of the symbol') // " ", &
                                           RSSy(nRssyanf(i)+k-1)%s // " ", &
                                           T('is not defined!')
-
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, &
-                                             "Rechw1:", resp, mtype=GTK_MESSAGE_WARNING)
+                            print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, &
+                            !                  "Rechw1:", resp, mtype=GTK_MESSAGE_WARNING)
                             ifehl = 1
                             goto 9000
                         end if
@@ -759,8 +754,8 @@ contains
 
                             str1 = T('For symbol it is not defined, whether uncertainty is abs. or relative') // &
                                    ": " // RSSy(nRssyanf(i)+k-1)%s
-
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                            print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                             ifehl = 1
                             goto 9000
                         end if
@@ -770,9 +765,9 @@ contains
 
             !Calculation by formulae:
             if(FitDecay .and. i == klinf) then
-                if( .not. loadingPro) then
-                    call WrStatusbar(4, T("Table 'Values of decay curve': fill in or edit values"))
-                end if
+                ! if( .not. loadingPro) then
+                !     call WrStatusbar(4, T("Table 'Values of decay curve': fill in or edit values"))
+                ! end if
 
                 if(k_rbl > 0) then
                     if(Messwert(kpoint(k_rbl)) <= ZERO) then
@@ -781,19 +776,19 @@ contains
                         write(str1,*) T('The value of blank count rate must be entered') // ": ", &
                                       Symbole(k_rbl)%s, new_line('A'), &
                                       T('The calculation is stopped here to allow that this value can be completed.')
-
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
                         goto 9000
                     end if
                 end if
 
                 ! read decay curve data by invoking the dialog:
-                ioption = 3
-                ifehlx = 0
-                dialogstr = 'dialog_decayvals'
-                call FindItemS(dialogstr, ncitem)
-                call Loadsel_diag_new(1, ncitem)
+                ! ioption = 3
+                ! ifehlx = 0
+                ! dialogstr = 'dialog_decayvals'
+                ! call FindItemS(dialogstr, ncitem)
+                ! call Loadsel_diag_new(1, ncitem)
                 if(ifehl == 1) then
                     write(66,'(a,i0)') 'After Laodsel (3):  ifehl=',ifehl
                     goto 9000
@@ -805,8 +800,8 @@ contains
                     write(str1,*) T('The number of Xi formulae of the FitDecay model is not consistent with the numbers of measurements, counting channels and output quantities!'), &
                                   new_line('A'), &
                                   T('The calculations are stopped here, see chapter 7.11.3 within the CHM Help.')
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                     ifehl = 1
                     goto 9000
                 end if
@@ -874,22 +869,22 @@ contains
                     ! write(66,'(a,i2,a,f10.2,a,L1)') 'Decay-curve: dtdiff(',ix,')=',dtdiff(ix),'   istdatum=',istdatum  !,' idat2(6)=',idat2(6)
 
                 end do
-                if(consoleout_gtk) write(0,'(a,i0)') 'RW1: reading of the decay curve date done:  i=',i
+                ! if(consoleout_gtk) write(0,'(a,i0)') 'RW1: reading of the decay curve date done:  i=',i
                 cycle
             end if
 
 
             if(Gamspk1_Fit .and. i == kgspk1) then
-                if(.not.loadingPro) then
-                    call WrStatusbar(4, T("Edit table 'Spectrum values'"))
+                ! if(.not.loadingPro) then
+                !     call WrStatusbar(4, T("Edit table 'Spectrum values'"))
 
-                end if
+                ! end if
 
                 ! read gamma peak data by invokling the dialog:
-                ioption = 5
-                dialogstr = 'dialog_gspk1'
-                call FindItemS(dialogstr, ncitem)
-                call Loadsel_diag_new(1, ncitem)               !, c_null_ptr)
+                ! ioption = 5
+                ! dialogstr = 'dialog_gspk1'
+                ! call FindItemS(dialogstr, ncitem)
+                ! call Loadsel_diag_new(1, ncitem)               !, c_null_ptr)
                 if(ifehl == 1) then
                     write(66,*) 'RW1_706:  Error in input of gamma peak data: stopped!'
                     goto 9000
@@ -951,7 +946,7 @@ contains
 !   here, klincall is still = 0
 
         do i=1,nab
-            if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+            ! if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
         end do
 
         do i=nab+1,ngrs
@@ -964,11 +959,11 @@ contains
                        " i= " // ch1 // " " // &
                        Symbole(i)%s // new_line('A') // &
                        T('is not defined!')
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                 write(66,'(a,i0)') '  ifehl=1:  ngrs=',ngrs
 
-                call WrStatusbar(4, T('Complement missing values') // "!")
+                ! call WrStatusbar(4, T('Complement missing values') // "!")
 
                 ifehl = 1
                 goto 9000
@@ -1123,7 +1118,7 @@ contains
                             bipoi_gl = k         ! index of the formula in the list RSeite
                             write(66,'(a,i3,a)') 'RW1:  bipoi_gl=nab+nmodf+k=',k
                         end if
-                        call gtk_widget_set_sensitive(idpt('BinPoiPars'),1_c_int)
+                        !call gtk_widget_set_sensitive(idpt('BinPoiPars'),1_c_int)
                         use_bipoi = .true.
                     end if
                 end if
@@ -1139,12 +1134,12 @@ contains
                     if(IAR(i) == 1) StdUnc(i) = SDwert(i)
                     if(IAR(i) == 2) StdUnc(i) = SDwert(i)*Messwert(i)
                 end if
-                call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
-                call WTreeViewPutDoubleCell('treeview2', 11, i, SDWert(i))
+                ! call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+                ! call WTreeViewPutDoubleCell('treeview2', 11, i, SDWert(i))
             end if
         end do       ! End of loop variables i
 
-        if(consoleout_gtk) write(0,*) 'RW1: End of loop of calculating the SD formulae'
+        ! if(consoleout_gtk) write(0,*) 'RW1: End of loop of calculating the SD formulae'
 
         if(ifehl == 1) write(66,'(a,i0)') 'RW1_1008   ifehl=',ifehl
         if(IVTL7 == 0) then
@@ -1154,7 +1149,7 @@ contains
             ip_binom = 0
             itm_binom = 0
             ilam_binom = 0
-            call gtk_widget_set_sensitive(idpt('BinPoiPars'),0_c_int)
+            ! call gtk_widget_set_sensitive(idpt('BinPoiPars'),0_c_int)
         end if
 
         if(kbrutto(kEGr) > 0 .and. kbrutto(kEGr) <= ngrs) then
@@ -1172,10 +1167,10 @@ contains
                     end if
                 end if
             end if
-            if(var_brutto_auto) then
-                call WTreeViewSetColorCell('treeview2',7, kbrutto(kEGr), &
-                                           get_color_string('green_bg'))   ! '#F57900')     ! green
-            end if
+            ! if(var_brutto_auto) then
+            !     call WTreeViewSetColorCell('treeview2',7, kbrutto(kEGr), &
+            !                                get_color_string('green_bg'))   ! '#F57900')     ! green
+            ! end if
             if(var_brutto_auto) goto 360
         end if
 
@@ -1186,8 +1181,9 @@ contains
 
             str1 = T('Warning') // ": " // &
                    T('The StdDev formula of the gross count rate has not yet been defined.')
-            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", &
-                             resp, mtype=GTK_MESSAGE_WARNING)
+            print *, str1
+            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", &
+            !                  resp, mtype=GTK_MESSAGE_WARNING)
             if(loadingPro) gum_restricted = .true.
 
         end if
@@ -1214,8 +1210,8 @@ contains
                                    T('In the the Stand.Dev formula for the gross count rate the gross count rate symbol is missing') // ": " // &
                                    symbole(kbrutto(kEGr))%s // new_line('A') // &
                                    T('Please, correct!')
-
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                            print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                             if(.not.loadingPro) then
                                 ifehl = 1
                                 goto 9000
@@ -1228,7 +1224,7 @@ contains
 
 360     continue
 ! Calculate the uncertainties of (independent) input quantities
-        if(consoleout_gtk) write(0,*) 'Calculate the uncertainties of (independent) input quantities:'
+        ! if(consoleout_gtk) write(0,*) 'Calculate the uncertainties of (independent) input quantities:'
         StdUnc(knumEgr+1:ngrs) = ZERO
 
         if(allocated(StdUncSV)) deallocate(StdUncSV)
@@ -1258,10 +1254,10 @@ contains
                                 StdUnc(i) = SDwert(i)
                             end if
                         end if
-                        call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-                        call WTreeViewPutStrCell('treeview2', 7, i, SDFormel(i)%s)
-                        call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
-                        call WTreeViewPutDoubleCell('treeview2', 9, i, Hbreite(i))
+                        ! call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+                        ! call WTreeViewPutStrCell('treeview2', 7, i, SDFormel(i)%s)
+                        ! call WTreeViewPutDoubleCell('treeview2', 8, i, SDwert(i))
+                        ! call WTreeViewPutDoubleCell('treeview2', 9, i, Hbreite(i))
                         if(ivtl(i) /= 10) goto 370
                     end if
                 end if
@@ -1273,10 +1269,10 @@ contains
                         write(66,*) 'Rw1:   ifehlp=1:  iwh=2   sdformel=',sdformel(i)%s,' parsef error'
                         goto 9000
                     end if
-                    if(consoleout_gtk) write(0,*) 'RW1_1120: before gevalf'
+                    ! if(consoleout_gtk) write(0,*) 'RW1_1120: before gevalf'
                     res = -ONE
                     res = gevalf(1,Messwert)
-                    if(consoleout_gtk) write(0,*) 'RW1_1123: after gevalf'
+                    ! if(consoleout_gtk) write(0,*) 'RW1_1123: after gevalf'
                     if(res > ZERO) then
                         SDWert(i) = res
                     end if
@@ -1289,7 +1285,7 @@ contains
                         if(nn2 > 0) then
                             xnn = DistPars%pval(nn2,1)
                             StdUnc(i) = DistPars%pval(nn2,3)
-                            call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                            ! call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
                         end if
                     end if
                 end if
@@ -1333,7 +1329,7 @@ contains
                     if(nn2 > 0) then
                         xnn = DistPars%pval(nn2,1)
                         StdUnc(i) = DistPars%pval(nn2,3)         ! *sqrt(xnn/(xnn-two))
-                        call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                        ! call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
                         ! write(66,*) '10:  i=',int(i,2),'  Distpars%pval=',sngl(DistPars%pval(nn2,1:3)), &
                         !              ' StdUnc(i)=',sngl(StdUnc(i))
                     end if
@@ -1346,9 +1342,9 @@ contains
                 if(abs(StdUnc(i)-missingval) > EPS1MIN) StdUnc(i) = abs(StdUnc(i))
                 StdUncSV(i) = StdUnc(i)
                 if(abs(StdUnc(i)-missingval) > EPS1MIN) then
-                    if(apply_units_dir) call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+                    ! if(apply_units_dir) call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
 
-                    call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))   ! format frmt
+                    ! call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))   ! format frmt
                     if(StdUnc(i) > ZERO .and. Messwert(i) > ZERO) then
                         if(StdUnc(i)/Messwert(i) > 2.5_rn) then
 
@@ -1356,7 +1352,8 @@ contains
                                    T('The relative std.dev. for the following symbol') // " " // &
                                    T('is') // " > 2.5: " // &
                                    symbole(i)%s
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                            print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                         end if
                     end if
                 end if
@@ -1479,12 +1476,12 @@ contains
                     if(ucase(SymboleB(ncov)%s) == ucase(Symbole(i)%s) ) ISymbB(ncov) = i
                 end do
                 icovtyp(ncov) = 2
-                call WTreeViewPutComboArray('treeview3', 2, ncov, IsymbA)
-                call WTreeViewPutComboArray('treeview3', 3, ncov, IsymbB)
-                call WTreeViewPutComboArray('treeview3', 4, ncov, icovtyp)
-                do i=1,ncov
-                    call WTreeViewPutDoubleCell('treeview3', 6, i, ZERO)
-                end do
+                ! call WTreeViewPutComboArray('treeview3', 2, ncov, IsymbA)
+                ! call WTreeViewPutComboArray('treeview3', 3, ncov, IsymbB)
+                ! call WTreeViewPutComboArray('treeview3', 4, ncov, icovtyp)
+                ! do i=1,ncov
+                !     call WTreeViewPutDoubleCell('treeview3', 6, i, ZERO)
+                ! end do
             end do
             do i=1,ncov
                 ! kfitp(2) is the row number within the covar table, where cov(Fitp1,Fitp2) can be found
@@ -1507,9 +1504,9 @@ contains
 !  Calculate the standard uncertainties of dependent quantities (1..nab)
 !  using uncertainty propagation:
 
-        if(.not.loadingPro) then
-            call WrStatusbar(4, T('Calculating') // "...." )
-        end if
+        ! if(.not.loadingPro) then
+        !     call WrStatusbar(4, T('Calculating') // "...." )
+        ! end if
 
         i1 = ubound(SymboleG,dim=1)
         if(i1 < ngrs+ncov+numd) then
@@ -1606,8 +1603,8 @@ contains
                         StdUnc_CP(k) = ZERO
                         fpaSV(i) = ZERO
                         sfpaSV(i) = ZERO
-                        if(abs(Messwert(k)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, k, Messwert(k))  ! frmt!
-                        if(abs(StdUnc(k)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, k, SDWert(k))  ! frmt!
+                        ! if(abs(Messwert(k)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, k, Messwert(k))  ! frmt!
+                        ! if(abs(StdUnc(k)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, k, SDWert(k))  ! frmt!
                     end if
                 end do
             end if
@@ -1704,7 +1701,7 @@ contains
                 do jp=1,ma
                     if(ifit(jp) == 2 .and. kPMLE == 0) then
                         parfixed = .true.
-                        call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 0_c_int)
                         ! fixed fit parameter: contribution to the covariance of count rates of the decay curve;
                         ! let the main diagonal be zero!
                         write(66,*) 'RW1:   kuse_fixed=',kuse_fixed,'  ',trim(kusetext)
@@ -1770,9 +1767,9 @@ contains
                     af1 = (afunc(ifb))
                     call funcs(numd,afunc)
                     af2 = (afunc(ifb))
-                    if(abs(af1-af2)/af1 < 1.E-4_rn) then
-                        call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 0_c_int)
-                    end if
+                    ! if(abs(af1-af2)/af1 < 1.E-4_rn) then
+                    !     call gtk_widget_set_sensitive(idpt('radiobuttonPMLE'), 0_c_int)
+                    ! end if
                 end if
             end if
 
@@ -1856,9 +1853,9 @@ contains
                 if(i <= knumEGr .and. i /= kEGr) cycle
                 Messwert(i) = gevalf(i,Messwert)
                 MesswertSV(i) = Messwert(i)
-                if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-                if(abs(SDwert(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
-                if(abs(StdUnc(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                ! if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+                ! if(abs(SDwert(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+                ! if(abs(StdUnc(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
             end do
 
             do i=1,ncov
@@ -1907,9 +1904,9 @@ contains
                 if(i <= knumEGr .and. i /= kEGr) cycle
                 Messwert(i) = gevalf(i,Messwert)
                 MesswertSV(i) = Messwert(i)
-                if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-                if(abs(SDwert(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
-                if(abs(StdUnc(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+                ! if(abs(Messwert(i)-missingval) > EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+                ! if(abs(SDwert(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+                ! if(abs(StdUnc(i)-missingval) > EPS1MIN)  call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
             end do
 
         end if
@@ -1926,8 +1923,8 @@ contains
             if(allocated(StdUncSV)) deallocate(StdUncSV);  allocate(StdUncSV,source=StdUnc)
             MesswertSV(i) = yval
             StdUncSV(i) = uyval
-            call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-            call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+            ! call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+            ! call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
         end if
 
 !do i=1,ngrs+ncov+numd
@@ -1967,8 +1964,8 @@ contains
             Messwert(1:ngrs+ncov+numd) = MesswertSV(1:ngrs+ncov+numd)
             StdUnc(1:ngrs+ncov+numd)   = StdUncSV(1:ngrs+ncov+numd)
             StdUnc(nn4) = ZERO
-            if(consoleout_gtk)  write(0,*) 'RW1: before call uprpoa(nn4);   nn4=',int(nn4,2), &
-                ' kbrutto(kEGr)=',int(kbrutto(kEGr),2),' ',Symbole(nn4)%s
+            ! if(consoleout_gtk)  write(0,*) 'RW1: before call uprpoa(nn4);   nn4=',int(nn4,2), &
+            !     ' kbrutto(kEGr)=',int(kbrutto(kEGr),2),' ',Symbole(nn4)%s
 
             if(nn4 == kbrutto(kEGr) .and. .not.SumEval_fit) then
                 if(len_trim(SDFormel(nn4)%s) > 0) then
@@ -2025,9 +2022,9 @@ contains
                 call covppcalc(1)
                 call Linfausf(2,rn0,SDrn0)
                 if(ifehl == 1) goto 9000
-                if(.not.loadingPro) then
-                    call WrStatusbar(4, T('Calculating') // "...." )
-                end if
+                ! if(.not.loadingPro) then
+                !     call WrStatusbar(4, T('Calculating') // "...." )
+                ! end if
 
                 write(66,'(a,es15.8,3(a,i3),a,L1)') 'RW1: upropa(klinf)=',Ucomb,'  klinf=',klinf,'  nn4=',nn4,'  nab=',nab
                 StdUnc(nn4) = SDrn0
@@ -2036,24 +2033,24 @@ contains
                 MesswertSV(kEGr) = Messwert(kEGr)
                 StdUncSV(nn4) = SDrn0
 
-                if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))
-                if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
+                ! if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))
+                ! if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
                 write(66,*) ' from Linfit: rn0, SDrn0: ',sngl(rn0),sngl(SDrn0),  '  Ucomb=',sngl(Ucomb)
             end if
             if(Gamspk1_fit .and. nn4 == kgspk1) then
                 call Linfg1ausf(2,akt,SDakt)
                 if(ifehl == 1) goto 9000
-                if(.not.loadingPro) then
-                    call WrStatusbar(4, T('Calculating') // "...." )
-                end if
+                ! if(.not.loadingPro) then
+                !     call WrStatusbar(4, T('Calculating') // "...." )
+                ! end if
                 write(66,*) 'upropa(kgspk1)=',real(Ucomb,8)
                 StdUnc(nn4) = SDakt
                 Messwert(nn4) = akt
                 if(kgspk1 > 1) Messwert(kEGr) = gevalf(kEGr,Messwert)
                 MesswertSV(kEGr) = Messwert(kEGr)
                 StdUncSV(nn4) = SDakt
-                if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))
-                if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
+                ! if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))
+                ! if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
                 write(66,*) ' from Linfgf1: ',real(SDakt,8)
             end if
 
@@ -2061,17 +2058,17 @@ contains
                 call SumEvalCalc(akt,SDakt)
                 write(66,*) 'sumevalCalc: akt,SDakt=',sngl(akt),sngl(SDakt)
                 if(ifehl == 1) goto 9000
-                if(.not.loadingPro) then
-                    call WrStatusbar(4, T('Calculating') // "...." )
-                end if
+                ! if(.not.loadingPro) then
+                !     call WrStatusbar(4, T('Calculating') // "...." )
+                ! end if
                 write(66,*) 'upropa(ksumeval)=',sngl(SDakt)
                 StdUnc(nn4) = SDakt
                 Messwert(nn4) = akt
                 if(ksumeval > 1) Messwert(kEGr) = gevalf(kEGr,Messwert)
                 MesswertSV(kEGr) = Messwert(kEGr)
                 StdUncSV(nn4) = SDakt
-                if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))  ! frmt!
-                if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))  ! frmt!
+                ! if(abs(Messwert(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 5, nn4, Messwert(nn4))  ! frmt!
+                ! if(abs(StdUnc(nn4)-missingval)>EPS1MIN) call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))  ! frmt!
                 write(66,*) ' from SumEvalCalc: ',real(SDakt,8)
             end if
 
@@ -2081,10 +2078,10 @@ contains
             !   !       ! write(66,*) 'nn4=',int(nn4,2),' ucomb=',sngl(Ucomb)
             !end if
 
-            call WDListstoreClearCell('treeview2', 11, nn4)
+            ! call WDListstoreClearCell('treeview2', 11, nn4)
 
             if(abs(StdUnc(nn4)-missingval) <= 1.E+8*EPS1MIN) StdUnc(nn4) = ZERO
-            call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
+            ! call WTreeViewPutDoubleCell('treeview2', 11, nn4, StdUnc(nn4))
 
             StdUncSv(nn4)   = StdUnc(nn4)
 
@@ -2169,10 +2166,10 @@ contains
 
         end if
 
-        do i=1,ngrs
-            call WTreeViewPutDoubleCell('treeview2',5,i,Messwert(i))
-            call WTreeViewPutDoubleCell('treeview2',11,i,StdUnc(i))
-        end do
+        ! do i=1,ngrs
+        !     call WTreeViewPutDoubleCell('treeview2',5,i,Messwert(i))
+        !     call WTreeViewPutDoubleCell('treeview2',11,i,StdUnc(i))
+        ! end do
 
 !-----------------------------------------------------------------------
         write(66,'(a,4i4,a,i3)') '********* nab, nmodf, nabf, ncovf=',nab,nmodf,nabf,ncovf,'  ncov=',ncov
@@ -2190,7 +2187,7 @@ contains
 !-----------------------------------------------------------------------
 
         write(66,*) '########## End of Rechw1'
-        if(consoleout_gtk) write(0,*) '##### End of Rechw1'
+        ! if(consoleout_gtk) write(0,*) '##### End of Rechw1'
 
     end subroutine Rechw1
 
@@ -2372,11 +2369,8 @@ contains
         use, intrinsic :: iso_c_binding,    only: c_null_ptr,c_ptr
         use UR_Linft
         use UR_Loadsel
-        use UR_Gleich_globals,        only: loadingpro
-        use UR_gtk_globals, only: dialogstr,ioption
-        use Rout,             only: WDGetCheckButton
-        use top,              only: FindItemS
-        use LDN,              only: Loadsel_diag_new
+        use UR_Gleich_globals,only: loadingpro
+
         use KLF,              only: XKalfit
 
         implicit none
@@ -2384,13 +2378,13 @@ contains
 
         integer        :: ncitem
 
-        if(.not. loadingpro) then
-            ioption = 8
-            dialogstr = 'dialog_kalfit'
-            call FindItemS(trim(dialogstr), ncitem)
-            write(66,'(a,i0)') 'Kalfit:  ncitem=',ncitem
-            call Loadsel_diag_new(1, ncitem)
-        end if
+        ! if(.not. loadingpro) then
+        !     ioption = 8
+        !     dialogstr = 'dialog_kalfit'
+        !     call FindItemS(trim(dialogstr), ncitem)
+        !     write(66,'(a,i0)') 'Kalfit:  ncitem=',ncitem
+        !     call Loadsel_diag_new(1, ncitem)
+        ! end if
         call Xkalfit()
 
     end subroutine LinCalib
@@ -2503,9 +2497,7 @@ contains
 
         use UR_Gleich_globals,     only: StdUnc,icovtyp,CovarVal,missingval,IsymbA,IsymbB, &
                                  CVFormel,ifehl,Symbole,CorrVal
-        use gtk,           only: GTK_BUTTONS_OK,GTK_MESSAGE_WARNING
-        use Rout,          only: MessageShow,WTreeViewPutComboCell,WTreeViewPutDoubleCell, &
-                                 WTreeViewGetDoubleCell
+
         use translation_module, only: T => get_translation
 
 
@@ -2526,18 +2518,18 @@ contains
             end if
         end if
         ! if(abs(CovarVal(i)-missingval) > eps1min) then
-        if(abs(CovarVal(i)-missingval) > EPS1MIN .and. LEN_TRIM(CVformel(i)%s) > 0) then  ! 14.9.2023
-            if(icovtyp(i) == 1) then
-                call WTreeViewPutDoubleCell('treeview3', 6, i, CovarVal(i))   ! format frmtt)
-            elseif(icovtyp(1) == 2) then
-                call WTreeViewPutDoubleCell('treeview3', 6, i, CorrVal(i))   ! format frmtt)
-            end if
-            call WTreeViewPutComboCell('treeview3', 2, i, IsymbA(i))
-            call WTreeViewPutComboCell('treeview3', 3, i, IsymbB(i))
-        end if
+        ! if(abs(CovarVal(i)-missingval) > EPS1MIN .and. LEN_TRIM(CVformel(i)%s) > 0) then  ! 14.9.2023
+        !     if(icovtyp(i) == 1) then
+        !         call WTreeViewPutDoubleCell('treeview3', 6, i, CovarVal(i))   ! format frmtt)
+        !     elseif(icovtyp(1) == 2) then
+        !         call WTreeViewPutDoubleCell('treeview3', 6, i, CorrVal(i))   ! format frmtt)
+        !     end if
+        !     call WTreeViewPutComboCell('treeview3', 2, i, IsymbA(i))
+        !     call WTreeViewPutComboCell('treeview3', 3, i, IsymbB(i))
+        ! end if
         if(abs(CovarVal(i)-missingval) > EPS1MIN) then
             ! 14.9.2023: test for abs(correlation) > 1 :
-            call WTreeViewGetDoubleCell('treeview3', 6, i, CCV)
+            ! call WTreeViewGetDoubleCell('treeview3', 6, i, CCV)
             if(abs(CCV-missingval) > EPS1MIN) then
                 if(Stdunc(IsymbA(i)) > EPS1MIN .and. Stdunc(IsymbB(i)) > EPS1MIN) then
                     if(icovtyp(i) == 1) CCV = CCV / (StdUnc(ISymbA(i))*StdUnc(ISymbB(i)))
@@ -2546,8 +2538,8 @@ contains
                                T('The calculated correlation between') // " " // Symbole(IsymbA(i))%s // " " // &
                                T('and') // " " // Symbole(IsymbB(i))%s //  " " // &
                                T('est') // " > 1 !"
-
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Rechw1:", resp,mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
                         return
                     end if

@@ -37,7 +37,6 @@ real(rn) function brentx(x1,x2,tol,fvalue,mode)
     use UR_types,     only: rn
     use UR_params,    only: EPS1MIN
 
-    use Rout,         only: WDPutEntryInt, pending_events
     use UR_Gleich_globals,    only: ifehl,use_bipoi
     use UR_DLIM,      only: nit_detl, modeB,fvalueB
     use UR_MCC,       only: kqtypx,arraymc,imctrue,xmit1,imcmax,xsdv,estUQ,DT_anf,xmit1min
@@ -46,7 +45,6 @@ real(rn) function brentx(x1,x2,tol,fvalue,mode)
     use ur_general_globals, only: MCsim_on,bxiter_on
     use Pdfs,         only: BinPoi_2_PDF
 
-    use Top,          only: WrStatusbar
     use UWB,          only: Resulta,median
     use LF1,          only: Linf
     use file_io,      only: logger

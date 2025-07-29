@@ -19,7 +19,7 @@ subroutine batch_proc()
 
 !   copyright (c) 2023  günter kanisch
 
-    use gtk,              only: gtk_buttons_ok,gtk_message_warning,gtk_message_info
+
     use UR_types
     use ur_general_globals,     only: fname,project_loadw,slistseparator, &
                                 work_path,gum_restricted,serial_csvinput, &
@@ -28,17 +28,13 @@ subroutine batch_proc()
                                 batf_file,batf,batf_reports,kfi,linebat, dir_sep
     use UR_Gleich_globals,        only: ifehl,symboleg,ngrs,nab,knumegr
     use ur_perror
-    use top,               only: wrstatusbar
-    use rout,              only: wdputentryint,pending_events,wtreeviewputdoublecell, &
-                                 wdnotebooksetcurrpage,wdgetentrydouble,wdsetcheckbutton, &
-                                 wdgetentryint
+
     use urdate,            only: get_formated_date_time
-    use rout,              only: messageshow
     use mcc,               only: run_mcstart
     use usub3,             only: saveresults
-    use ur_interfaces,     only: processloadpro_new
+
     use ur_params,         only: ZERO
-    use top,               only: finditems
+
     use rdsubs,            only: wandeldpkt
     use ur_mcc,            only: cpu_time_mc,estuq_bci2,estlq_bci2
     use ur_dlim,           only: kbgrenzu,kbgrenzo,kbgrenzush,kbgrenzosh
@@ -48,7 +44,7 @@ subroutine batch_proc()
 
     implicit none
 
-    integer                 :: i,i1,i2,ios,neg,kk,resp,j,ii
+    integer                 :: i,i1,i2,ios,neg,kk,j,ii
     integer                 :: k,nsy,kout,nr,nrpt,nfd,nrec
     integer                 :: ivals(13),kfimax,kkk
 
@@ -111,7 +107,7 @@ subroutine batch_proc()
             fname = trim(ffname)
             write(66,*) 'bat_serial:  fname=',trim(fname)
             project_loadw = .TRUE.
-            call ProcessLoadPro_new(0,1)      ! call for the 1. output quantity
+            ! call ProcessLoadPro_new(0,1)      ! call for the 1. output quantity
 
             batvals = trim(serial_csvinput)
             i1 = index(serial_csvinput,':' // dir_sep)
@@ -174,8 +170,8 @@ subroutine batch_proc()
                     WRITE(str1,'(a,a,a1,a,a1,a)') T("The symbole"), trim(symb(nsy)), &
                           char(13), T("is not part of the list of symbols!"), &
                           char(13), T("Please, correct!")
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batch:", resp,mtype=GTK_MESSAGE_WARNING)
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batch:", resp,mtype=GTK_MESSAGE_WARNING)
                     ifehl = 1
                     goto 9000
                 END IF
@@ -342,19 +338,19 @@ subroutine batch_proc()
                 ifehl = 0
                 if(.not.bat_serial .and. neg > 1) project_loadw = .TRUE.
                 if(neg == 1) then
-                    call ProcessLoadPro_new(0,1)      ! call for the 1. output quantity
+                    ! call ProcessLoadPro_new(0,1)      ! call for the 1. output quantity
                 endif
                 if(neg == 2) then
-                    call ProcessLoadPro_new(2,2)      ! call for the 2. output quantity
+                    ! call ProcessLoadPro_new(2,2)      ! call for the 2. output quantity
                 endif
                 if(neg == 3) then
-                    call ProcessLoadPro_new(2,3)      ! call for the 3. output quantity
+                    ! call ProcessLoadPro_new(2,3)      ! call for the 3. output quantity
                 endif
                 IF(ifehl == 1) GOTO 9000
 
                 if(neg == 1 .and. bat_serial) then
                     write(str1,'(a,i0)') 'Eval line ',nr
-                    call WrStatusbar(3,trim(str1))
+                    ! call WrStatusbar(3,trim(str1))
                     lineBat = nr
                     deallocate(text12); allocate(character(len=900) :: text12)
                     read(112,'(a)',iostat=ios) text12
@@ -379,20 +375,20 @@ subroutine batch_proc()
                         close(189)
                         goto 9000
                     end if
-                    call WDNotebookSetCurrPage('notebook1', 3)
+                    ! call WDNotebookSetCurrPage('notebook1', 3)
                     do i=nab,ngrs
                         do k=1,nsy
                             if(SymboleG(i)%s == trim(symb(k))) then
-                                if(valtype(k) == 'v') call WTreeViewPutDoubleCell('treeview2',5,i, bvals(k))
-                                if(valtype(k) == 'u') call WTreeViewPutDoubleCell('treeview2',8,i, bvals(k))
-                                if(valtype(k) == 'h') call WTreeViewPutDoubleCell('treeview2',9,i, bvals(k))
+                                ! if(valtype(k) == 'v') call WTreeViewPutDoubleCell('treeview2',5,i, bvals(k))
+                                ! if(valtype(k) == 'u') call WTreeViewPutDoubleCell('treeview2',8,i, bvals(k))
+                                ! if(valtype(k) == 'h') call WTreeViewPutDoubleCell('treeview2',9,i, bvals(k))
                                 exit
                             end if
                         enddo
                     end do
                     ! write(66,*) 'vor CC: bvals=',sngl(bvals(1:nsy))
-                    call ProcessLoadPro_new(2,1)
-                    call WDNotebookSetCurrPage('notebook1', 5)
+                    ! call ProcessLoadPro_new(2,1)
+                    ! call WDNotebookSetCurrPage('notebook1', 5)
                     !  write(66,*) 'CC: ifehl=',int(ifehl,2)
 
                     IF(ifehl == 1 .OR. ifehlp == 1) goto 150
@@ -400,27 +396,27 @@ subroutine batch_proc()
 
                 if(bat_mc) then
                     ! MC-Simulation:
-                    call WDPutEntryInt('TRentryMCanzM',kcmxMC)    !  ,'(I7)')
-                    call WDPutEntryInt('TRentryMCanzR',kcrunMC)
+                    ! call WDPutEntryInt('TRentryMCanzM',kcmxMC)    !  ,'(I7)')
+                    ! call WDPutEntryInt('TRentryMCanzR',kcrunMC)
                     if(bat_serial) write(66,*) 'DC: nrpt=',nrpt,'  kcmxMC=',kcmxMC,'  kcrunMC=',kcrunMC
                     call Run_MCstart(ifehl)
                     if(ifehl == 1) goto 9000
-                    call pending_events()
-                    call pending_events()
+                    ! call pending_events()
+                    ! call pending_events()
 
-                    call WDGetEntryDouble('TRentryMCvalPE', PE1)
-                    call WDGetEntryDouble('TRentryMCvalUPE', uPe1)
+                    ! call WDGetEntryDouble('TRentryMCvalPE', PE1)
+                    ! call WDGetEntryDouble('TRentryMCvalUPE', uPe1)
 
-                    call WDGetEntryDouble('TRentryMCValue', BE1)
-                    call WDGetEntryDouble('TRentryMCunc', uBe1)
-                    call WDGetEntryDouble('TRentryMClq', LQ1)
-                    call WDGetEntryDouble('TRentryMCuq', UQ1)
-                    sLQ1 = estLQ_BCI2
-                    sUQ1 = estUQ_BCI2
-                    if(.not.gum_restricted) then
-                        call WDGetEntryDouble('TRentryMCdt', DT1)
-                        call WDGetEntryDouble('TRentryMCdl', DL1)
-                    endif
+                    ! call WDGetEntryDouble('TRentryMCValue', BE1)
+                    ! call WDGetEntryDouble('TRentryMCunc', uBe1)
+                    ! call WDGetEntryDouble('TRentryMClq', LQ1)
+                    ! call WDGetEntryDouble('TRentryMCuq', UQ1)
+                    ! sLQ1 = estLQ_BCI2
+                    ! sUQ1 = estUQ_BCI2
+                    ! if(.not.gum_restricted) then
+                    !     call WDGetEntryDouble('TRentryMCdt', DT1)
+                    !     call WDGetEntryDouble('TRentryMCdl', DL1)
+                    ! endif
 
                     if(bat_serial) then
                         write(btext,*) trim(fname),ctr,int(neg,2),ctr,lineBat,ctr,sngl(PE1),ctr,sngl(uPE1),ctr, &
@@ -438,19 +434,19 @@ subroutine batch_proc()
 
                 PE=ZERO; uPE=ZERO; BE=ZERO; uBE=ZERO; LQ=ZERO; UQ=ZERO; sLQ=ZERO; sUQ=ZERO; DT=ZERO; DL=ZERO
 
-                call WDGetEntryDouble('TRentryValue', PE)
-                call WDGetEntryDouble('TRentryUnc', uPe)
-                call WDGetEntryDouble('TRentryValueBy', BE)
-                call WDGetEntryDouble('TRentryUncBy', uBe)
+                ! call WDGetEntryDouble('TRentryValue', PE)
+                ! call WDGetEntryDouble('TRentryUnc', uPe)
+                ! call WDGetEntryDouble('TRentryValueBy', BE)
+                ! call WDGetEntryDouble('TRentryUncBy', uBe)
 
-                call WDGetEntryDouble('TRentryLQBy', LQ)
-                call WDGetEntryDouble('TRentryUQBy', UQ)
+                ! call WDGetEntryDouble('TRentryLQBy', LQ)
+                ! call WDGetEntryDouble('TRentryUQBy', UQ)
                 sLQ = KBgrenzuSH
                 sUQ = KBgrenzoSH
-                if(.not.gum_restricted) then
-                    call WDGetEntryDouble('TRentryDT', DT)
-                    call WDGetEntryDouble('TRentryDL', DL)
-                endif
+                ! if(.not.gum_restricted) then
+                !     call WDGetEntryDouble('TRentryDT', DT)
+                !     call WDGetEntryDouble('TRentryDL', DL)
+                ! endif
                 write(66,*) 'nr-loop: vor kout=187','  batf=',batf,' old_out=',old_out
                 if(bat_serial) then
                     write(btext,*) trim(fname),ctr,int(neg,2),ctr,lineBAT,ctr,sngl(PE),ctr,sngl(uPE),ctr, &
@@ -474,17 +470,17 @@ subroutine batch_proc()
                     PE=ZERO; uPE=ZERO; BE=ZERO; uBE=ZERO; LQ=ZERO; UQ=ZERO;
                     sLQ=ZERO; sUQ=ZERO; DT=ZERO; DL=ZERO
 
-                    call WDGetEntryDouble('TRentryValue', PE)
-                    call WDGetEntryDouble('TRentryUnc', uPe)
-                    call WDGetEntryDouble('TRentryValueBy', BE)
-                    call WDGetEntryDouble('TRentryUncBy', uBe)
+                    ! call WDGetEntryDouble('TRentryValue', PE)
+                    ! call WDGetEntryDouble('TRentryUnc', uPe)
+                    ! call WDGetEntryDouble('TRentryValueBy', BE)
+                    ! call WDGetEntryDouble('TRentryUncBy', uBe)
 
-                    call WDGetEntryDouble('TRentryLQBy', LQ)
-                    call WDGetEntryDouble('TRentryUQBy', UQ)
-                    if(.not.gum_restricted) then
-                        call WDGetEntryDouble('TRentryDT', DT)
-                        call WDGetEntryDouble('TRentryDL', DL)
-                    endif
+                    ! call WDGetEntryDouble('TRentryLQBy', LQ)
+                    ! call WDGetEntryDouble('TRentryUQBy', UQ)
+                    ! if(.not.gum_restricted) then
+                    !     call WDGetEntryDouble('TRentryDT', DT)
+                    !     call WDGetEntryDouble('TRentryDL', DL)
+                    ! endif
                     LQ = KBgrenzu
                     UQ = KBgrenzo
                     sLQ = KBgrenzuSH
@@ -577,8 +573,8 @@ subroutine batch_proc()
     if((bat_serial .or. batf) .and. ifehl == 0) then
         str1 = T("The serial evaluation was successful!") // char(13) // &
                T("The program will be terminated now.")
-
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batch:", resp,mtype=GTK_MESSAGE_INFO)
+        print *, str1
+        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Batch:", resp,mtype=GTK_MESSAGE_INFO)
     end if
 
     tdatum = get_formated_date_time()
@@ -611,8 +607,6 @@ end subroutine Batch_proc
 
 subroutine ErrOpenFile(bfile, ftext, retry)
 
-    use gtk,              only: GTK_BUTTONS_OK, GTK_MESSAGE_ERROR, GTK_MESSAGE_WARNING    !,GTK_MESSAGE_INFO,
-    use Rout,             only: MessageShow
     use CHF,              only: ucase
     use translation_module, only: T => get_translation
 
@@ -622,20 +616,20 @@ subroutine ErrOpenFile(bfile, ftext, retry)
     logical, intent(out)        :: retry
 
     character(len=512) :: str1
-    integer            :: resp
 
 
     retry = .false.
     if(index(ucase(bfile),'.CSV') > 0 .and. index(ftext,'Permission denied') > 0) then
         str1 = T('Error on opening the file') // ": " // trim(bfile) // ': ' // char(13) // char(13) // &
                T("Before closing this message: please close the named file!")
-
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "BATF:", resp, mtype=GTK_MESSAGE_WARNING)
+        print *, str1
+        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "BATF:", resp, mtype=GTK_MESSAGE_WARNING)
         retry = .true.
     else
         str1 = T('Error on opening the file')// ": " // trim(bfile) // "  " // T('Abortion!') // &
                new_line('A') // trim(ftext)
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "BATF:", resp, mtype=GTK_MESSAGE_ERROR)
+        print *, str1
+        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "BATF:", resp, mtype=GTK_MESSAGE_ERROR)
     end if
 
 end subroutine ErrOpenFile

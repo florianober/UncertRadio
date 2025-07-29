@@ -40,12 +40,8 @@ contains
         USE UR_DLIM
         USE UR_Linft
         USE UR_Gspk1Fit
-        use Rout,               only: UpdateProName,WDGetTextviewString,WDGetEntryDouble,    &
-                                      WTreeViewGetStrArray,WTreeViewGetDoubleArray,        &
-                                      WTreeViewGetComboArray, WDGetEntryString, WDGetComboboxAct, &
-                                      WDGetSelRadio, WDGetCheckButton, WTreeViewGetCheckArray,  &
-                                      WDGetSelRadioMenu, wdgetentryint
-        use Top,                only: WrStatusBar,CharModA1
+
+        use Top,                only: CharModA1
         use RdSubs,             only: WandelDPkt,writeMDvec
         use RG,                 only: modify_Formeltext
         use CHF,                only: flfu
@@ -71,7 +67,7 @@ contains
 
         if(len_trim(fname) == 0) return
 
-        call UpdateProName(fname)
+        ! call UpdateProName(fname)
 
         fname_tmp = flfu(fname, error_str_conv)
         if (error_str_conv > 0) write(*,*) 'Warning, could not convert file_name ' // &
@@ -79,7 +75,7 @@ contains
 
         open (25, file=trim(fname_tmp), status='unknown')
 
-        call WDGetTextviewString('textview1', titeltext)
+        ! call WDGetTextviewString('textview1', titeltext)
         do i=size(Titeltext),1,-1
             if(len_trim(Titeltext(i)%s) > 0) then
                 call Charmoda1(Titeltext,i)
@@ -87,7 +83,7 @@ contains
             end if
         end do
 
-        call WDGetTextviewString('textview2', formeltext)
+        ! call WDGetTextviewString('textview2', formeltext)
         ! remove empty equation lines at the end:
         do i=size(Formeltext),1,-1
             if(len_trim(Formeltext(i)%s) > 0) then
@@ -98,7 +94,7 @@ contains
 
         if(FitDecay) then
             if(FitDecay) THEN
-                call WDGetTextviewString('textviewModelEQ', FormeltextFit)
+                ! call WDGetTextviewString('textviewModelEQ', FormeltextFit)
                 do i=size(FormeltextFit),1,-1
                     if(len_trim(FormeltextFit(i)%s) > 0) then
                         call Charmoda1(FormeltextFit,i)
@@ -106,17 +102,17 @@ contains
                     end if
                 end do
 
-                call WDGetComboboxAct('comboboxA1', ifit(1))
-                call WDGetComboboxAct('comboboxA2', ifit(2))
-                call WDGetComboboxAct('comboboxA3', ifit(3))
+                ! call WDGetComboboxAct('comboboxA1', ifit(1))
+                ! call WDGetComboboxAct('comboboxA2', ifit(2))
+                ! call WDGetComboboxAct('comboboxA3', ifit(3))
 
-                call WDGetCheckButton('checkbuttonWFit', nwei)
-                call WDGetCheckButton('checkbuttonCovZR', nkovzr)
-                call WDGetCheckButton('checkbuttonAllm', ndefall)
+                ! call WDGetCheckButton('checkbuttonWFit', nwei)
+                ! call WDGetCheckButton('checkbuttonCovZR', nkovzr)
+                ! call WDGetCheckButton('checkbuttonAllm', ndefall)
 
-                call WDGetSelRadio('radiobuttonNLSQ', kfitmeth)
-                kfitmeth = kfitmeth - 1
-                call WDGetComboboxAct('comboboxtextNCH', nchannels)
+                ! call WDGetSelRadio('radiobuttonNLSQ', kfitmeth)
+                ! kfitmeth = kfitmeth - 1
+                ! call WDGetComboboxAct('comboboxtextNCH', nchannels)
 
             end if
         end if
@@ -195,14 +191,14 @@ contains
         write(25,'(a1,a,a1,a,a1,a,12a1)') ctr,'1-gamma',ctr,trim(zahl),ctr, &
                                           T('Probability for confidence'),(ctr,i=1,12)
 
-        call WDGetEntryDouble('entryOptGamDistAdd', GamDistAdd)
+        ! call WDGetEntryDouble('entryOptGamDistAdd', GamDistAdd)
         write(zahl,'(f8.6)') real(GamDistAdd,8)
         call WandelDPkt(zahl,2)
         write(25,'(a1,a,a1,a,a1,a,12a1)') ctr,'GamDistAdd',ctr,trim(zahl),ctr, &
                                           T('Gamma-distribution parameter'),(ctr,i=1,12)
 
 
-        call WDGetSelRadiomenu('MT_NegLin',k)
+        ! call WDGetSelRadiomenu('MT_NegLin',k)
         if(k == 1) then
             write(zahl,'(a)') 'PosLin'
             write(25,'(a1,a,a1,a,a1,a,12a1)') ctr,'ModelType',ctr,trim(zahl),ctr, &
@@ -237,10 +233,10 @@ contains
 
         write(25,'(15a1)') (ctr,i=1,15)
 
-        call WTreeViewGetStrArray('treeview1', 2, ngrs, symbole)
-        call WTreeViewGetStrArray('treeview1', 3, ngrs, symtyp)
-        call WTreeViewGetStrArray('treeview1', 4, ngrs, einheit)
-        call WTreeViewGetStrArray('treeview1', 5, ngrs, bedeutung)
+        ! call WTreeViewGetStrArray('treeview1', 2, ngrs, symbole)
+        ! call WTreeViewGetStrArray('treeview1', 3, ngrs, symtyp)
+        ! call WTreeViewGetStrArray('treeview1', 4, ngrs, einheit)
+        ! call WTreeViewGetStrArray('treeview1', 5, ngrs, bedeutung)
 
         do i=1,ngrs
             symbole(i)%s   = ADJUSTL(symbole(i)%s)
@@ -257,13 +253,13 @@ contains
 
         write(25,'(a,15a1)') 'Werte, Unsicherheiten:',(ctr,i=1,15)
 
-        call WTreeViewGetDoubleArray('treeview2', 5, ngrs, Messwert)
-        call WTreeViewGetComboArray('treeview2', 6, ngrs, IVTL)
-        call WTreeViewGetStrArray('treeview2', 7, ngrs, SDFormel)
-        call WTreeViewGetDoubleArray('treeview2', 8, ngrs, SDWert)
-        call WTreeViewGetDoubleArray('treeview2', 9, ngrs, HBreite)
-        call WTreeViewGetComboArray('treeview2', 10, ngrs, IAR)
-        call WTreeViewGetDoubleArray('treeview2', 11, ngrs, StdUnc)
+        ! call WTreeViewGetDoubleArray('treeview2', 5, ngrs, Messwert)
+        ! call WTreeViewGetComboArray('treeview2', 6, ngrs, IVTL)
+        ! call WTreeViewGetStrArray('treeview2', 7, ngrs, SDFormel)
+        ! call WTreeViewGetDoubleArray('treeview2', 8, ngrs, SDWert)
+        ! call WTreeViewGetDoubleArray('treeview2', 9, ngrs, HBreite)
+        ! call WTreeViewGetComboArray('treeview2', 10, ngrs, IAR)
+        ! call WTreeViewGetDoubleArray('treeview2', 11, ngrs, StdUnc)
 
         do i=1,ngrs
             sdformel(i)%s   = ADJUSTL(sdformel(i)%s)
@@ -287,11 +283,11 @@ contains
         write(25,'(a,15a1)') 'CovarGrid:',(ctr,i=1,15)
 
         if(ncov > 0) THEN
-            call WTreeViewGetComboArray('treeview3', 2, ncov, ISymbA)
-            call WTreeViewGetComboArray('treeview3', 3, ncov, ISymbB)
-            call WTreeViewGetComboArray('treeview3', 4, ncov, icovtyp)
-            call WTreeViewGetStrArray('treeview3', 5, ncov, CVFormel)
-            call WTreeViewGetDoubleArray('treeview3', 6, ncov, Covarval)
+            ! call WTreeViewGetComboArray('treeview3', 2, ncov, ISymbA)
+            ! call WTreeViewGetComboArray('treeview3', 3, ncov, ISymbB)
+            ! call WTreeViewGetComboArray('treeview3', 4, ncov, icovtyp)
+            ! call WTreeViewGetStrArray('treeview3', 5, ncov, CVFormel)
+            ! call WTreeViewGetDoubleArray('treeview3', 6, ncov, Covarval)
 
             do i=1,ncov
                 call WandelDPkt(CVFormel(i)%s,2)
@@ -308,16 +304,16 @@ contains
 
         IF(DChain) THEN
             ! December 2024  GK:              27.4.2025
-            call WDGetComboboxAct('ComboboxDCchains',kc)
+            ! call WDGetComboboxAct('ComboboxDCchains',kc)
             i1 = index(DCList(kc)%s,':')
             chaincode%s = trim(adjustL(DCList(kc)%s(1:i1-1)))
-            call WDGetComboboxAct('comboboxtextDCNCH', nnch)
-            call WDGetComboboxAct('DCcheckSepar', ksep)
-            call WDGetCheckButton('DCcheckVorLam',iv)
-            call WDGetCheckButton('DCcheckCommMeasmt',kim)
+            ! call WDGetComboboxAct('comboboxtextDCNCH', nnch)
+            ! call WDGetComboboxAct('DCcheckSepar', ksep)
+            ! call WDGetCheckButton('DCcheckVorLam',iv)
+            ! call WDGetCheckButton('DCcheckCommMeasmt',kim)
             DCcommMeasmt = .false.
             if(kim == 1) DCcommMeasmt = .true.
-            call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
+            ! call WDGetEntryInt('entryDCZBuildupNuk',DCBuildupAtSepar)
 
             WRITE(25,'(a,a1,7(a,a1),6a1)') 'DCHAIN:',ctr,'chain#',ctr,'Separ?',ctr,'lambda?',ctr, &
                               'nnch',ctr,'commMsmt?',ctr,'buildup#',ctr,'nuclds #',ctr,(ctr,i=1,6)
@@ -325,13 +321,13 @@ contains
                                                                    N_nuclides,ctr,(ctr,i=1,6)
             write(25,'(a,a1,a,a1,10a1)') 'CHName',ctr,chaincode%s,ctr,(ctr,i=1,9)
             i = N_Nuclides
-            call WTreeViewGetStrArray('treeview9', 2, N_nuclides, DCnuclide)
-            if(iv == 0) call WTreeViewGetStrArray('treeview9', 3, N_Nuclides, DCsymbT12)
-            if(iv == 1) call WTreeViewGetStrArray('treeview9', 3, N_Nuclides, DCsymbLambda)
-            call WTreeViewGetStrArray('treeview9', 4, N_Nuclides, DCsymbEffiA)
-            call WTreeViewGetStrArray('treeview9', 5, N_Nuclides, DCsymbEffiB)
-            call WTreeViewGetStrArray('treeview9', 6, N_Nuclides, DCsymbEffiC)
-            call WTreeViewGetStrArray('treeview9', 7, N_Nuclides, DCsymbYield)
+            ! call WTreeViewGetStrArray('treeview9', 2, N_nuclides, DCnuclide)
+            ! if(iv == 0) call WTreeViewGetStrArray('treeview9', 3, N_Nuclides, DCsymbT12)
+            ! if(iv == 1) call WTreeViewGetStrArray('treeview9', 3, N_Nuclides, DCsymbLambda)
+            ! call WTreeViewGetStrArray('treeview9', 4, N_Nuclides, DCsymbEffiA)
+            ! call WTreeViewGetStrArray('treeview9', 5, N_Nuclides, DCsymbEffiB)
+            ! call WTreeViewGetStrArray('treeview9', 6, N_Nuclides, DCsymbEffiC)
+            ! call WTreeViewGetStrArray('treeview9', 7, N_Nuclides, DCsymbYield)
             do i=1,N_nuclides
                 if(iv == 0) then
                   write(25,'(i0,a1,6(a,a1))') i,ctr,DCnuclide(i)%s,ctr,DCsymbT12(i)%s,ctr,DCsymbEffiA(i)%s,ctr, &
@@ -346,20 +342,20 @@ contains
 
         if(FitDecay) THEN
 
-            call WDGetEntryString('entrySeparation', CFaelldatum)
-            call WDGetComboboxAct('comboboxtextbase', imenu1)
+            ! call WDGetEntryString('entrySeparation', CFaelldatum)
+            ! call WDGetComboboxAct('comboboxtextbase', imenu1)
 
-            call WTreeViewGetStrArray('treeview5', 2, numd, CStartzeit)
-            call WTreeViewGetDoubleArray('treeview5', 3, numd, dmesszeit)
-            call WTreeViewGetDoubleArray('treeview5', 4, numd, dbimpulse)
-            call WTreeViewGetDoubleArray('treeview5', 5, numd, dbzrate)
-            call WTreeViewGetDoubleArray('treeview5', 6, numd, sdbzrate)
-            call WTreeViewGetDoubleArray('treeview5', 7, numd, d0messzeit)
-            call WTreeViewGetDoubleArray('treeview5', 8, numd, d0impulse)
-            call WTreeViewGetDoubleArray('treeview5', 9, numd, d0zrate)
-            call WTreeViewGetDoubleArray('treeview5', 10, numd, sd0zrate)
-            call WTreeViewGetDoubleArray('treeview5', 11, numd, dnetrate)
-            call WTreeViewGetDoubleArray('treeview5', 12, numd, sdnetrate)
+            ! call WTreeViewGetStrArray('treeview5', 2, numd, CStartzeit)
+            ! call WTreeViewGetDoubleArray('treeview5', 3, numd, dmesszeit)
+            ! call WTreeViewGetDoubleArray('treeview5', 4, numd, dbimpulse)
+            ! call WTreeViewGetDoubleArray('treeview5', 5, numd, dbzrate)
+            ! call WTreeViewGetDoubleArray('treeview5', 6, numd, sdbzrate)
+            ! call WTreeViewGetDoubleArray('treeview5', 7, numd, d0messzeit)
+            ! call WTreeViewGetDoubleArray('treeview5', 8, numd, d0impulse)
+            ! call WTreeViewGetDoubleArray('treeview5', 9, numd, d0zrate)
+            ! call WTreeViewGetDoubleArray('treeview5', 10, numd, sd0zrate)
+            ! call WTreeViewGetDoubleArray('treeview5', 11, numd, dnetrate)
+            ! call WTreeViewGetDoubleArray('treeview5', 12, numd, sdnetrate)
 
             write(25,'(8(a,a1),6a1)') 'AbklingGrid:',ctr,'fitp1?',ctr,'fitp2?',ctr,'fitp3?',ctr,'weighted f.',ctr, &
                 'use covs?',ctr,'fitmeth?',ctr,'time base(s/m):',ctr,(ctr,i=1,6)
@@ -382,39 +378,39 @@ contains
 
         if(Gamspk1_Fit) THEN
             write(25,'(a,15a1)') 'Gamspk1-Grid:',(ctr,i=1,15)
-            call WDGetSelRadio('radiobuttonG1', unitRadio(1))
-            call WDGetSelRadio('radiobuttonG5', unitRadio(2))
-            call WDGetSelRadio('radiobuttonG9', unitRadio(3))
-            call WDGetSelRadio('radiobuttonG11', unitRadio(4))
-            call WDGetSelRadio('radiobuttonG13', unitRadio(5))
+            ! call WDGetSelRadio('radiobuttonG1', unitRadio(1))
+            ! call WDGetSelRadio('radiobuttonG5', unitRadio(2))
+            ! call WDGetSelRadio('radiobuttonG9', unitRadio(3))
+            ! call WDGetSelRadio('radiobuttonG11', unitRadio(4))
+            ! call WDGetSelRadio('radiobuttonG13', unitRadio(5))
             write(25,'(a,a1,5(i1,a1),5a1)') 'UnitRadio',ctr,(UnitRadio(i),ctr,i=1,5),(ctr,i=1,5)
 
-            call WDGetComboboxAct('comboboxGMWtyp', kmwtyp)
+            ! call WDGetComboboxAct('comboboxGMWtyp', kmwtyp)
             write(25,'(a,a1,i2,14a1)') 'MeanTyp',ctr,kmwtyp,(ctr,i=1,14)
 
-            call WDGetEntryDouble('entry_b2LFactor', FBT)
+            ! call WDGetEntryDouble('entry_b2LFactor', FBT)
             write(text,'(a,a1,f9.6,14a1)') 'FBT',ctr,real(FBT,8),(ctr,i=1,14)
             call WandelDPkt(text,2)
             write(25,'(a)') trim(text)
-            call WDGetCheckButton('checkbuttonGspk1EffiCov', ecorruse)
-            write(25,'(a,a1,i1,14a1)') 'EcorrUse',ctr,ecorrUse,(ctr,i=1,14)
-            call WDGetCheckButton('checkbuttonMeanOpt', WMextSD)
+            ! call WDGetCheckButton('checkbuttonGspk1EffiCov', ecorruse)
+            ! write(25,'(a,a1,i1,14a1)') 'EcorrUse',ctr,ecorrUse,(ctr,i=1,14)
+            ! call WDGetCheckButton('checkbuttonMeanOpt', WMextSD)
 
             kxy = numd/5
-            call WTreeViewGetCheckArray('treeview6', 2, kxy, guse)
-            call WTreeViewGetDoubleArray('treeview6', 3, kxy, erg)
-            call WTreeViewGetDoubleArray('treeview6', 4, kxy, GNetRate)
-            call WTreeViewGetDoubleArray('treeview6', 5, kxy, RateCB)
-            call WTreeViewGetDoubleArray('treeview6', 6, kxy, RateBG)
-            call WTreeViewGetDoubleArray('treeview6', 7, kxy, SDRateBG)
-            call WTreeViewGetDoubleArray('treeview6', 8, kxy, effi)
-            call WTreeViewGetDoubleArray('treeview6', 9, kxy, SDeffi)
-            call WTreeViewGetDoubleArray('treeview6', 10, kxy, pgamm)
-            call WTreeViewGetDoubleArray('treeview6', 11, kxy, SDpgamm)
-            call WTreeViewGetDoubleArray('treeview6', 12, kxy, fatt)
-            call WTreeViewGetDoubleArray('treeview6', 13, kxy, SDfatt)
-            call WTreeViewGetDoubleArray('treeview6', 14, kxy, fcoinsu)
-            call WTreeViewGetDoubleArray('treeview6', 15, kxy, SDfcoinsu)
+            ! call WTreeViewGetCheckArray('treeview6', 2, kxy, guse)
+            ! call WTreeViewGetDoubleArray('treeview6', 3, kxy, erg)
+            ! call WTreeViewGetDoubleArray('treeview6', 4, kxy, GNetRate)
+            ! call WTreeViewGetDoubleArray('treeview6', 5, kxy, RateCB)
+            ! call WTreeViewGetDoubleArray('treeview6', 6, kxy, RateBG)
+            ! call WTreeViewGetDoubleArray('treeview6', 7, kxy, SDRateBG)
+            ! call WTreeViewGetDoubleArray('treeview6', 8, kxy, effi)
+            ! call WTreeViewGetDoubleArray('treeview6', 9, kxy, SDeffi)
+            ! call WTreeViewGetDoubleArray('treeview6', 10, kxy, pgamm)
+            ! call WTreeViewGetDoubleArray('treeview6', 11, kxy, SDpgamm)
+            ! call WTreeViewGetDoubleArray('treeview6', 12, kxy, fatt)
+            ! call WTreeViewGetDoubleArray('treeview6', 13, kxy, SDfatt)
+            ! call WTreeViewGetDoubleArray('treeview6', 14, kxy, fcoinsu)
+            ! call WTreeViewGetDoubleArray('treeview6', 15, kxy, SDfcoinsu)
 
             do k=1,kxy
                 write(text,'(i3,a1,i1,a1,f7.2,a1,12(es23.15e2,a1) )') k,ctr,guse(k),ctr,real(Erg(k),8),ctr,  &
@@ -428,13 +424,13 @@ contains
         END if
 
         if(FitCalCurve) THEN
-            call WDGetEntryString('entryDKTitel', cctitle)
-            call WDGetComboboxAct('comboboxDKPgrad', kal_Polgrad)
-            kal_polgrad = kal_polgrad - 1
-            call WTreeViewGetDoubleArray('treeview7', 2, nkalpts, xkalib)
-            call WTreeViewGetDoubleArray('treeview7', 3, nkalpts, uxkalib)
-            call WTreeViewGetDoubleArray('treeview7', 4, nkalpts, ykalib)
-            call WTreeViewGetDoubleArray('treeview7', 5, nkalpts, uykalib)
+            ! call WDGetEntryString('entryDKTitel', cctitle)
+            ! call WDGetComboboxAct('comboboxDKPgrad', kal_Polgrad)
+            ! kal_polgrad = kal_polgrad - 1
+            ! call WTreeViewGetDoubleArray('treeview7', 2, nkalpts, xkalib)
+            ! call WTreeViewGetDoubleArray('treeview7', 3, nkalpts, uxkalib)
+            ! call WTreeViewGetDoubleArray('treeview7', 4, nkalpts, ykalib)
+            ! call WTreeViewGetDoubleArray('treeview7', 5, nkalpts, uykalib)
 
             write(66,*) ' kal_Polgrad=',kal_Polgrad,'    cctitle=',trim(cctitle)
             kk = 0
@@ -460,8 +456,6 @@ contains
         end if
 
         close (25)
-
-        call WrStatusBar(3,' ')
 
     end subroutine ProSave_CSV
 

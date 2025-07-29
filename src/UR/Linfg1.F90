@@ -30,13 +30,11 @@ contains
     subroutine Linfg1Ausf(mode, akt, SDakt)
 
         use, intrinsic :: iso_c_binding
-        USE UR_Gleich_globals,        only: kgspk1,loadingpro,Messwert,Stdunc,stduncsv,MesswertSV, &
-                                    ngrs,ncov
-        USE UR_Linft,         only: fpa,fpaSV,numd
-        use Rout,             only: WTreeViewPutDoubleCell,WDPutEntryString, &
-                                    WDPutEntryDouble,WTreeViewPutDoubleCell,pending_events
-        use Top,              only: WrStatusbar
-        use UR_DLIM,          only: iteration_on
+        USE UR_Gleich_globals, only: kgspk1,loadingpro,Messwert,Stdunc,stduncsv,MesswertSV, &
+                                     ngrs,ncov
+        USE UR_Linft,          only: fpa,fpaSV,numd
+
+        use UR_DLIM,           only: iteration_on
         use translation_module, only: T => get_translation
 
         implicit none
@@ -49,13 +47,13 @@ contains
         integer   , parameter  :: mag = 1
 
         !-----------------------------------------------------------------------
-        call WrStatusBar(4, T('Calculating') // '....' )
-        if(.not.loadingPro) call pending_events()              !xx
+        ! call WrStatusBar(4, T('Calculating') // '....' )
+        ! if(.not.loadingPro) call pending_events()              !xx
         call Linfg1(akt,SDakt)
         fpaSv(1:mag) = fpa(1:mag)
 
         IF(mode == 2) then
-            call WrStatusBar(4, T('Gamma evaluations:  view/save/print') )
+            ! call WrStatusBar(4, T('Gamma evaluations:  view/save/print') )
             call Linfg1out()
         end if
 
@@ -63,8 +61,8 @@ contains
         MesswertSV(kgspk1) = Messwert(kgspk1)
         StdUnc(kgspk1)   = SDakt
         StdUncSV(kgspk1) = SDakt
-        call WTreeViewPutDoubleCell('treeview2', 5, kgspk1, Messwert(kgspk1))
-        call WTreeViewPutDoubleCell('treeview2', 11, kgspk1, StdUnc(kgspk1))
+        ! call WTreeViewPutDoubleCell('treeview2', 5, kgspk1, Messwert(kgspk1))
+        ! call WTreeViewPutDoubleCell('treeview2', 11, kgspk1, StdUnc(kgspk1))
 
         if(.not.iteration_on) then
             MEsswertSV(ngrs+ncov+1:ngrs+ncov+numd) = MEsswert(ngrs+ncov+1:ngrs+ncov+numd)
@@ -90,7 +88,6 @@ contains
         USE ur_general_globals,  ONLY: MCsim_on
         use Brandt,        only: gincgm
         use UR_params,     only: ZERO,ONE,TWO,EPS1MIN
-        use Rout,          only: WTreeViewGetDoubleArray
 
         use file_io,       only: logger
         implicit none

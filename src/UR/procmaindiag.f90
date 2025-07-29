@@ -20,9 +20,9 @@ module PMD
     implicit none
     interface
 
-        module recursive subroutine ProcMainDiag(ncitem)
-            integer, intent(in)            :: ncitem   ! index of widget in the list of clobj
-        end subroutine ProcMainDiag
+        ! module recursive subroutine ProcMainDiag(ncitem)
+        !     integer, intent(in)            :: ncitem   ! index of widget in the list of clobj
+        ! end subroutine ProcMainDiag
 
 
         module subroutine GamSymList
@@ -33,10 +33,10 @@ module PMD
         end subroutine GamPeakvals
 
 
-        module subroutine AdjustRemoveTVRows(numrows_marked)
-            use, intrinsic :: iso_c_binding,        only: c_int
-            integer(c_int),intent(in) ::numrows_marked
-        end subroutine AdjustRemoveTVRows
+        ! module subroutine AdjustRemoveTVRows(numrows_marked)
+        !     use, intrinsic :: iso_c_binding,        only: c_int
+        !     integer(c_int),intent(in) ::numrows_marked
+        ! end subroutine AdjustRemoveTVRows
 
     end interface
 

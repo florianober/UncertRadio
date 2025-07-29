@@ -78,20 +78,11 @@ contains
         use UR_Perror
 
         use fparser,            only: initf, parsef, EvalErrMsg
-        use ur_general_globals,       only: proStartNew, Gum_restricted, fd_found
+        use ur_general_globals, only: proStartNew, Gum_restricted, fd_found
         use UR_Gspk1Fit,        only: Gamspk1_Fit
 
-        use gtk_hl_tree,        only: hl_gtk_listn_set_cell
-        use UR_gtk_globals,     only: consoleout_gtk
-        use gtk,                only: GTK_MESSAGE_WARNING,GTK_MESSAGE_INFO,GTK_BUTTONS_OK, &
-                                      gtk_widget_set_sensitive
-        use Rout,               only: MessageShow,WTreeViewGetStrArray,WTreeViewPutStrCell,WTreeViewPutDoubleCell, &
-                                      WTreeViewPutComboCell,WTreeViewSetColorRow,WDPutSelRadioMenu,   &
-                                      SetMenuEGr,WDSetComboboxAct
-        use UR_interfaces,      only: ProcessLoadPro_new
-        use Usub3,              only: TransToTV2
-        use Top,                only: chupper_eq,idpt,CharModA1,IntModA1,RealModA1,InitVarsTV2,ModVarsTV2_CP,  &
-                                      ModVarsTV2,CharModA1,CharModStr,load_unit_conv, idpt
+        use Top,                only: chupper_eq,CharModA1,IntModA1,RealModA1,InitVarsTV2,ModVarsTV2_CP,  &
+                                      ModVarsTV2,CharModA1,CharModStr,load_unit_conv
         use CHF,                only: FindLocT,ucase,IsNumberE,IndexArr,testSymbol
         use Num1,               only: Quick_sort2_i
         use color_theme
@@ -148,7 +139,7 @@ contains
 
         !-----------------------------------------------------------------------
         call logger(66, '##################### Symbol1: ##################')
-        if(consoleout_gtk) write(0,*) '##### Symbol1: ##################'
+
 
         ops = [ '+', '-', '/', '*', '(', ')', ',', '^' ]
         fus = [ 'DEXP   ','EXP    ','LOG10  ','DLOG10 ','LOG    ','DLOG   ', &
@@ -256,12 +247,12 @@ contains
                 write(str1,'(a,i0,a,a1,a)') T('Equation') // " ",n, ": " // &
                                             T("Equal sign '=' is missing!"), &
                                             new_line('A'), bformel(n)%s
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
                 ifehl = 1
-                call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                 exit
             end if
             if(n <= nglp) then
@@ -276,12 +267,12 @@ contains
                         call CharModStr(str1, 256)
                         write(str1,'(a,a,a1,a)') T('The symbole') // " ", varab(nab)%s, &
                             new_line('A') , T('must not contain a minus sign!')
-
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
-                        call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                         nab = nab - 1
                         exit
                     end if
@@ -301,13 +292,13 @@ contains
                     write(str1, *) T('An equation for the following symbol already exists') // ": ", &
                                    trim(varabx), new_line('A'), new_line('A'), &
                                    T('Please combine these equations into one!')
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, &
-                                     "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, &
+                    !                  "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
                     ifehl = 1
-                    call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                    call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                    call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                    ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                    ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                    ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                     exit
                 end if
             end if
@@ -419,13 +410,13 @@ contains
                                                ": " // T('The symbole') // " " // varab(i)%s // " " //&
                                                T('is multiply defined!') // new_line('A') // &
                                                T('Please, correct the equation(s)!')
-
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, &
-                                         "Symbol1:", resp, mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, &
+                        !                  "Symbol1:", resp, mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
-                        call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                         return
                     end if
                 end do
@@ -787,12 +778,13 @@ contains
                             new_line('A'), new_line('A'), &
                             T('Please, correct the order of the equation(s)!') , new_line('A'), new_line('A'), &
                             T('The symbole defined by an equation must not occur in the right-hand side of equations following it!')
-                        call MessageShow(trim(str1), GTK_BUTTONS_OK, &
-                                         "Symbol1:", resp, mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                            ! call MessageShow(trim(str1), GTK_BUTTONS_OK, &
+                            !              "Symbol1:", resp, mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
-                        call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                         return
                     end if
                 end do
@@ -814,12 +806,12 @@ contains
                                        T('the equation for') // " ", Symbole(i)%s // " ", &
                                        T('cannot have the position of an output quantity!'), &
                                        T('Please, correct the order of the equation(s)!')
-
-                            call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                        print *, str1
+                        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
                         ifehl = 1
-                        call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                        call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                        ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                         return
                     end if
                 end do
@@ -893,7 +885,7 @@ contains
         ncstr = ngrs + 30
         if(allocated(cstr)) deallocate(cstr)
         allocate(cstr(ncstr))
-        call WTreeViewGetStrArray('treeview2', 7, ncstr, cstr)
+        ! call WTreeViewGetStrArray('treeview2', 7, ncstr, cstr)
 
         ! Find out, which new symbols (neusym()) have been found:
         nsyn = 0
@@ -1087,171 +1079,159 @@ contains
             do k=1,nvarsMD
                 symtyp(MDpoint(k))%s = 'm'
             end do
-            call gtk_widget_set_sensitive(idpt('TBmeansMD'), 1_c_int)
+
+            ! call gtk_widget_set_sensitive(idpt('TBmeansMD'), 1_c_int)
         end if
 
-        tree = idpt('treeview1')
-        if(consoleout_gtk) write(0,'(a,i0)') 'Sy1_991:  before double loop:  ngrs=',int(ngrs,2),'   ngrs_CP=',ngrs_CP
-        if(.false.) then
-            do i=1,ngrs
-!                 write(66,'(i3,4(2x,a))') i,Symbole(i)%s, symtyp(i)%s,einheit(i)%s,bedeutung(i)%s
-                write(log_str, '(i3,4(2x,a))') i,Symbole(i)%s, symtyp(i)%s,einheit(i)%s,bedeutung(i)%s
-                call logger(66, log_str)
-            end do
-            do i=1,ngrs_CP
-!                 write(66,'(a,i3,4(2x,a))') 'CP: ',i,Symbole_CP(i)%s, symtyp_CP(i)%s,einheit_CP(i)%s,bedeutung_CP(i)%s
-                write(log_str, '(a,i3,4(2x,a))') 'CP: ',i,Symbole_CP(i)%s, symtyp_CP(i)%s,einheit_CP(i)%s,bedeutung_CP(i)%s
-                call logger(66, log_str)
-            end do
-        end if
+        ! tree = idpt('treeview1')
+
 
         !!!! call RS_numbers()
 
-        do i=1,ngrs
-            intval = i
-            crow = i - 1
-            if(consoleout_gtk) Write(0,'(a,i0,a)') 'double loop: i=',i,' , before column 1'
-            write(ccc,'(i3.0)') i
-            call hl_gtk_listn_set_cell(tree, col=0_c_int, row=crow, svalue=trim(ccc))
-            if(consoleout_gtk) then
-                Write(0,'(a,i0,a)') 'Double loop: i=',i,' , before cols 2-3'
-                write(0,*) 'Symbole(i)=',symbole(i)%s,' symtyp=',symtyp(i)%s
-            end if
-            if(consoleout_gtk) Write(0,*) 'before col Symbole(i)'
-            xstr = max(' ',Symbole(i)%s)
-            call WTreeViewPutStrCell('treeview1', 2, i, xstr)
-            if(consoleout_gtk) Write(0,*) 'before col symtyp(i)'
-            xstr = max(' ',symtyp(i)%s)
-            call WTreeViewPutStrCell('treeview1', 3, i, xstr)
-            call WTreeViewSetColorRow('treeview1',i, get_color_string('frame_bg'))
+        ! do i=1,ngrs
+        !     intval = i
+        !     crow = i - 1
 
-            mfd = 0
-            do k=1,ngrs_cp
-                if(chupper_eq(symbole_CP(k)%s, symbole(i)%s)) then
-                    if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', before TV1 cols 4+5'
-                    ! The did already exist:
-                    xstr = max(' ',einheit_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 4, i, xstr)
-                    if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', after TV1 col. 4'
-                    xstr = max(' ',Bedeutung_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 5, i, xstr)
-                    if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', after TV1 col. 5'
+        !     write(ccc,'(i3.0)') i
+        !     ! call hl_gtk_listn_set_cell(tree, col=0_c_int, row=crow, svalue=trim(ccc))
+        !     ! if(consoleout_gtk) then
+        !     !     Write(0,'(a,i0,a)') 'Double loop: i=',i,' , before cols 2-3'
+        !     !     write(0,*) 'Symbole(i)=',symbole(i)%s,' symtyp=',symtyp(i)%s
+        !     ! end if
+        !     ! if(consoleout_gtk) Write(0,*) 'before col Symbole(i)'
+        !     xstr = max(' ',Symbole(i)%s)
+        !     call WTreeViewPutStrCell('treeview1', 2, i, xstr)
+        !     if(consoleout_gtk) Write(0,*) 'before col symtyp(i)'
+        !     xstr = max(' ',symtyp(i)%s)
+        !     call WTreeViewPutStrCell('treeview1', 3, i, xstr)
+        !     call WTreeViewSetColorRow('treeview1',i, get_color_string('frame_bg'))
 
-                    symtyp(i) = symtyp_CP(k)
-                    einheit(i)%s = einheit_CP(k)%s
-                    bedeutung(i)%s = bedeutung_CP(k)%s    !
-                    MEsswert(i) = Messwert_CP(k)
-                    ivtl(i) = ivtl_CP(k)
-                    SDFormel(i)%s = SDFormel_CP(k)%s
-                    SDWert(i) = SDWert_CP(k)
-                    HBreite(i) = HBreite_CP(k)
-                    IAR(i) = IAR_CP(k)
-                    STDUnc(i) = STDunc_CP(k)
-                    icp_used(i) = icp_used(k)
-                    if(consoleout_gtk) Write(0,*) 'double loop: after copying'
-                    if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', before TV2 cols. 5-11'
-                    call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-                    call WTreeViewPutComboCell('treeview2', 6, i, ivtl(i))
-                    xstr = max(' ',SDFormel(i)%s)
-                    call WTreeViewPutStrCell('treeview2', 7, i, xstr)
-                    call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
-                    call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
-                    call WTreeViewPutComboCell('treeview2', 10, i, IAR(i))
-                    call WTreeViewPutDoubleCell('treeview2', 11, i, missingval)
-                    ! write(66,*) 'TV2 written (a) for Symbol i=',int(i,2),' k_cp=',int(k,2),' _cp: ',symbole_CP(k)%s, ' ohne _cp:',symbole(i)%s
-                    !-------------------
-                    if(k <= ngrs) icp_used(k) = 1
-                    mfd = 1
-                    Exit
-                end if
-            end do     ! k=1,ngrs_CP
+        !     mfd = 0
+        !     do k=1,ngrs_cp
+        !         if(chupper_eq(symbole_CP(k)%s, symbole(i)%s)) then
+        !             if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', before TV1 cols 4+5'
+        !             ! The did already exist:
+        !             xstr = max(' ',einheit_CP(k)%s)
+        !             call WTreeViewPutStrCell('treeview1', 4, i, xstr)
+        !             if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', after TV1 col. 4'
+        !             xstr = max(' ',Bedeutung_CP(k)%s)
+        !             call WTreeViewPutStrCell('treeview1', 5, i, xstr)
+        !             if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', after TV1 col. 5'
 
-            if(ngrs_CP > 0 .and. mfd == 0 .and. len_trim(symbole(i)%s) > 0) THEN
-                ! the symbol is new:
-                !write(66,'(a,i0,a,i0,a,a,3(a,i0))') 'SY1_1066:   New added Symbol: i=',i,' ichar=',ichar(symbole(i)%s), &
-                !     '  Symbol=',symbole(i)%s,'  ngrs=',ngrs,' ngrs_CP=',ngrs_CP,' mfd=',mfd
-                call ModvarsTV2(ngrs)
-                if(ngrs > ix) call CharModA1(cstr,ngrs)
+        !             symtyp(i) = symtyp_CP(k)
+        !             einheit(i)%s = einheit_CP(k)%s
+        !             bedeutung(i)%s = bedeutung_CP(k)%s    !
+        !             MEsswert(i) = Messwert_CP(k)
+        !             ivtl(i) = ivtl_CP(k)
+        !             SDFormel(i)%s = SDFormel_CP(k)%s
+        !             SDWert(i) = SDWert_CP(k)
+        !             HBreite(i) = HBreite_CP(k)
+        !             IAR(i) = IAR_CP(k)
+        !             STDUnc(i) = STDunc_CP(k)
+        !             icp_used(i) = icp_used(k)
+        !             if(consoleout_gtk) Write(0,*) 'double loop: after copying'
+        !             if(consoleout_gtk) Write(0,*) 'double loop: i=',int(i,2),'k=',int(k,2),', before TV2 cols. 5-11'
+        !             call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+        !             call WTreeViewPutComboCell('treeview2', 6, i, ivtl(i))
+        !             xstr = max(' ',SDFormel(i)%s)
+        !             call WTreeViewPutStrCell('treeview2', 7, i, xstr)
+        !             call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+        !             call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
+        !             call WTreeViewPutComboCell('treeview2', 10, i, IAR(i))
+        !             call WTreeViewPutDoubleCell('treeview2', 11, i, missingval)
+        !             ! write(66,*) 'TV2 written (a) for Symbol i=',int(i,2),' k_cp=',int(k,2),' _cp: ',symbole_CP(k)%s, ' ohne _cp:',symbole(i)%s
+        !             !-------------------
+        !             if(k <= ngrs) icp_used(k) = 1
+        !             mfd = 1
+        !             Exit
+        !         end if
+        !     end do     ! k=1,ngrs_CP
 
-                do j=ngrs-1,i,-1
-                    Einheit(j+1)%s     = Einheit(j)%s
-                    Bedeutung(j+1)%s   = Bedeutung(j)%s
-                    symtyp(j+1)%s      = symtyp(j)%s
-                    SDformel(j+1)%s    = SDformel(j)%s
-                    cstr(j+1)%s        = cstr(j)%s
-                end do
-                if(allocated(vvv)) deallocate(VVV)
-                allocate(VVV(1))
-                vvv(1)%s = ' '
-                Einheit = [ einheit(1:i-1), vvv(1) , einheit(i+1:ngrs) ]
-                Bedeutung = [ Bedeutung(1:i-1), vvv(1) , Bedeutung(i+1:ngrs) ]
-                symtyp = [ symtyp(1:i-1), vvv(1) , symtyp(i+1:ngrs) ]
-                SDFormel = [ SDFormel(1:i-1), vvv(1) , SDFormel(i+1:ngrs) ]
-                cstr = [ cstr(1:i-1), vvv(1) , cstr(i+1:ngrs) ]
+        !     if(ngrs_CP > 0 .and. mfd == 0 .and. len_trim(symbole(i)%s) > 0) THEN
+        !         ! the symbol is new:
+        !         !write(66,'(a,i0,a,i0,a,a,3(a,i0))') 'SY1_1066:   New added Symbol: i=',i,' ichar=',ichar(symbole(i)%s), &
+        !         !     '  Symbol=',symbole(i)%s,'  ngrs=',ngrs,' ngrs_CP=',ngrs_CP,' mfd=',mfd
+        !         call ModvarsTV2(ngrs)
+        !         if(ngrs > ix) call CharModA1(cstr,ngrs)
 
-                Messwert = [ Messwert(1:i-1), missingval, Messwert(i+1:ngrs) ]
-                IVTL = [ IVTL(1:i-1), 1, IVTL(i+1:ngrs) ]
-                SDWert = [ SDWert(1:i-1), missingval, SDWert(i+1:ngrs) ]
-                IAR = [ IAR(1:i-1), 1, IAR(i+1:ngrs) ]
-                HBreite = [ Hbreite(1:i-1), missingval, HBreite(i+1:ngrs) ]
-                StdUnc = [ StdUnc(1:i-1), missingval, StdUnc(i+1:ngrs) ]
+        !         do j=ngrs-1,i,-1
+        !             Einheit(j+1)%s     = Einheit(j)%s
+        !             Bedeutung(j+1)%s   = Bedeutung(j)%s
+        !             symtyp(j+1)%s      = symtyp(j)%s
+        !             SDformel(j+1)%s    = SDformel(j)%s
+        !             cstr(j+1)%s        = cstr(j)%s
+        !         end do
+        !         if(allocated(vvv)) deallocate(VVV)
+        !         allocate(VVV(1))
+        !         vvv(1)%s = ' '
+        !         Einheit = [ einheit(1:i-1), vvv(1) , einheit(i+1:ngrs) ]
+        !         Bedeutung = [ Bedeutung(1:i-1), vvv(1) , Bedeutung(i+1:ngrs) ]
+        !         symtyp = [ symtyp(1:i-1), vvv(1) , symtyp(i+1:ngrs) ]
+        !         SDFormel = [ SDFormel(1:i-1), vvv(1) , SDFormel(i+1:ngrs) ]
+        !         cstr = [ cstr(1:i-1), vvv(1) , cstr(i+1:ngrs) ]
 
-                einheit(i)%s = ' '
-                bedeutung(i)%s = ' '
-                cstr(i)%s = ' '
-                if(i <= nab) symtyp(i)%s = 'a'
-                if(i > nab) symtyp(i)%s = 'u'
+        !         Messwert = [ Messwert(1:i-1), missingval, Messwert(i+1:ngrs) ]
+        !         IVTL = [ IVTL(1:i-1), 1, IVTL(i+1:ngrs) ]
+        !         SDWert = [ SDWert(1:i-1), missingval, SDWert(i+1:ngrs) ]
+        !         IAR = [ IAR(1:i-1), 1, IAR(i+1:ngrs) ]
+        !         HBreite = [ Hbreite(1:i-1), missingval, HBreite(i+1:ngrs) ]
+        !         StdUnc = [ StdUnc(1:i-1), missingval, StdUnc(i+1:ngrs) ]
 
-                ! free the grid cells in row i:
-                tree = idpt('treeview1')
-                call WTreeViewPutStrCell('treeview1', 4, i, ' ')
-                call WTreeViewPutStrCell('treeview1', 5, i, ' ')
+        !         einheit(i)%s = ' '
+        !         bedeutung(i)%s = ' '
+        !         cstr(i)%s = ' '
+        !         if(i <= nab) symtyp(i)%s = 'a'
+        !         if(i > nab) symtyp(i)%s = 'u'
 
-                if(ngrs_cp > 0) THEN
-                    nsyn = nsyn + 1
-                    ix = ubound(symb_n,dim=1)
-                    if(nsyn > ix) call CharModA1(symb_n,nsyn)
-                    vvv(1)%s = symbole(i)%s
-                    symb_n = [ symb_n(1:nsyn-1), vvv(1) ]
-                    if (get_theme_name() /= 'contrast') then
-                        call WTreeViewSetColorRow('treeview1',i, '#00FF48')         ! green
-                    else
-                        call WTreeViewSetColorRow('treeview1',i, '#1C891D')         ! green
-                    end if
-                end if
-                Messwert(i) = missingval
-                ivtl(i) = 1
-                SDFormel(i)%s = ' '
-                SDWert(i) = missingval
-                HBReite(i) = missingval
-                IAR(i) = 1
-                StdUnc(i) = missingval
-                tree = idpt('treeview2')
+        !         ! free the grid cells in row i:
+        !         tree = idpt('treeview1')
+        !         call WTreeViewPutStrCell('treeview1', 4, i, ' ')
+        !         call WTreeViewPutStrCell('treeview1', 5, i, ' ')
 
-                write(ccc,'(i3.0)') i
-                call hl_gtk_listn_set_cell(tree, col=0_c_int, row=crow, svalue=trim(ccc))
-                xstr = max(' ',Symbole(i)%s)
-                call WTreeViewPutStrCell('treeview2', 2, i, xstr)
-                xstr = max(' ',symtyp(i)%s)
-                call WTreeViewPutStrCell('treeview2', 3, i, xstr)
-                xstr = max(' ',einheit(i)%s)
-                call WTreeViewPutStrCell('treeview2', 4, i, xstr)
-                xstr = max(' ',SDFormel(i)%s)
-                call WTreeViewPutStrCell('treeview2', 7, i, xstr)
-                call WTreeViewPutComboCell('treeview2', 6, i, ivtl(i))
-                call WTreeViewPutComboCell('treeview2', 10, i, IAR(i))
-                call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
-                call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
-                call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
-                call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
-                ! write(66,*) 'TV2 written (b) for Symbol i=',int(i,2),' ',symbole(i)%s)
-                !------
-                symlist_modified = .true.
-            end if
-        end do       ! i=1,ngrs
+        !         if(ngrs_cp > 0) THEN
+        !             nsyn = nsyn + 1
+        !             ix = ubound(symb_n,dim=1)
+        !             if(nsyn > ix) call CharModA1(symb_n,nsyn)
+        !             vvv(1)%s = symbole(i)%s
+        !             symb_n = [ symb_n(1:nsyn-1), vvv(1) ]
+        !             if (get_theme_name() /= 'contrast') then
+        !                 call WTreeViewSetColorRow('treeview1',i, '#00FF48')         ! green
+        !             else
+        !                 call WTreeViewSetColorRow('treeview1',i, '#1C891D')         ! green
+        !             end if
+        !         end if
+        !         Messwert(i) = missingval
+        !         ivtl(i) = 1
+        !         SDFormel(i)%s = ' '
+        !         SDWert(i) = missingval
+        !         HBReite(i) = missingval
+        !         IAR(i) = 1
+        !         StdUnc(i) = missingval
+        !         tree = idpt('treeview2')
+
+        !         write(ccc,'(i3.0)') i
+        !         call hl_gtk_listn_set_cell(tree, col=0_c_int, row=crow, svalue=trim(ccc))
+        !         xstr = max(' ',Symbole(i)%s)
+        !         call WTreeViewPutStrCell('treeview2', 2, i, xstr)
+        !         xstr = max(' ',symtyp(i)%s)
+        !         call WTreeViewPutStrCell('treeview2', 3, i, xstr)
+        !         xstr = max(' ',einheit(i)%s)
+        !         call WTreeViewPutStrCell('treeview2', 4, i, xstr)
+        !         xstr = max(' ',SDFormel(i)%s)
+        !         call WTreeViewPutStrCell('treeview2', 7, i, xstr)
+        !         call WTreeViewPutComboCell('treeview2', 6, i, ivtl(i))
+        !         call WTreeViewPutComboCell('treeview2', 10, i, IAR(i))
+        !         call WTreeViewPutDoubleCell('treeview2', 5, i, Messwert(i))
+        !         call WTreeViewPutDoubleCell('treeview2', 8, i, SDWert(i))
+        !         call WTreeViewPutDoubleCell('treeview2', 9, i, HBreite(i))
+        !         call WTreeViewPutDoubleCell('treeview2', 11, i, StdUnc(i))
+        !         ! write(66,*) 'TV2 written (b) for Symbol i=',int(i,2),' ',symbole(i)%s)
+        !         !------
+        !         symlist_modified = .true.
+        !     end if
+        ! end do       ! i=1,ngrs
         if(apply_units) call load_unit_conv(ngrs+ncov)
 
-        if(consoleout_gtk)  write(0,*) 'Sy1_1146:  after double loop'
         !-------------------
         if(ubound(knetto_name,dim=1) > 0) then
             call Readj_knetto()
@@ -1274,7 +1254,7 @@ contains
         end if
 !         write(66,*) 'Testing SD-formulae:'
         call logger(66, 'Testing SD-formulae:')
-        if(consoleout_gtk) write(0,'(2(a,i0))') 'Sy1_1166: Testing SD formulae:   ngrs=',ngrs,' nabf=',nabf
+        ! if(consoleout_gtk) write(0,'(2(a,i0))') 'Sy1_1166: Testing SD formulae:   ngrs=',ngrs,' nabf=',nabf
         do i=1,ngrs
 !             if(len_trim(SDFormel(i)%s) > 0) write(66,'(a,i3,a,a)') '    i=',i,'  SDFormula=',SDFormel(i)%s
             if(len_trim(SDFormel(i)%s) > 0)  then
@@ -1346,8 +1326,8 @@ contains
                 str1 = T("The following symbols in the equations are new!") // new_line('A') // new_line('A')
                 str1 = str1 // T("The corresponding rows in the table are highlighted green!") // new_line('A') // new_line('A')
                 str1 = str1 // T("Please, check for correctness!")
-
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
             end if
         end if
 
@@ -1425,18 +1405,18 @@ contains
                     if(ngrs > ubound(IAR,dim=1)) call IntModA1(IAR,ngrs)
                     if(ngrs > ubound(StdUnc,dim=1)) call RealModA1(StdUnc,ngrs)
 
-                    tree = idpt('treeview1')
+                    ! tree = idpt('treeview1')
 
-                    write(ccc,'(i3.0)') ngrs-2
-                    call hl_gtk_listn_set_cell(tree, col=0_c_int, row=ngrs-2, svalue=trim(ccc))
-                    xstr = max(' ',Symbole_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 2, ngrs, xstr)
-                    xstr = max(' ',symtyp_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 3, ngrs, xstr)
-                    xstr = max(' ',einheit_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 4, ngrs, xstr)
-                    xstr = max(' ',bedeutung_CP(k)%s)
-                    call WTreeViewPutStrCell('treeview1', 5, ngrs, xstr)
+                    ! write(ccc,'(i3.0)') ngrs-2
+                    ! call hl_gtk_listn_set_cell(tree, col=0_c_int, row=ngrs-2, svalue=trim(ccc))
+                    ! xstr = max(' ',Symbole_CP(k)%s)
+                    ! call WTreeViewPutStrCell('treeview1', 2, ngrs, xstr)
+                    ! xstr = max(' ',symtyp_CP(k)%s)
+                    ! call WTreeViewPutStrCell('treeview1', 3, ngrs, xstr)
+                    ! xstr = max(' ',einheit_CP(k)%s)
+                    ! call WTreeViewPutStrCell('treeview1', 4, ngrs, xstr)
+                    ! xstr = max(' ',bedeutung_CP(k)%s)
+                    ! call WTreeViewPutStrCell('treeview1', 5, ngrs, xstr)
 !                     write(66,'(a,a,a,i0)') ' xxxxxx nsyd-Symbol: ',symbole_CP(k)%s,'   in row ngrs=',ngrs
                     write(log_str, '(a,a,a,i0)') ' xxxxxx nsyd-Symbol: ',symbole_CP(k)%s,'   in row ngrs=',ngrs
                     call logger(66, log_str)
@@ -1480,9 +1460,9 @@ contains
             if(nsyd > 0 .and. .not.proStartNew) then
                 do i=nsydanf,nsydanf+nsyd-1
                     if(i <= nsydanf+nsyd-1) then
-                        call WTreeViewSetColorRow('treeview1',i, '#FFDF00')         ! yellow
+                        ! call WTreeViewSetColorRow('treeview1',i, '#FFDF00')         ! yellow
                     else
-                        if(len_trim(symbole(i)%s) > 0) call WTreeViewSetColorRow('treeview1',i, '#FFDF00')         ! yellow
+                        ! if(len_trim(symbole(i)%s) > 0) call WTreeViewSetColorRow('treeview1',i, '#FFDF00')         ! yellow
                     end if
                 end do
             end if
@@ -1495,7 +1475,7 @@ contains
             ix = ubound(symtyp,dim=1)
             if(i > ix) call CharModA1(symtyp,i)
             if(len_trim(symtyp(i)%s) == 0) symtyp(i)%s = 'u'
-            call WTreeViewPutStrCell('treeview1',3,i,symtyp(i)%s)
+            ! call WTreeViewPutStrCell('treeview1',3,i,symtyp(i)%s)
         end do
 
         if(len_trim(str2) > 0) THEN
@@ -1504,23 +1484,23 @@ contains
             str3 = TRIM(str1) // new_line('A') // &
                 '__________________________________________________________' // new_line('A') // new_line('A') ! &
             ! // TRIM(str2)
-
-            if(len_trim(str1) > 10) call MessageShow(trim(str3), GTK_BUTTONS_OK, "Symbol1:", resp,  &
-                mtype=GTK_MESSAGE_INFO)
+            print *, str3
+            ! if(len_trim(str1) > 10) call MessageShow(trim(str3), GTK_BUTTONS_OK, "Symbol1:", resp,  &
+            !     mtype=GTK_MESSAGE_INFO)
             deallocate(str3)
 
         end if
-        if(.not.Gum_restricted .and. .not.FitDecay .and. .not.Gamspk1_Fit .and. .not.DChain) then       ! 27.4.2025
-            call WDSetComboboxAct('comboboxGrossRate',kbrutto(kEGr))
-            call WDSetComboboxAct('comboboxNetRate',knetto(kEGr))
-        end if
+        ! if(.not.Gum_restricted .and. .not.FitDecay .and. .not.Gamspk1_Fit .and. .not.DChain) then       ! 27.4.2025
+        !     call WDSetComboboxAct('comboboxGrossRate',kbrutto(kEGr))
+        !     call WDSetComboboxAct('comboboxNetRate',knetto(kEGr))
+        ! end if
 
-        do i=ngrs+1,ngrs+10          ! + 30
-            call WTreeviewPutStrCell('treeview1',2,i,' ')
-            call WTreeviewPutStrCell('treeview1',3,i,' ')
-            call WTreeviewPutStrCell('treeview1',4,i,' ')
-            call WTreeviewPutStrCell('treeview1',5,i,' ')
-        end do
+        ! do i=ngrs+1,ngrs+10          ! + 30
+        !     call WTreeviewPutStrCell('treeview1',2,i,' ')
+        !     call WTreeviewPutStrCell('treeview1',3,i,' ')
+        !     call WTreeviewPutStrCell('treeview1',4,i,' ')
+        !     call WTreeviewPutStrCell('treeview1',5,i,' ')
+        ! end do
 
         if(SumEval_fit .and. nparts > 0) then
             do i=1,nparts
@@ -1532,8 +1512,8 @@ contains
                         T('is listed as independent!'), new_line('A'), &
                         T('It must either be defined with an equation or deleted in SumEval!'), new_line('A'), &
                         T('Please correct!')
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
+                    print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "Symbol1:", resp,mtype=GTK_MESSAGE_WARNING)
                     ifehl = 1
                     return
                 end if
@@ -1567,9 +1547,9 @@ contains
 
         call RS_Numbers()
 
-        if(symlist_modified .and. uncval_exists) then
-            call TransToTV2()
-        end if
+        ! if(symlist_modified .and. uncval_exists) then
+        !     call TransToTV2()
+        ! end if
 
         !-----------------------------------------------------------------------
         !  Test the (right-hand sides of) equations by the function parser:
@@ -1652,8 +1632,8 @@ contains
         end do
         ifehlp = ifehlps
 
-        call WDPutSelRadioMenu('QThird', kEGr)
-        call SetMenuEGr(knumEGr)
+        ! call WDPutSelRadioMenu('QThird', kEGr)
+        ! call SetMenuEGr(knumEGr)
 
 !         write(66,'(a,i3,a,L1,a,i0)') 'Kfitcal=',kfitcal,'  FitCalCurve=',FitCalCurve,' ngrs=',ngrs
         write(log_str, '(a,i3,a,L1,a,i0)') 'Kfitcal=',kfitcal,'  FitCalCurve=',FitCalCurve,' ngrs=',ngrs
@@ -1668,16 +1648,16 @@ contains
         if(allocated(ch2)) deallocate(ch2)
         if(allocated(RSeiteG)) deallocate(RSeiteG)
 
-        if(ngrs > 0 .and. nab > 0) then
-            call gtk_widget_set_sensitive(idpt('TBSaveProject'),1_c_int)
-            call gtk_widget_set_sensitive(idpt('TBSaveProjectAs'),1_c_int)
-            call gtk_widget_set_sensitive(idpt('MenuSaveProject'),1_c_int)
-            call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'),1_c_int)
-        end if
+        ! if(ngrs > 0 .and. nab > 0) then
+        !     call gtk_widget_set_sensitive(idpt('TBSaveProject'),1_c_int)
+        !     call gtk_widget_set_sensitive(idpt('TBSaveProjectAs'),1_c_int)
+        !     call gtk_widget_set_sensitive(idpt('MenuSaveProject'),1_c_int)
+        !     call gtk_widget_set_sensitive(idpt('MenuSaveProjectAs'),1_c_int)
+        ! end if
 
 !         write(66,*) '########## End of Symbol1  ##############################'
         call logger(66, '########## End of Symbol1  ##############################')
-        if(consoleout_gtk)  write(0,*) '##### End of Symbol1  ##############################'
+        ! if(consoleout_gtk)  write(0,*) '##### End of Symbol1  ##############################'
 
     end subroutine Symbol1
 
@@ -1698,14 +1678,11 @@ contains
         use UR_Gspk1Fit
         use CHF,                only: FindlocT,ucase
         use, intrinsic :: iso_c_binding ,     only: c_null_char
-        use gtk_hl_dialog
-        use Rout,               only: MessageShow
-        use gtk,                only: GTK_MESSAGE_WARNING,gtk_widget_set_sensitive
-        use Rout,               only: MessageShow
+
         use UR_perror
-        use Top,                only: idpt,IntModA1,CharModA1,CharModStr
+        use Top,                only: IntModA1,CharModA1,CharModStr
         use CHF,                only: testSymbol
-        use file_io,           only: logger
+        use file_io,            only: logger
         use translation_module, only: T => get_translation
 
         implicit none
@@ -1898,12 +1875,13 @@ contains
                     T('are missing in the LINFIT-call! They must not be replaced!'), &
                     new_line('A'), new_line('A'), &
                     T('Please, correct the corresponding equation!')
-                call MessageShow(trim(str1), GTK_BUTTONS_OK, "PointNach:", resp,mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "PointNach:", resp,mtype=GTK_MESSAGE_WARNING)
                 linfit_rename = .true.
                 linfit_eqold = formelt(klinf)%s
-                call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                 ifehl = 1
                 return
             end if
@@ -1946,14 +1924,14 @@ contains
                     T('is missing in the GAMSPK1-call! It must not be replaced!'), &
                     new_line('A'), new_line('A'), &
                     T('Please, correct the corresponding equation!')
-
-                    call MessageShow(trim(str1), GTK_BUTTONS_OK, "PointNach:", &
-                                     resp, mtype=GTK_MESSAGE_WARNING)
+                print *, str1
+                    ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "PointNach:", &
+                    !                  resp, mtype=GTK_MESSAGE_WARNING)
                 gamspk_rename = .true.
                 ifehl = 1
-                call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
-                call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('treeview1'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('LoadCompletedSyms'),0_c_int)
+                ! call gtk_widget_set_sensitive(idpt('AcceptAll'),0_c_int)
                 return
             end if
 

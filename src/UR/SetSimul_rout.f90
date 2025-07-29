@@ -73,38 +73,38 @@
 !          setSumEval
 !
 !--------------------------------------------------------------------------------------------
-subroutine copyEquats()
+! subroutine copyEquats()
 
-    !     Copyright (C) 2014-2023  Günter Kanisch
+!     !     Copyright (C) 2014-2023  Günter Kanisch
 
-    use UR_types
-    use UR_Gleich_globals,         only: Formeltext, FormeltextFit, ifehl
-    use UR_gtk_globals,  only: item_setintern
-    use Rout,              only: WDPutTextviewString, pending_events
-    use ur_general_globals,      only: copyEQ, open_project_parts
-    use Pread,             only: ProRead
-    use RG,                only: modify_Formeltext
-    implicit none
+!     use UR_types
+!     use UR_Gleich_globals,         only: Formeltext, FormeltextFit, ifehl
+!     use UR_gtk_globals,  only: item_setintern
+!     use Rout,              only: WDPutTextviewString, pending_events
+!     use ur_general_globals,      only: copyEQ, open_project_parts
+!     use Pread,             only: ProRead
+!     use RG,                only: modify_Formeltext
+!     implicit none
 
-    write(0,*) 'Start copyEquats:'
+!     write(0,*) 'Start copyEquats:'
 
-    ifehl = 0
-    open_project_parts = .true.
-    copyEQ = .true.
+!     ifehl = 0
+!     open_project_parts = .true.
+!     copyEQ = .true.
 
-    call ProRead()
+!     call ProRead()
 
-    item_setintern = .true.
-    call modify_Formeltext(2)
-    call WDPutTextviewString('textview2',Formeltext)
-    if(allocated(FormeltextFit)) then
-        call WDPutTextviewString('textviewModelEQ',FormeltextFit)
-    end if
-    item_setintern = .false.
-    copyEQ = .false.
-    call pending_events()
+!     item_setintern = .true.
+!     call modify_Formeltext(2)
+!     call WDPutTextviewString('textview2',Formeltext)
+!     if(allocated(FormeltextFit)) then
+!         call WDPutTextviewString('textviewModelEQ',FormeltextFit)
+!     end if
+!     item_setintern = .false.
+!     copyEQ = .false.
+!     call pending_events()
 
-end subroutine copyEquats
+! end subroutine copyEquats
 
 !#######################################################################
 
@@ -113,20 +113,17 @@ subroutine modifSymbols()
 !     Copyright (C) 2014-2023  Günter Kanisch
 
     use UR_types
-    USE UR_Gleich_globals,         only: ifehl,ngrs,charv,nab, &
+    USE UR_Gleich_globals, only: ifehl,ngrs,charv,nab, &
                                  knetto, kbrutto, &
                                  SymboleX,symtypX, &
                                  Symbole,symtyp,einheit,bedeutung,MEsswert,SDwert,HBreite, &
                                  SDformel,IVTL,IAR,StdUnc
-    use gtk,               only: gtk_widget_set_sensitive
+
     use UR_Linft,          only: FitDecay
     use UR_Gspk1Fit,       only: Gamspk1_Fit
-    use ur_general_globals,      only: modSymb, open_project_parts
+    use ur_general_globals, only: modSymb, open_project_parts
     use CHF,               only: ucase
-    use Top,               only: CharModA1,DRead,IntModA1,LogModA1,RealModA1,idpt,InitVarsTV8
-    use Rout,              only: WDPutTextviewString,pending_events,WTreeViewPutStrArray, &
-                                 WTreeViewPutStrCell,WTreeViewGetStrCell,WDSetComboboxAct, &
-                                 WDListstoreFill_1,WTreeViewGetStrArray
+    use Top,               only: CharModA1,DRead,IntModA1,LogModA1,RealModA1,InitVarsTV8
 
     use Pread,             only: ProRead
 
@@ -200,294 +197,286 @@ end subroutine modifSymbols
 
 !###############################################################################
 
-subroutine setDataTV2
+! subroutine setDataTV2
 
-    !     Copyright (C) 2014-2023  Günter Kanisch
+!     !     Copyright (C) 2014-2023  Günter Kanisch
 
-    use UR_params,         only: EPS1MIN
-    USE UR_Gleich_globals,         only: ifehl,ngrs,nab,kEGr,kbrutto,Symbole,IAR,nab,missingval, &
-                                 charv, SymboleX,symtypX,SDformelX,MesswertX,StdUncX, &
-                                 SDwertX,HBreiteX,IARX,IVTLX, IVTL,Messwert,SDformel, &
-                                 SDwert,StdUnc,HBreite,symtyp
-    use Top,               only: CharModA1,DRead,IntModA1,LogModA1,RealModA1
-    use UR_gtk_globals,  only: item_setintern
-    use Rout,              only: pending_events,WTreeViewPutStrCell,WTreeViewPutDoubleCell, &
-                                 WTreeViewPutComboCell,WDListstoreFill_1
-    use ur_general_globals,      only: fileToSimulate
-    use CHF,               only: ucase
+!     use UR_params,         only: EPS1MIN
+!     USE UR_Gleich_globals, only: ifehl,ngrs,nab,kEGr,kbrutto,Symbole,IAR,nab,missingval, &
+!                                  charv, SymboleX,symtypX,SDformelX,MesswertX,StdUncX, &
+!                                  SDwertX,HBreiteX,IARX,IVTLX, IVTL,Messwert,SDformel, &
+!                                  SDwert,StdUnc,HBreite,symtyp
+!     use Top,               only: CharModA1,DRead,IntModA1,LogModA1,RealModA1
+!     use ur_general_globals,      only: fileToSimulate
+!     use CHF,               only: ucase
 
-    implicit none
+!     implicit none
 
-    integer                   :: i1,ios,i,jv,k,mm1,kfd,ngrs_new
-    character(:),allocatable  :: text
-    character(len=60)         :: csymbol
+!     integer                   :: i1,ios,i,jv,k,mm1,kfd,ngrs_new
+!     character(:),allocatable  :: text
+!     character(len=60)         :: csymbol
 
-    write(0,*) 'Start setDataTV2:'
-    write(66,*) 'Start setDataTV2:'
+!     write(0,*) 'Start setDataTV2:'
+!     write(66,*) 'Start setDataTV2:'
 
-    ifehl = 0
-    allocate(character(len=800) :: text)
+!     ifehl = 0
+!     allocate(character(len=800) :: text)
 
-    allocate(SDformelX(ngrs))
-    allocate(MesswertX(ngrs),StdUncX(ngrs),SDwertX(ngrs),HBreiteX(ngrs))
-    allocate(IARX(ngrs),IVTLX(ngrs))
+!     allocate(SDformelX(ngrs))
+!     allocate(MesswertX(ngrs),StdUncX(ngrs),SDwertX(ngrs),HBreiteX(ngrs))
+!     allocate(IARX(ngrs),IVTLX(ngrs))
 
-    close (25)
-    open(25, file=fileToSimulate,status='old')
+!     close (25)
+!     open(25, file=fileToSimulate,status='old')
 
-    do
-        call DRead(25,text,ios)
-        i1 = INDEX(text,'@Unc-Grid')
-        if(i1 > 0) EXIT
-    end do
+!     do
+!         call DRead(25,text,ios)
+!         i1 = INDEX(text,'@Unc-Grid')
+!         if(i1 > 0) EXIT
+!     end do
 
-    ngrs_new = ngrs
-    ! ugr = .TRUE.
-    do k=1,ngrs + 10
-        call DRead(25,text,ios)
-        IF(text(1:1) == '@') THEN
-            BACKSPACE 25
-            BACKSPACE 25
-            ! ugr = .FALSE.
-            GOTO 50
-        END IF
+!     ngrs_new = ngrs
+!     ! ugr = .TRUE.
+!     do k=1,ngrs + 10
+!         call DRead(25,text,ios)
+!         IF(text(1:1) == '@') THEN
+!             BACKSPACE 25
+!             BACKSPACE 25
+!             ! ugr = .FALSE.
+!             GOTO 50
+!         END IF
 
-        i1 = INDEX(text,'#')
-        !! write(66,*) 'Textzeile=',trim(text)
-        if(k > ngrs) then
-            call CharModA1(SDformelX,k)
-            call IntModA1(IARX,k)
-            call IntModA1(IVTLX,k)
-            call RealModA1(MesswertX,k)
-            call RealModA1(StdUncX,k)
-            call RealModA1(SDWertX,k)
-            call RealModA1(HBreiteX,k)
+!         i1 = INDEX(text,'#')
+!         !! write(66,*) 'Textzeile=',trim(text)
+!         if(k > ngrs) then
+!             call CharModA1(SDformelX,k)
+!             call IntModA1(IARX,k)
+!             call IntModA1(IVTLX,k)
+!             call RealModA1(MesswertX,k)
+!             call RealModA1(StdUncX,k)
+!             call RealModA1(SDWertX,k)
+!             call RealModA1(HBreiteX,k)
 
-            call CharModA1(SDformel,k)
-            call IntModA1(IAR,k)
-            call IntModA1(IVTL,k)
-            call RealModA1(Messwert,k)
-            call RealModA1(StdUnc,k)
-            call RealModA1(SDWert,k)
-            call RealModA1(HBreite,k)
+!             call CharModA1(SDformel,k)
+!             call IntModA1(IAR,k)
+!             call IntModA1(IVTL,k)
+!             call RealModA1(Messwert,k)
+!             call RealModA1(StdUnc,k)
+!             call RealModA1(SDWert,k)
+!             call RealModA1(HBreite,k)
 
-            ngrs_new = k
-        end if
+!             ngrs_new = k
+!         end if
 
-        read(text(1:i1-1),'(a)') Csymbol
-        do jv = 2,8
-            text = TRIM(text(i1+1:))
-            i1 = INDEX(text,'#')
-            !  if(jv == 2) write(55,*,decimal='point') 'Messwert-Feld: ',text(1:i1-1)
-            if(jv == 2) READ(text(1:i1-1),*,decimal='point') MesswertX(k)
-            !  write(55,*) real(Messwert(k),rn)
+!         read(text(1:i1-1),'(a)') Csymbol
+!         do jv = 2,8
+!             text = TRIM(text(i1+1:))
+!             i1 = INDEX(text,'#')
+!             !  if(jv == 2) write(55,*,decimal='point') 'Messwert-Feld: ',text(1:i1-1)
+!             if(jv == 2) READ(text(1:i1-1),*,decimal='point') MesswertX(k)
+!             !  write(55,*) real(Messwert(k),rn)
 
-            if(jv == 3) READ(text(1:i1-1),*) IVTLX(k)
-            if(IVTLX(k) == 6) then
-                mm1 = index(text(1:i1), '6  #')
-                if(mm1 > 0) then
-                    ! es liegt das alte txp-Format von UR1 vor:
-                    IVTLX(k) = 4     !(N+1)-Regel
-                end if
-            end if
+!             if(jv == 3) READ(text(1:i1-1),*) IVTLX(k)
+!             if(IVTLX(k) == 6) then
+!                 mm1 = index(text(1:i1), '6  #')
+!                 if(mm1 > 0) then
+!                     ! es liegt das alte txp-Format von UR1 vor:
+!                     IVTLX(k) = 4     !(N+1)-Regel
+!                 end if
+!             end if
 
-            ! if(jv == 4) READ(text(1:i1-1),'(a)') SDformel(k)
-            if(jv == 4) SDformelX(k)%s = text(1:i1-1)
-            if(jv == 5) READ(text(1:i1-1),*) SDWertX(k)
-            if(jv == 6) READ(text(1:i1-1),*) HBreiteX(k)
-            if(jv == 7) then
-                READ(text(1:i1-1),*) IARX(k)
-                if(IARX(k) == 0) IARX(k) = 1        ! NLWKN-Kalfit enthält beim 18. Wert eine Null: darf nicht sein
-            end if
-            if(jv == 8) READ(text(1:i1-1),*,decimal='point') StdUncX(k)
+!             ! if(jv == 4) READ(text(1:i1-1),'(a)') SDformel(k)
+!             if(jv == 4) SDformelX(k)%s = text(1:i1-1)
+!             if(jv == 5) READ(text(1:i1-1),*) SDWertX(k)
+!             if(jv == 6) READ(text(1:i1-1),*) HBreiteX(k)
+!             if(jv == 7) then
+!                 READ(text(1:i1-1),*) IARX(k)
+!                 if(IARX(k) == 0) IARX(k) = 1        ! NLWKN-Kalfit enthält beim 18. Wert eine Null: darf nicht sein
+!             end if
+!             if(jv == 8) READ(text(1:i1-1),*,decimal='point') StdUncX(k)
 
-        end do
-        ! WRITE(55,*) 'k=',k,' ',Messwert(k),' ',IVTL(k),' ',TRIM(sdformel(k)), &
-        WRITE(55,'(a,i3,a,es12.5,a,i2,2a,2(a,es12.5),a,i0,a,es12.5)',decimal='point')  &
-            'k=',k,' ',real(MesswertX(k),8),' ',IVTLX(k),' ',sdformelX(k)%s, &
-            ' ',real(sdwertX(k),8),' ',real(HBreiteX(k),8),' ',IARX(k),' ',  &
-            real(StdUncX(k),8)
-    end do
+!         end do
+!         ! WRITE(55,*) 'k=',k,' ',Messwert(k),' ',IVTL(k),' ',TRIM(sdformel(k)), &
+!         WRITE(55,'(a,i3,a,es12.5,a,i2,2a,2(a,es12.5),a,i0,a,es12.5)',decimal='point')  &
+!             'k=',k,' ',real(MesswertX(k),8),' ',IVTLX(k),' ',sdformelX(k)%s, &
+!             ' ',real(sdwertX(k),8),' ',real(HBreiteX(k),8),' ',IARX(k),' ',  &
+!             real(StdUncX(k),8)
+!     end do
 
-50  continue
-    ngrs = ngrs_new
+! 50  continue
+!     ngrs = ngrs_new
 
 
-    item_setintern = .true.
-    kfd = 0
-    do i=nab+1,ngrs
-        do k=1,ngrs
-            if(trim(ucase(Symbole(i)%s)) == trim(ucase(SymboleX(k)%s))) then
-                kfd = kfd + 1
-                if(abs(MesswertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',5,i,MesswertX(k))
-                call WTreeViewPutComboCell('treeview2',6,i,IVTLX(k))
-                if(len_trim(SDformelX(k)%s) > 0)  call WTreeViewPutStrCell('treeview2',7,i,SDformelX(k)%s)
-                if(abs(SDwertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',8,i,SDWertX(k))
-                if(abs(HbreiteX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',9,i,HBreiteX(k))
-                call WTreeViewPutComboCell('treeview2',10,i,IARX(k))
-            end if
-        end do
-    end do
-    write(0,'(3(a,i0))') 'kfd=',kfd,' ngrs=',ngrs,' nab=',nab
-    if(nab+kfd < ngrs) then
-        !call RealModA1(Messwert,ngrs)
-        !call RealModA1(SDwert,ngrs)
-        !call RealModA1(HBreite,ngrs)
-        !call RealModA1(StdUnc,ngrs)
-        !call IntModA1(IVTL,ngrs)
-        !call IntModA1(IAR,ngrs)
-        !call CharModA1(SDformel,ngrs)
+!     item_setintern = .true.
+!     kfd = 0
+!     do i=nab+1,ngrs
+!         do k=1,ngrs
+!             if(trim(ucase(Symbole(i)%s)) == trim(ucase(SymboleX(k)%s))) then
+!                 kfd = kfd + 1
+!                 if(abs(MesswertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',5,i,MesswertX(k))
+!                 call WTreeViewPutComboCell('treeview2',6,i,IVTLX(k))
+!                 if(len_trim(SDformelX(k)%s) > 0)  call WTreeViewPutStrCell('treeview2',7,i,SDformelX(k)%s)
+!                 if(abs(SDwertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',8,i,SDWertX(k))
+!                 if(abs(HbreiteX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',9,i,HBreiteX(k))
+!                 call WTreeViewPutComboCell('treeview2',10,i,IARX(k))
+!             end if
+!         end do
+!     end do
+!     write(0,'(3(a,i0))') 'kfd=',kfd,' ngrs=',ngrs,' nab=',nab
+!     if(nab+kfd < ngrs) then
+!         !call RealModA1(Messwert,ngrs)
+!         !call RealModA1(SDwert,ngrs)
+!         !call RealModA1(HBreite,ngrs)
+!         !call RealModA1(StdUnc,ngrs)
+!         !call IntModA1(IVTL,ngrs)
+!         !call IntModA1(IAR,ngrs)
+!         !call CharModA1(SDformel,ngrs)
 
-        do k=nab+kfd+1,ngrs
-            if(abs(MesswertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',5,k,MesswertX(k))
-            call WTreeViewPutComboCell('treeview2',6,k,IVTLX(k))
-            if(len_trim(SDformelX(k)%s) > 0)  call WTreeViewPutStrCell('treeview2',7,k,SDformelX(k)%s)
-            if(abs(SDwertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',8,k,SDWertX(k))
-            if(abs(HbreiteX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',9,k,HBreiteX(k))
-            call WTreeViewPutComboCell('treeview2',10,k,IARX(k))
+!         do k=nab+kfd+1,ngrs
+!             if(abs(MesswertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',5,k,MesswertX(k))
+!             call WTreeViewPutComboCell('treeview2',6,k,IVTLX(k))
+!             if(len_trim(SDformelX(k)%s) > 0)  call WTreeViewPutStrCell('treeview2',7,k,SDformelX(k)%s)
+!             if(abs(SDwertX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',8,k,SDWertX(k))
+!             if(abs(HbreiteX(k)-missingval) > EPS1MIN ) call WTreeViewPutDoubleCell('treeview2',9,k,HBreiteX(k))
+!             call WTreeViewPutComboCell('treeview2',10,k,IARX(k))
 
-            Symbole(k)%s = SymboleX(k)%s
-            SymTyp(k)%s = SymTypX(k)%s
-            call WTreeViewPutStrCell('treeview2',2,k,SymboleX(k)%s)
-            call WTreeViewPutStrCell('treeview2',3,k,SymTypX(k)%s)
-        end do
-        call WDListstoreFill_1('liststore_Symbols', ngrs, Symbole)
-    end if
+!             Symbole(k)%s = SymboleX(k)%s
+!             SymTyp(k)%s = SymTypX(k)%s
+!             call WTreeViewPutStrCell('treeview2',2,k,SymboleX(k)%s)
+!             call WTreeViewPutStrCell('treeview2',3,k,SymTypX(k)%s)
+!         end do
+!         call WDListstoreFill_1('liststore_Symbols', ngrs, Symbole)
+!     end if
 
-!if(.not.Gamspk1_Fit) then
-!  call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
-!else
-!  call WDListstoreFill_1('liststore_symbols', ngrs+ncov+numd, symbole)
-!end if
+! !if(.not.Gamspk1_Fit) then
+! !  call WDListstoreFill_1('liststore_symbols', ngrs, symbole)
+! !else
+! !  call WDListstoreFill_1('liststore_symbols', ngrs+ncov+numd, symbole)
+! !end if
 
 
-    if(kbrutto(kEGr) > 0) then
-        do k=1,ngrs
-            if(trim(ucase(Symbole(kbrutto(kEGr))%s)) == trim(ucase(SymboleX(k)%s))) then
-                call WTreeViewPutStrCell('treeview2',7,kbrutto(kEGr),SDformelX(k)%s)
-            end if
-        end do
-    end if
+!     if(kbrutto(kEGr) > 0) then
+!         do k=1,ngrs
+!             if(trim(ucase(Symbole(kbrutto(kEGr))%s)) == trim(ucase(SymboleX(k)%s))) then
+!                 call WTreeViewPutStrCell('treeview2',7,kbrutto(kEGr),SDformelX(k)%s)
+!             end if
+!         end do
+!     end if
 
-    item_setintern = .false.
+!     item_setintern = .false.
 
-    deallocate(SymboleX,symtypX,SDformelX)
-    deallocate(MesswertX,StdUncX,SDwertX,HBreiteX)
-    deallocate(IARX,IVTLX)
-    write(0,*) 'End setDataTV2:'
-    write(66,*) 'End setDataTV2:'
+!     deallocate(SymboleX,symtypX,SDformelX)
+!     deallocate(MesswertX,StdUncX,SDwertX,HBreiteX)
+!     deallocate(IARX,IVTLX)
+!     write(0,*) 'End setDataTV2:'
+!     write(66,*) 'End setDataTV2:'
 
-end subroutine setDataTV2
+! end subroutine setDataTV2
 
 !################################################################################
 
-subroutine setBinpoiDiag
+! subroutine setBinpoiDiag
 
-    use UR_Gleich_globals,         only: ip_binom,kbgv_binom,itm_binom,ilam_binom
-    use UR_gtk_globals,  only: item_setintern
-    use Rout,              only: WDSetComboboxAct
+!     use UR_Gleich_globals,         only: ip_binom,kbgv_binom,itm_binom,ilam_binom
 
-    implicit none
+!     implicit none
 
-    write(0,*) 'Start SetBinPoiDiag:'
+!     write(0,*) 'Start SetBinPoiDiag:'
 
-    item_setintern = .true.
-    call WDSetComboboxAct('comboboxBinPoi1',ip_binom)
-    call WDSetComboboxAct('comboboxBinPoi2',kbgv_binom)
-    call WDSetComboboxAct('comboboxBinPoi3',itm_binom)
-    call WDSetComboboxAct('comboboxBinPoi4',ilam_binom)
-    item_setintern = .true.
+!     ! item_setintern = .true.
+!     ! call WDSetComboboxAct('comboboxBinPoi1',ip_binom)
+!     ! call WDSetComboboxAct('comboboxBinPoi2',kbgv_binom)
+!     ! call WDSetComboboxAct('comboboxBinPoi3',itm_binom)
+!     ! call WDSetComboboxAct('comboboxBinPoi4',ilam_binom)
+!     ! item_setintern = .true.
 
 
-end subroutine setBinpoiDiag
+! end subroutine setBinpoiDiag
 
 !##############################################################################
 
-subroutine setFdecayModel()
+! subroutine setFdecayModel()
 
-    !     Copyright (C) 2014-2023  Günter Kanisch
+!     !     Copyright (C) 2014-2023  Günter Kanisch
 
-    use, intrinsic :: iso_c_binding,    only: c_int
-    use UR_types
-    USE UR_Gleich_globals,         only: ifehl
-    use UR_Linft,          only: ifit, nwei, nkovzr, kfitmeth, ndefall, &
-                                 CFaelldatum, &
-                                 linfzbase, nchannels
+!     use, intrinsic :: iso_c_binding,    only: c_int
+!     use UR_types
+!     USE UR_Gleich_globals, only: ifehl
+!     use UR_Linft,          only: ifit, nwei, nkovzr, kfitmeth, ndefall, &
+!                                  CFaelldatum, &
+!                                  linfzbase, nchannels
 
-    use UR_Gspk1Fit,       only: Gamspk1_Fit
-    use ur_general_globals,      only: open_project_parts, FDecM
-    use gtk,               only: gtk_widget_set_sensitive
-    use CHF,               only: ucase
-    use Top,               only: CharModA1,DRead,IntModA1,LogModA1,idpt
-    use UR_gtk_globals,  only: item_setintern
-    use Rout,              only: WDPutTextviewString,pending_events,WDSetComboboxAct,WDSetCheckButton, &
-                                 WDPutSelRadio,WDPutEntryString
-    use LSTfillT,          only: WDListstoreFill_table
-    use Pread,             only: ProRead
+!     use UR_Gspk1Fit,       only: Gamspk1_Fit
+!     use ur_general_globals,      only: open_project_parts, FDecM
 
-    implicit none
+!     use CHF,               only: ucase
+!     use Top,               only: CharModA1,DRead,IntModA1,LogModA1,idpt
 
-    write(0,*) 'Start setFdecayModel:'
+!     use Pread,             only: ProRead
 
-    ifehl = 0
-    open_project_parts = .true.
-    FDecM = .true.
-    call ProRead()
-    goto 100
+!     implicit none
 
-100 continue
+!     write(0,*) 'Start setFdecayModel:'
 
-    close (25)
+!     ifehl = 0
+!     open_project_parts = .true.
+!     FDecM = .true.
+!     call ProRead()
+!     goto 100
+
+! 100 continue
+
+!     close (25)
 
 
-    item_setintern = .true.
-!--------------------
-    call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('FittingModel'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('FittingData'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('FittingResult'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('ExportToR'), 1_c_int)
+!     item_setintern = .true.
+! !--------------------
+!     call gtk_widget_set_sensitive(idpt('MenuDecayCurve'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('FittingModel'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('FittingData'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('FittingResult'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('ExportToR'), 1_c_int)
 
-    if(.not. Gamspk1_Fit) call gtk_widget_set_sensitive(idpt('TBModelDialog'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('TBInputDialog'), 1_c_int)
-    call gtk_widget_set_sensitive(idpt('TBFittingResult'), 1_c_int)
+!     if(.not. Gamspk1_Fit) call gtk_widget_set_sensitive(idpt('TBModelDialog'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('TBInputDialog'), 1_c_int)
+!     call gtk_widget_set_sensitive(idpt('TBFittingResult'), 1_c_int)
 
-    call WDSetComboboxAct('comboboxA1', ifit(1))
-    call WDSetComboboxAct('comboboxA2', ifit(2))
-    call WDSetComboboxAct('comboboxA3', ifit(3))
-    write(55,*) 'Read:   ifit=',ifit
+!     call WDSetComboboxAct('comboboxA1', ifit(1))
+!     call WDSetComboboxAct('comboboxA2', ifit(2))
+!     call WDSetComboboxAct('comboboxA3', ifit(3))
+!     write(55,*) 'Read:   ifit=',ifit
 
-    call WDSetCheckButton('checkbuttonWFit', nwei)
-    call WDSetCheckButton('checkbuttonCovZR', nkovzr)
-    call WDSetCheckButton('checkbuttonAllm', ndefall)
-    write(55,*) 'Read:   nwei=',nwei,'  nkovzr=',nkovzr,'  ndefall=',ndefall,' kfitmeth=',kfitmeth
+!     call WDSetCheckButton('checkbuttonWFit', nwei)
+!     call WDSetCheckButton('checkbuttonCovZR', nkovzr)
+!     call WDSetCheckButton('checkbuttonAllm', ndefall)
+!     write(55,*) 'Read:   nwei=',nwei,'  nkovzr=',nkovzr,'  ndefall=',ndefall,' kfitmeth=',kfitmeth
 
-    IF(kfitmeth == 0) call WDPutSelRadio('radiobuttonNLSQ', 1)
-    IF(kfitmeth == 1) call WDPutSelRadio('radiobuttonNLSQ', 2)
-    IF(kfitmeth == 2) call WDPutSelRadio('radiobuttonNLSQ', 3)
-    IF(kfitmeth == 3) call WDPutSelRadio('radiobuttonNLSQ', 4)
+!     IF(kfitmeth == 0) call WDPutSelRadio('radiobuttonNLSQ', 1)
+!     IF(kfitmeth == 1) call WDPutSelRadio('radiobuttonNLSQ', 2)
+!     IF(kfitmeth == 2) call WDPutSelRadio('radiobuttonNLSQ', 3)
+!     IF(kfitmeth == 3) call WDPutSelRadio('radiobuttonNLSQ', 4)
 
-    call WDSetComboboxAct('comboboxtextNCH', nchannels)
-    write(55,*) 'nchannels=',nchannels
-    ! if(ubound(FormelTextFit,dim=1) > 0) call WDPutTextviewString('textviewModelEQ',FormeltextFit)
+!     call WDSetComboboxAct('comboboxtextNCH', nchannels)
+!     write(55,*) 'nchannels=',nchannels
+!     ! if(ubound(FormelTextFit,dim=1) > 0) call WDPutTextviewString('textviewModelEQ',FormeltextFit)
 
-    !-----------------------------------------------------------------
+!     !-----------------------------------------------------------------
 
-    call WDPutEntryString('entrySeparation', trim(CFaelldatum))
-    call WDSetComboboxAct('comboboxtextbase', linfzbase)
+!     call WDPutEntryString('entrySeparation', trim(CFaelldatum))
+!     call WDSetComboboxAct('comboboxtextbase', linfzbase)
 
-    ! tree = idpt('treeview5')
-    call WDListstoreFill_table('liststore_Decay',5, .true.)      ! ugr=T hat hier keine Bedeutung
+!     ! tree = idpt('treeview5')
+!     call WDListstoreFill_table('liststore_Decay',5, .true.)      ! ugr=T hat hier keine Bedeutung
 
-    !-----------------------------------------------------------------
+!     !-----------------------------------------------------------------
 
-    item_setintern = .false.
-    FDecM = .false.
+!     item_setintern = .false.
+!     FDecM = .false.
 
-    close (25)
-    write(0,*) 'End setFdecayModel:'
+!     close (25)
+!     write(0,*) 'End setFdecayModel:'
 
-end subroutine setFdecayModel
+! end subroutine setFdecayModel
 
 !###############################################################################
 

@@ -456,7 +456,7 @@ contains
         use UR_DLIM,      only: iteration_on,limit_typ
         use Brandt,       only: mtxchi
         use Num1,         only: funcs,matwrite
-        use Top,          only: WrStatusbar
+
         use translation_module,   only: T => get_translation
 
         implicit none
@@ -552,7 +552,7 @@ contains
             write(66,*) 'Lincov2: Vektor x: '
             write(66,'(100es10.3)') (real(x(i),8),i=1,n)
             write(66,*)
-            call WrStatusbar(3, "Lincov2: Matrix Ux " // T("not pos.def."))
+            ! call WrStatusbar(3, "Lincov2: Matrix Ux " // T("not pos.def."))
 
             ifehl = 1
             return
@@ -572,8 +572,8 @@ contains
         if(.not.posdef) then
             call matwrite(Uy,nr,nr,66,'(1x,60es11.4)', 'Lincov2: mtxchi:Uy not pos. def.:  Uy:')
 
-            call WrStatusbar(3, "Lincov2: Matrix Uy " // T("not pos.def."))
-            call WrStatusbar(4, 'Lincov2: ' // T('Abortion!'))
+            ! call WrStatusbar(3, "Lincov2: Matrix Uy " // T("not pos.def."))
+            ! call WrStatusbar(4, 'Lincov2: ' // T('Abortion!'))
             !call matwrite(covy,n,n,n,n,66,'(1x,40es12.5)', &
             !            'Lsqlincov2: Matrix Qxp   Before QMAT treatment:')
             ifehl = 1

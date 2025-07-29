@@ -36,7 +36,7 @@ subroutine SumEvalCalc(yval, uyval)
     use UR_types
     use UR_params,       only: EPS1MIN, ZERO
     use, intrinsic :: iso_c_binding,   only: c_int
-    use gtk,             only: gtk_buttons_OK, GTK_MESSAGE_WARNING
+
     use UR_Gleich_globals,       only: nparts,charv,Symbole,ngrs,nab, &
                                ifehl,Messwert,StdUnc,missingval,upropa_on,ksumeval,nux,symb_nux, &
                                modeSEval,iavar,faliq,upropa_on,RS_SymbolNr,kableitnum,mfactSE
@@ -47,7 +47,7 @@ subroutine SumEvalCalc(yval, uyval)
     use LF1G,            only: LsqCoxGWM
 
     use CHF,             only: FindlocT,testSymbol
-    use Rout,            only: MessageShow
+
     use UR_Gspk1Fit,     only: Uxa,UxaMV
     use Num1,            only: matwrite            ! 9.1.2024
     use file_io,         only: logger
@@ -163,8 +163,8 @@ subroutine SumEvalCalc(yval, uyval)
     if(wzero) then
         write(str1,*) T("A value of a single calibration factor is ZERO!") // new_line('A') // &
                       T("Replace it with e.g. 1.E-7!")
-
-        call MessageShow(trim(str1), GTK_BUTTONS_OK, "SumEval:", resp,mtype=GTK_MESSAGE_WARNING)
+        print *, str1
+        ! call MessageShow(trim(str1), GTK_BUTTONS_OK, "SumEval:", resp,mtype=GTK_MESSAGE_WARNING)
         ifehl = 1
         return
     end if
