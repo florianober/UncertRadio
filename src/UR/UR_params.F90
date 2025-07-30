@@ -24,6 +24,7 @@ module UR_params
     private :: rn
     !---------------------------------------------------------------------------------------------!
     integer, parameter       :: nclmax = 1550
+
     !---------------------------------------------------------------------------------------------!
     real(rn), parameter      :: PI = acos(-1.0_rn), &
                                 ZERO = 0._rn, &
@@ -37,10 +38,17 @@ module UR_params
                                BATEST_OUT = 'vgltest.txt', &
                                BATEST_REF_FILE  = 'BatListRef_v06.txt', &     ! since about 2024-01                                          ! (v.2.5)
                                GPL_HEADER = 'UncertRadio Copyright (C) ' // & ! V 2.5 GPL Header
-                                            '2014 - 2025  G. Kanisch', &
+                                            '2014 - 2025  G. Kanisch' // &
+                                            ' & F. Ober', &
                                WIN_TITLE  = 'UncertRadio: Calculation ' // &  ! Main window title
                                             'of uncertainty budget and ' // &
-                                            'detection limits', &
-                               GLADEORG_FILE = 'UR2_5.glade'                  ! name of the Glade-file
+                                            'detection limits'
+!some preprocessor defined parameter (see CMakeLists.txt)
+#if 1
+    character(*), parameter :: OS_NAME = OS_BUILD, &                          ! os name
+                               UR_version_tag = GITVERSIONTAG, &              ! UR Version
+                               UR_git_hash = GITHASH                          ! UR git hash
+#endif
+
     !---------------------------------------------------------------------------------------------!
 end module UR_params

@@ -1,5 +1,38 @@
 cmake_minimum_required(VERSION 3.20)
 
+if(WIN32)
+    set(OS_BUILD "windows")
+elseif(LINUX)
+    set(OS_BUILD "linux")
+else()
+    set(OS_BUILD "unknown")
+endif()
+
+project("UncertRadio"
+        DESCRIPTION "This is UncertRadio")
+
+enable_language(Fortran)
+
+if(NOT CMAKE_Fortran_COMPILER MATCHES "gfortran")
+    message(FATAL_ERROR "gfortran is required, but not found")
+    return()
+endif()
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    # set Release related options
+    message(STATUS "Release build type")
+    set(CMAKE_Fortran_FLAGS "-O3 -fimplicit-none -ffast-math -ffree-line-length-none -ffree-form -fdiagnostics-color=always")
+
+else()
+    # build type not known -> use Debug values
+    message(STATUS "Debug build type")
+    set(CMAKE_Fortran_FLAGS "-pg -no-pie -Og -Wall -Wextra -fcheck=all -fbacktrace -fimplicit-none -pedantic -ffree-line-length-none -ffree-form -fdiagnostics-color=always")
+endif()
+
 # Git Hash
 execute_process(COMMAND
   git rev-parse HEAD
@@ -18,30 +51,8 @@ if(NOT GIT_VERSION_TAG)
   set(GIT_VERSION_TAG "v2.6")
 endif()
 
-project("UncertRadio"
-        DESCRIPTION "This is UncertRadio ${GIT_VERSION_TAG}")
-
-enable_language(Fortran)
-
-if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE Debug)
-endif()
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-    # set Release related options
-    message(STATUS "Release build type")
-    set(CMAKE_Fortran_FLAGS "-O3 -fimplicit-none -ffast-math -ffree-line-length-none -ffree-form -fdiagnostics-color=always")
-
-#elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-else()
-    # build type not known -> use Debug values
-    message(STATUS "Debug build type")
-    set(CMAKE_Fortran_FLAGS "-pg -no-pie -Og -Wall -Wextra -fcheck=all -fbacktrace -fimplicit-none -pedantic -ffree-line-length-none -ffree-form -fdiagnostics-color=always")
-endif()
-
-
 # set Compiler options
-set(CPPFLAGS -DGITHASH="'${GIT_SHA1}'"\ -DGITVERSIONTAG="'${GIT_VERSION_TAG}'")
+set(CPPFLAGS -DGITHASH="'${GIT_SHA1}'"\ -DGITVERSIONTAG="'${GIT_VERSION_TAG}'"\ -DOS_BUILD="'${OS_BUILD}'")
 set(CMAKE_Fortran_FLAGS "${CPPFLAGS} ${CMAKE_Fortran_FLAGS}")
 message(STATUS "Fortran FLAGS: ${CMAKE_Fortran_FLAGS}")
 
@@ -54,7 +65,7 @@ pkg_check_modules(LAPACK REQUIRED IMPORTED_TARGET lapack)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Targets
-add_executable(UncertRadio src/UR/UncertRadio.F90)
+add_executable(UncertRadio src/UR/UncertRadio.f90)
 
 # add all source files for the target
 target_sources(UncertRadio PRIVATE
@@ -123,7 +134,7 @@ target_sources(UncertRadio PRIVATE
     # src/UR/UR_gtk-routines.f90
     src/UR/UR_interfaces.f90
     src/UR/UR_globals.f90
-    src/UR/UR_params.f90
+    src/UR/UR_params.F90
     src/UR/UR_types.f90
     src/UR/UncW_Init.F90
     src/UR/UncwB.f90

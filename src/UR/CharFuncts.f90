@@ -112,7 +112,7 @@ contains
         character(:), allocatable                     :: utf8_str
         !-----------------------------------------------------------------------------------------!
 
-        ! if (present(error_code)) error_code = 0
+        if (present(error_code)) error_code = 0
 
         ! if(Len_trim(local_encoded_str) == 0) return
         ! resp = g_locale_to_utf8(trim(local_encoded_str)//c_null_char, &
@@ -128,6 +128,7 @@ contains
         !     utf8_str = trim(local_encoded_str)
         !     if (present(error_code)) error_code = 1 ! could not convert string
         ! endif
+        utf8_str = trim(local_encoded_str)
 
     end function fltu
 
@@ -236,7 +237,7 @@ contains
         character(:), allocatable             :: local_encoded_str
         !-----------------------------------------------------------------------------------------!
 
-        ! if (present(error_code)) error_code = 0
+        if (present(error_code)) error_code = 0
         ! if(len_trim(utf8_str) == 0) return
         ! resp = g_locale_from_utf8(trim(utf8_str) // c_null_char,   &
         !                           int(len_trim(utf8_str), 8),      &
@@ -251,6 +252,8 @@ contains
         !     local_encoded_str = trim(utf8_str)
         !     if (present(error_code)) error_code = 1 ! could not convert string
         ! endif
+
+        local_encoded_str = trim(utf8_str)
     end function flfu
 
     !---------------------------------------------------------------------------------------------!

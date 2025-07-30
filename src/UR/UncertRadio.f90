@@ -56,12 +56,12 @@ program UncertRadio
 
     use ur_general_globals, only: automode, fname_getarg, runbatser, runauto, &
                                   work_path, log_path, results_path, help_path, example_path, &
-                                  wpunix, batest_on, actpath, Excel_langg,  &
+                                  batest_on, actpath, Excel_langg,  &
                                   autoreport, fname, Sample_ID, &
                                   Excel_sDecimalPoint,Excel_sListSeparator,sDecimalPoint,sListSeparator, &
                                   bat_serial, bat_mc, serial_csvinput, &
                                   base_project_SE, kfrom_SE, kto_SE,cgetarg, progstart_on, simul_ProSetup, &
-                                  done_simul_ProSetup,open_project_parts, dir_sep, UR_git_hash, UR_version_tag, &
+                                  done_simul_ProSetup, open_project_parts, dir_sep, &
                                   fileToSimulate
 
     use Usub3,              only: AutoReportWrite
@@ -73,7 +73,7 @@ program UncertRadio
     use UR_Gleich_globals,  only: ifehl
     use top,                only: CharModA1
 
-    use UR_params,          only: UR2_CFG_FILE, LOCKFILENAME, GPL_HEADER, GLADEORG_FILE
+    use UR_params,          only: UR2_CFG_FILE, LOCKFILENAME, GPL_HEADER, OS_NAME
     use translation_module, only: T => get_translation
     use file_io,            only: logger, read_config
     use UR_tests,           only: run_tests
@@ -93,14 +93,15 @@ program UncertRadio
     !--------------------------------------------------------------------------------------
 
     allocate(character(512) :: fname_getarg)
-    ! Check the os; i think atm the convinient way to do this is to use
-    ! the is_UNIX_OS function from gtk_sup
 
-    if (wpunix) then
+    if (OS_NAME == 'linux') then
         dir_sep = '/'
-    else
+    else if (OS_NAME == 'windows') then
         dir_sep = '\'
+    else
+        print *, "CRITICAL ERROR: OS is not supported: " // OS_NAME
     end if
+
 	! set all path variables. Ensure that they all have utf-8 encoding
     ! find the UncertRadio work path
     call get_command_argument(0, tmp_str)
@@ -139,18 +140,18 @@ program UncertRadio
     call logger(66, "This is free software, and you are welcome to redistribute it", stdout=.true.)
     call logger(66, "under certain conditions; see COPYING" // new_line('A'), stdout=.true.)
 
-    if (wpunix) then
+    if (OS_NAME == 'linux') then
         call logger(66, "Operating System: Linux")
     else
         call logger(66, "Operating System: Windows")
     endif
 
     ! change the current path to the work path.
-    !i1 = g_chdir(work_path // c_null_char)
-    if (i1 /= 0) then
-        call logger(66, "CRITICAL ERROR: could not change current dir to work path")
-        call quit_uncertRadio(3)
-    end if
+    ! i1 = g_chdir(work_path // c_null_char)
+    ! if (i1 /= 0) then
+    !     call logger(66, "CRITICAL ERROR: could not change current dir to work path")
+    !     call quit_uncertRadio(3)
+    ! end if
 
     call logger(66, "work_path = " // work_path)
 
@@ -178,28 +179,15 @@ program UncertRadio
     call logger(30, '')
     call logger(63, GPL_HEADER, new=.true.)
     call logger(63, '')
-
-    ! get the UR Version and git hash
-#ifdef GITVERSIONTAG
-    UR_version_tag = GITVERSIONTAG
-    call logger(66, text="Version: "// trim(UR_version_tag))
-#endif
-#ifdef GITHASH
-    UR_git_hash = GITHASH
-    call logger(66, "Git Hash: "// trim(UR_git_hash))
-#endif
     call logger(66, "")
 	! initiate gtk to show show gui error-messages
     ! call gtk_init()
 
     NBcurrentPage = 0
-
     runauto = .false.
     automode = .false.
     progstart_on = .true.
-
     ifehl = 0
-
 
     ! check Glade file:
 !     inquire(file=flfu(work_path // GLADEORG_FILE), exist=lexist)
@@ -248,9 +236,6 @@ program UncertRadio
     end if
 
     call cpu_time(finish)
-
-    write(log_str, '(A, F0.2, A)') " Create window1 successful!  cpu-time: ", finish - start, " s"
-    call logger(66, log_str)
 
     !------------------------------------------------------------
     ! get the number of given command arguments
@@ -400,9 +385,7 @@ program UncertRadio
     bat_serial = .false.
     bat_mc = .false.
 
-
     !-----------------------------------------------------------
-
     if(runauto) then
         ! call pending_events()
         call AutoReportWrite()
@@ -456,17 +439,16 @@ subroutine quit_uncertradio(error_code)
         endif
     endif
     if (error_code > 0) then
-        write(*,*) 'Warning: Stoping UR with errorcode: ', error_code
-!         write(66,*) 'Warning: Stoping UR with errorcode: ', error_code
+
         write(log_str, '(*(g0))') 'Warning: Stoping UR with errorcode: ', error_code
         call logger(66, log_str)
     end if
 
     ! change the current path back to the current path, when UR was started.
     !stat = g_chdir(actpath // c_null_char)
-    if (stat /= 0) then
-        call logger(66, "Warning: Could not revert the curr_dir")
-    end if
+    ! if (stat /= 0) then
+    !     call logger(66, "Warning: Could not revert the curr_dir")
+    ! end if
 
     ! Write log messages and perform necessary cleanup
 !     write(66, *) 'runauto=', runauto, ' ifehl=', ifehl
