@@ -70,6 +70,7 @@ program UncertRadio
     use UR_Loadsel,         only: NBcurrentPage
 
     use urInit,             only: READ_CFG
+    use Pread,              only: ProRead
     use UR_Gleich_globals,  only: ifehl
     use top,                only: CharModA1
 
@@ -177,9 +178,10 @@ program UncertRadio
     ! initate log and result files
     call logger(30, GPL_HEADER, new=.true.)
     call logger(30, '')
+    call logger(55, GPL_HEADER, new=.true.)
+    call logger(55, '')
     call logger(63, GPL_HEADER, new=.true.)
     call logger(63, '')
-    call logger(66, "")
 	! initiate gtk to show show gui error-messages
     ! call gtk_init()
 
@@ -212,11 +214,6 @@ program UncertRadio
 
     call cpu_time(start)
 
-    if(ifehl == 1) then
-        call logger(66, "Create window NOT successful!")
-        call quit_uncertradio(3)
-    end if
-
     ! Test for an already running instance of UR2; if so, don't start a second one.
     ! and stop UR with errorcode 2
     call check_if_running(work_path // LOCKFILENAME, ur_runs)
@@ -239,88 +236,88 @@ program UncertRadio
 
     !------------------------------------------------------------
     ! get the number of given command arguments
-    ncomargs = command_argument_count()
-    allocate(cgetarg(ncomargs))
-    call CharModA1(cgetarg, ncomargs)
+    ! ncomargs = command_argument_count()
+    ! allocate(cgetarg(ncomargs))
+    ! call CharModA1(cgetarg, ncomargs)
 
-    if(ncomargs > 0) then
+    ! if(ncomargs > 0) then
 
-        ! first read all arguments
-        do i = 1, ncomargs
-            call get_command_argument(i, tmp_str)
-            ! convert to utf-8 if the local encoding is different
-            cgetarg(i)%s = fltu(tmp_str, error_str_conv)
-            if (error_str_conv > 0) call logger(66, "Warning, could not convert command " // &
-                                                    "line argument string to utf-8: " // &
-                                                    trim(tmp_str) )
-            write(log_str, '(*(g0))') 'CmdLine-Argument ',i,' : ', cgetarg(i)%s
-            call logger(66, log_str)
+    !     ! first read all arguments
+    !     do i = 1, ncomargs
+    !         call get_command_argument(i, tmp_str)
+    !         ! convert to utf-8 if the local encoding is different
+    !         cgetarg(i)%s = fltu(tmp_str, error_str_conv)
+    !         if (error_str_conv > 0) call logger(66, "Warning, could not convert command " // &
+    !                                                 "line argument string to utf-8: " // &
+    !                                                 trim(tmp_str) )
+    !         write(log_str, '(*(g0))') 'CmdLine-Argument ',i,' : ', cgetarg(i)%s
+    !         call logger(66, log_str)
 
-        end do
+    !     end do
 
-        ! now check the first argument for keywords
-        call logger(66, "fname_getarg 1= " // ucase(cgetarg(1)%s) )
-        if (ncomargs > 2 .and. any(ucase(cgetarg(1)%s) == ['AUTO   ', 'AUTOSEP', 'BATSER '])) then
-            autoreport = .true.
-            runauto = .true.
-            automode = .true.
-            fname_getarg = cgetarg(2)%s
-            call StrReplace(fname_getarg, '/', dir_sep, .true., .false.)
+    !     ! now check the first argument for keywords
+    !     call logger(66, "fname_getarg 1= " // ucase(cgetarg(1)%s) )
+    !     if (ncomargs > 2 .and. any(ucase(cgetarg(1)%s) == ['AUTO   ', 'AUTOSEP', 'BATSER '])) then
+    !         autoreport = .true.
+    !         runauto = .true.
+    !         automode = .true.
+    !         fname_getarg = cgetarg(2)%s
+    !         call StrReplace(fname_getarg, '/', dir_sep, .true., .false.)
 
-            if (ucase(cgetarg(1)%s) == 'BATSER') then
-                call StrReplace(cgetarg(3)%s, '/', dir_sep, .true., .false.)
-                serial_csvinput = cgetarg(3)%s
-                sample_ID = cgetarg(4)%s
-                base_project_SE = fname_getarg
-            else ! AUTO, AUTOSEP
-                sample_ID = cgetarg(3)%s
-            end if
+    !         if (ucase(cgetarg(1)%s) == 'BATSER') then
+    !             call StrReplace(cgetarg(3)%s, '/', dir_sep, .true., .false.)
+    !             serial_csvinput = cgetarg(3)%s
+    !             sample_ID = cgetarg(4)%s
+    !             base_project_SE = fname_getarg
+    !         else ! AUTO, AUTOSEP
+    !             sample_ID = cgetarg(3)%s
+    !         end if
 
-            do i = 3, ncomargs
-                if (cgetarg(i)%s(1:2) == 'LC') then
-                    if (len(cgetarg(i)%s) == 7) then
-                        Excel_langg = cgetarg(i)%s(4:5)
+    !         do i = 3, ncomargs
+    !             if (cgetarg(i)%s(1:2) == 'LC') then
+    !                 if (len(cgetarg(i)%s) == 7) then
+    !                     Excel_langg = cgetarg(i)%s(4:5)
 
-                        Excel_sDecimalPoint = cgetarg(i)%s(6:6)
-                        Excel_sListSeparator = cgetarg(i)%s(7:7)
-                    else
-                        ifehl = 1
-                        call logger(66, "The command string argument  " // cgetarg(i)%s // &
-                                        " is incomplete!")
-                        call quit_uncertradio(3)
-                    end if
-                end if
-            end do
+    !                     Excel_sDecimalPoint = cgetarg(i)%s(6:6)
+    !                     Excel_sListSeparator = cgetarg(i)%s(7:7)
+    !                 else
+    !                     ifehl = 1
+    !                     call logger(66, "The command string argument  " // cgetarg(i)%s // &
+    !                                     " is incomplete!")
+    !                     call quit_uncertradio(3)
+    !                 end if
+    !             end if
+    !         end do
 
-            if(automode .and. len_trim(Excel_langg) == 2) then
-                sDecimalPoint = Excel_sDecimalPoint
-                sListSeparator = Excel_sListSeparator
-                call logger(66, 'UR2 called from Excel:  language=' // Excel_langg // &
-                                '  sDecimalPoint=' // sDecimalPoint // &
-                                '  sListSeparator=' // sListSeparator )
-            end if
+    !         if(automode .and. len_trim(Excel_langg) == 2) then
+    !             sDecimalPoint = Excel_sDecimalPoint
+    !             sListSeparator = Excel_sListSeparator
+    !             call logger(66, 'UR2 called from Excel:  language=' // Excel_langg // &
+    !                             '  sDecimalPoint=' // sDecimalPoint // &
+    !                             '  sListSeparator=' // sListSeparator )
+    !         end if
 
-        else if (ncomargs == 1) then
-            ! project to open given as first argument
-            fname_getarg = cgetarg(1)%s
+    !     else if (ncomargs == 1) then
+    !         ! project to open given as first argument
+    !         fname_getarg = cgetarg(1)%s
 
-            ! check if the given project name indicates a correct project file
-            if(index(fname_getarg,'.txp') == 0 .and. index(fname_getarg,'.csv') == 0) then
+    !         ! check if the given project name indicates a correct project file
+    !         if(index(fname_getarg,'.txp') == 0 .and. index(fname_getarg,'.csv') == 0) then
 
-                message = T('The file is not a project file!')
-                title = T("Open project")
-                fname = ''
-                fname_getarg = ''
-            else
-                fname = trim(fname_getarg)
-                call logger(66, 'iosargument: ' // trim(fname_getarg))
-                ifehl= 0
-                ! call processloadpro_new(0, 1)       ! start calculations with the first output quantity
-                ! call wdnotebooksetcurrpage('notebook1', 5)
-                nbcurrentpage = 5
-            end if
-        end if
-    end if
+    !             message = T('The file is not a project file!')
+    !             title = T("Open project")
+    !             fname = ''
+    !             fname_getarg = ''
+    !         else
+    !             fname = trim(fname_getarg)
+    !             call logger(66, 'iosargument: ' // trim(fname_getarg))
+    !             ifehl= 0
+    !             ! call processloadpro_new(0, 1)       ! start calculations with the first output quantity
+    !             ! call wdnotebooksetcurrpage('notebook1', 5)
+    !             nbcurrentpage = 5
+    !         end if
+    !     end if
+    ! end if
 
     call cpu_time(finish)
     !---------------------------------------------------------------------------------
@@ -342,17 +339,18 @@ program UncertRadio
     !
     ! GK: this test with its example projects was repeated and updated on 21.-22.9.2023.
 
-    simul_ProSetup = .false.
-    !simul_ProSetup = .true.       ! set to .true. for testing
+    simul_ProSetup = .false. ! set to .true. for testing
+    simul_ProSetup = .true.
 
     done_simul_ProSetup = .false.
     open_project_parts = .false.
 
     if(simul_ProSetup) then
+
         open_project_parts = .true.
         ! fileToSimulate = example_path // 'de' // dir_sep // 'Ac228_binomial_V2_DE.txp'     ! R0 fehlt
         ! fileToSimulate = example_path // 'de' // dir_sep // 'DWD-LSC-3kanal-V2_DE.txp'        ! ok
-        fileToSimulate = example_path // 'de' // dir_sep // 'DWD-LSC-3kanal-V2_DE.txp'        ! ok
+        ! fileToSimulate = example_path // 'de' // dir_sep // 'DWD-LSC-3kanal-V2_DE.txp'        ! ok
         ! fileToSimulate = example_path // 'en' // dir_sep // 'La140_REMSPEC-4Lines-V3_EN.txp'  ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'NLWKN_Fe-55_mit_KALFIT_DE.txp'   ! OK
         ! fileToSimulate = example_path // 'en' // dir_sep // 'Mean-theta_EN.txp'               ! OK
@@ -363,7 +361,7 @@ program UncertRadio
         ! fileToSimulate = example_path // 'en' // dir_sep // 'Example_8_with_KALFIT_EN.txp'           ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'Fe-55-mit-LSC-und-Standardaddition_DE.TXP'  ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'Galpha_beta_Rusconi_2006_V2_DE.txp'   ! OK
-        ! fileToSimulate = example_path // 'en' // dir_sep // 'ISO-Example-2a_V2_EN.txp'       ! OK
+        fileToSimulate = example_path // 'en' // dir_sep // 'ISO-Example-2a_V2_EN.txp'       ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'ISO-Neutronen-Dosis_DE.txp'      ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'Janszen-Sr-89-Sr-90_V2_DE.txp'   ! OK
         ! fileToSimulate = example_path // 'de' // dir_sep // 'Michel-2000-b_DE.txp'            ! OK
@@ -378,24 +376,22 @@ program UncertRadio
         done_simul_ProSetup = .true.
     end if
 
-
-    batest_on = .false.
-    if(NBcurrentPage == 0) NBcurrentPage = 1
-
-    bat_serial = .false.
-    bat_mc = .false.
+    call ProRead()
+    ! batest_on = .false.
+    ! bat_serial = .false.
+    ! bat_mc = .false.
 
     !-----------------------------------------------------------
-    if(runauto) then
-        ! call pending_events()
-        call AutoReportWrite()
-    elseif(runbatser) then
-        ! call pending_events()
-        bat_serial = .true.
-        kfrom_se = 1
-        kto_se = 1000
-        call Batch_proc()
-    end if
+    ! if(runauto) then
+    !     ! call pending_events()
+    !     call AutoReportWrite()
+    ! elseif(runbatser) then
+    !     ! call pending_events()
+    !     bat_serial = .true.
+    !     kfrom_se = 1
+    !     kto_se = 1000
+    !     call Batch_proc()
+    ! end if
 
     !-----------------------------------------------------------
     ! stop UncertRadio correctly
@@ -439,7 +435,6 @@ subroutine quit_uncertradio(error_code)
         endif
     endif
     if (error_code > 0) then
-
         write(log_str, '(*(g0))') 'Warning: Stoping UR with errorcode: ', error_code
         call logger(66, log_str)
     end if
@@ -449,16 +444,6 @@ subroutine quit_uncertradio(error_code)
     ! if (stat /= 0) then
     !     call logger(66, "Warning: Could not revert the curr_dir")
     ! end if
-
-    ! Write log messages and perform necessary cleanup
-!     write(66, *) 'runauto=', runauto, ' ifehl=', ifehl
-    write(log_str, '(*(g0))') 'runauto=', runauto, ' ifehl=', ifehl
-    call logger(66, log_str)
-!     write(66,'(A, I0)') ' UR2 terminated with errorcode: ', error_code
-    write(log_str, '(A, I0)') ' UR2 terminated with errorcode: ', error_code
-    call logger(66, log_str)
-    close(66)
-
     ! Terminate the program showing the error_code
     stop error_code
 end subroutine quit_uncertradio

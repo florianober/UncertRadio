@@ -756,16 +756,16 @@ contains
         !
         !     Copyright (C) 2014-2023  Günter Kanisch
 
-        use UR_params,        only: UR2_CFG_FILE
-        use, intrinsic :: iso_c_binding,    only: c_int, c_ptr
+        use UR_params, only: UR2_CFG_FILE
+        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
         use ur_general_globals,     only: Help_Path, log_path, results_path, sDecimalPoint, &
-                                    sListSeparator, sWindowsVersion, fname_getarg, sFontName, &
-                                    sfontsize, work_path, automode
+                                          sListSeparator, sWindowsVersion, fname_getarg, sFontName, &
+                                          sfontsize, work_path, automode
 
 
-        use CHF,              only: ucase, flfu, lowercase
-        use file_io,          only: logger
-        use UR_Gleich_globals,        only: apply_units, FP_for_units
+        use CHF,               only: ucase, flfu, lowercase
+        use file_io,           only: logger
+        use UR_Gleich_globals, only: apply_units, FP_for_units
 
         use translation_module, only: set_language, T => get_translation
         use color_theme
@@ -784,8 +784,6 @@ contains
         fname_getarg = ''
         sFontName = 'Verdana 10'
         sFontSize = 10
-
-
 
         open(unit=32, file=flfu(work_path // UR2_CFG_FILE), status='old', action='read', iostat=ios)
 
@@ -893,33 +891,6 @@ contains
                             else
                                 backspace (32)
                             end if
-
-                            ! if(.true.) then
-                            !     monitorUR = 0
-                            !     read(32,'(a)',iostat=ios) text
-
-                            !     if(ios /= 0) exit
-                            !     textG = ucase(text)
-                            !     if(index(textG,'MONITOR#') > 0) then
-                            !         i1 = index(textG,'=')
-                            !         if(i1 > 0) then
-                            !             read(textG(i1+1:),*, iostat=ios) monitorUR
-                            !             if(ios /= 0) then
-                            !                 write(*,*) 'Monitor# not defined'
-                            !                 exit
-                            !             end if
-                            !             !                 write(66,*) trim(textG)
-                            !             call logger(66, trim(textG))
-                            !             !                 write(66,*) ' Monitor# found in cfg: ',int(MonitorUR,2)
-                            !             write(log_str, '(*(g0))') ' Monitor# found in cfg: ',int(MonitorUR,2)
-                            !             call logger(66, log_str)
-                            !         else
-                            !             ! exit         ! <-- deactivated because the inclusion of the Monitor#
-                            !         end if
-                            !     else
-                            !         backspace (32)
-                            !     end if
-                            ! end if
 
                             if(.true.) then
                                 contrast_mode = .false.

@@ -21,12 +21,12 @@ subroutine batch_proc()
 
 
     use UR_types
-    use ur_general_globals,     only: fname,project_loadw,slistseparator, &
-                                work_path,gum_restricted,serial_csvinput, &
-                                bat_serial, bat_mc,bat_mcmc,base_project_se, &
-                                kcmxmc,kcrunmc,kfrom_se,kto_se,    &
-                                batf_file,batf,batf_reports,kfi,linebat, dir_sep
-    use UR_Gleich_globals,        only: ifehl,symboleg,ngrs,nab,knumegr
+    use ur_general_globals, only: fname,project_loadw,slistseparator, &
+                                  work_path,gum_restricted,serial_csvinput, &
+                                  bat_serial, bat_mc,bat_mcmc,base_project_se, &
+                                  kcmxmc,kcrunmc,kfrom_se,kto_se,    &
+                                  batf_file,batf,batf_reports,kfi,linebat, dir_sep
+    use UR_Gleich_globals,  only: ifehl,symboleg,ngrs,nab,knumegr
     use ur_perror
 
     use urdate,            only: get_formated_date_time
