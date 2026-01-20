@@ -1,0 +1,22 @@
+name: continuous integration build and tests
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        build_type: [Release, Debug]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build --build-arg BUILD_TYPE=${{ matrix.build_type }} -t uncertradio-${{ matrix.build_type }} .
+
+      - name: Run tests
+        run: |
+          docker run --rm uncertradio-${{ matrix.build_type }} /app/install/bin/UncertRadio run_tests

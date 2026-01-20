@@ -1,4 +1,4 @@
-!-------------------------------------------------------------------------------------------------!
+!--------------------------------------------------------------------------------------------------!
 ! This file is part of UncertRadio.
 !
 !    UncertRadio is free software: you can redistribute it and/or modify
@@ -14,23 +14,27 @@
 !    You should have received a copy of the GNU General Public License
 !    along with UncertRadio. If not, see <http://www.gnu.org/licenses/>.
 !
-!-------------------------------------------------------------------------------------------------!
+!--------------------------------------------------------------------------------------------------!
 module UR_tests
 
     ! A collection of tests for UncertRadio
 
     implicit none
-    !---------------------------------------------------------------------------------------------!
+    !----------------------------------------------------------------------------------------------!
     private
     !
     public :: run_tests
-    !---------------------------------------------------------------------------------------------!
+    !----------------------------------------------------------------------------------------------!
 
 contains
     subroutine run_tests()
         implicit none
-        !-----------------------------------------------------------------------------------------!
+        !------------------------------------------------------------------------------------------!
         write(*,'(2X,A)') "Running UncertRadio tests"
+
+        ! call test_sym_eigensolve()
+
+        call test_mtxhst()
 
         call test_write_text_file()
 
@@ -52,6 +56,127 @@ contains
 
     end subroutine
 
+    subroutine test_sym_eigensolve()
+        !------------------------------------------------------------------------------------------!
+        use UR_types, only: rn
+        use UR_params, only: EPS1MIN
+        use Num1, only: sym_eigensolve, kaiser
+        implicit none
+        !------------------------------------------------------------------------------------------!
+        integer, parameter :: n = 3
+        real(rn) :: a(n,n), eigenv(n), a2(n,n), eigenv2(n), sume, trace
+        integer  :: ier, i, errors, lda
+        !------------------------------------------------------------------------------------------!
+
+        errors = 0
+        ! Initialize matrix a
+        a = 0.0_rn
+        do i = 1, n
+            a(i,i) = 1.0_rn
+        end do
+        a(1,2) = 0.5_rn
+        a(2,1) = 0.5_rn
+        a(1,3) = 0.2_rn
+        a(3,1) = 0.2_rn
+        a(2,3) = 0.1_rn
+        a(3,2) = 0.1_rn
+
+        a2 = a
+
+        call kaiser(a2, n, n, eigenv2, trace, sume, ier)
+
+        print *, a
+        print *, ''
+        lda = n
+        ! Call test_sym_eigensolve subroutine
+        call sym_eigensolve(n, a, lda, eigenv, ier)
+
+        ! Check if ier is 0 (no error)
+        if (ier /= 0) then
+            write(*,'(4X,A)') "Error: ier /= 0"
+            errors = errors + 1
+        end if
+        print '(3(ES23.15))', eigenv(:)
+        print '(3(ES23.15))', a(1,:)
+        print '(3(ES23.15))', a(2,:)
+        print '(3(ES23.15))', a(3,:)
+        print *, ''
+        print '(3(ES23.15))', eigenv2(:)
+        print '(3(ES23.15))', a2(1,:)
+        print '(3(ES23.15))', a2(2,:)
+        print '(3(ES23.15))', a2(3,:)
+
+        ! Check if eigenv is correct
+        if (abs(eigenv(1) - 1.5784259628995521_rn) > EPS1MIN .or. &
+            abs(eigenv(2) - 0.93229899132550031_rn) > EPS1MIN .or. &
+            abs(eigenv(3) - 0.48927504577494785_rn) > EPS1MIN) then
+            write(*,'(4X,A)') "Error: eigenvalues are not correct"
+            errors = errors + 1
+        end if
+
+        if (errors == 0) then
+            write(*,'(4X,A)') "Kaiser: no errors"
+        else
+            write(*, '(4X, A,I0,A)') "Kaiser: Warning, found ", errors, " error(s)"
+        end if
+
+    end subroutine test_sym_eigensolve
+
+
+    subroutine test_mtxhst()
+        !------------------------------------------------------------------------------------------!
+        use UR_types, only: rn
+        use UR_params, only: PI, EPS1MIN
+        use brandt, only: mtxhst
+        implicit none
+        !------------------------------------------------------------------------------------------!
+
+        integer, parameter :: n = 10
+        integer  :: lp, l, i
+        real(rn) :: v(n), up, b, c(n)
+
+        real(rn), parameter :: results(n) = &
+            [0.31830988618379069_rn, &
+             0.63661977236758138_rn, &
+             0.95492965855137202_rn, &
+             1.2732395447351628_rn, &
+             374.96354436109192_rn, &
+             1920.5322358084820_rn, &
+             2613.6864038721087_rn, &
+             3413.4307039630339_rn, &
+             4319.7651360812579_rn, &
+             5332.6897002267806_rn]
+        integer                   :: errors
+        !------------------------------------------------------------------------------------------!
+
+        errors = 0
+        ! Initialize variables
+        lp = 5
+        l = 6
+        up = 2.23_rn
+        b = 0.58288_rn
+
+        ! Initialize vectors v and c
+        do i = 1, n
+            v(i) = real(i, rn)**2 / PI
+            c(i) = real(i, rn) / PI
+        end do
+
+        call mtxhst(v, up, b, c, n, lp, l)
+
+        do i=1, 10
+            if (abs(c(i) + EPS1MIN - results(i)) > EPS1MIN) then
+                errors = errors + 1
+            end if
+        end do
+
+        if (errors == 0) then
+            write(*,'(4X,A)') "mtxhst: no errors"
+        else
+            write(*, '(4X, A,I0,A)') "mtxhst: Warning, found ", errors, " error(s)"
+        end if
+
+    end subroutine test_mtxhst
 
     subroutine test_str_replace()
         use chf, only: StrReplace
@@ -222,7 +347,7 @@ contains
                 if (tmp_string /= out_text1 // out_text2) then
                     errors = errors + 1
                     write(*,'(4X,A)') "Error: input /= output: " // trim(tmp_string) // ", " // &
-                                    out_text1 // out_text2
+                        out_text1 // out_text2
                 end if
 
             end if
@@ -384,8 +509,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             print *, "Test 1 failed for input: " // trim(test_input) // &
-                     ", Expected: " // trim(expected_output) // ", is: : " // &
-                     trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         ! Test case 2: Number with exponent and trailing zeros
@@ -394,8 +519,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             write(*,'(4X,A)') "Test 2 failed for input: " // trim(test_input) // &
-                              ", Expected: " // trim(expected_output) // ", is: : " // &
-                              trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         ! Test case 3: Number with no trailing zeros
@@ -404,8 +529,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             write(*,'(4X,A)')  "Test 3 failed for input: " // trim(test_input) // &
-                               ", Expected: " // trim(expected_output) // ", is: : " // &
-                               trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         ! Test case 4: Empty string
@@ -414,8 +539,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             write(*,'(4X,A)') "Test 4 failed for input: " // trim(test_input) // &
-                              ", Expected: " // trim(expected_output) // ", is: : " // &
-                              trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
         ! Test case 5: Number with comma as decimal point
         sDecimalPoint = ','
@@ -424,8 +549,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             print *, "Test 5 failed for input: " // trim(test_input) // &
-                     ", Expected: " // trim(expected_output) // ", is: : " // &
-                     trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         sDecimalPoint = '.'
@@ -435,8 +560,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             write(*,'(4X,A)') "Test 6 failed for input: " // trim(test_input) // &
-                              ", Expected: " // trim(expected_output) // ", is: : " // &
-                              trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         ! Test case 7: Number with negative exponent and trailing zeros
@@ -445,8 +570,8 @@ contains
         if (trim(FormatNumStr(test_input, sDecimalPoint)) /= trim(expected_output)) then
             errors = errors + 1
             write(*,'(4X,A)')  "Test 6 failed for input: " // trim(test_input) // &
-                               ", Expected: " // trim(expected_output) // ", is: : " // &
-                               trim(FormatNumStr(test_input, sDecimalPoint))
+                ", Expected: " // trim(expected_output) // ", is: : " // &
+                trim(FormatNumStr(test_input, sDecimalPoint))
         end if
 
         if (errors == 0) then

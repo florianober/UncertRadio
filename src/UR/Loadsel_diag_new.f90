@@ -490,7 +490,8 @@ contains
             end if
             call InitVarsTV5_CP(kxy)
 
-            if(allocated(sd0zrateSV)) deallocate(sd0zrateSV,d0zrateSV)
+            if(allocated(sd0zrateSV)) deallocate(sd0zrateSV)                     !
+            if(allocated(d0zrateSV)) deallocate(d0zrateSV)                       !
             allocate(sd0zrateSV(kxy),d0zrateSV(kxy))
             sd0zrateSV= ZERO; d0zrateSV = ZERO
             if(allocated(dtdiff)) deallocate(dtdiff)
@@ -2608,8 +2609,8 @@ contains
         !   Copyright (C) 2020-2023  Günter Kanisch
 
         use, intrinsic :: iso_c_binding,         only: c_ptr
-        USE ur_general_globals,          only: SaveP
-        USE UR_Gleich_globals,             only: kpoint,missingval,Messwert,Stdunc,kpoint,SDWert
+        USE ur_general_globals,    only: SaveP
+        USE UR_Gleich_globals,     only: kpoint,missingval,Messwert,Stdunc,kpoint,SDWert
         USE UR_Linft,              only: k_rbl,ndatmax,numd,linfzbase,tmedian,dmesszeit,dbimpulse, &
                                          sdbzrate,d0messzeit,d0impulse,d0zrate,sd0zrate,cstartzeit, &
                                          dbzrate,sd0zrate_CP,d0zrate_CP,dbzrate_CP,sdbzrate_CP, &
@@ -2620,7 +2621,7 @@ contains
                                          WTreeViewPutDoubleCell
         use Top,                   only: FieldUpdate, wrstatusbar
         use file_io,               only: logger
-        use UWB,                   only: median
+        use num1,                  only: median
         use translation_module,    only: T => get_translation
 
         implicit none

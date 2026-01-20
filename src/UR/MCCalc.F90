@@ -40,7 +40,7 @@ contains
         use UR_gtk_globals,         only: plot_setintern,plinit_done,item_setintern
 
         use ur_general_globals,     only: fname,frmtres, Gum_restricted, MCsim_on, &
-                                          batf_mc,gtk_strm,MCsim_localOff
+                                          batf_mc,gtk_strm,MCsim_localOff, MC_root_from_line
         use UR_Gleich_globals,      only: ifehl,kbrutto_double,kEGr,kgspk1,klinf,knumEGr,nab, &
                                           ncov,ngrs,nvar,rnetmodi,MEsswert,MesswertSV,kpoint,StdUncSV, &
                                           StdUnc,covarval,ivtl,Symbole,kbrutto,SymboleG,kbrutto_gl, &
@@ -63,13 +63,13 @@ contains
         use Rout,                   only: WDPutEntryInt,pending_events,WDPutEntryInt,  &
                                           WDPutLabelColorF,WDPutEntryDouble,WDGetCheckButton, &
                                           WDPutLabelString
-        use Top,                    only: WrStatusbar
+        use Top,                    only: WrStatusbar,IntModA1,RealModA2
         use top,                    only: idpt
         use Rw1,                    only: covppcalc
         use Rw2,                    only: rnetval
-        use UWB,                    only: Resulta,RbtCalc,median
+        use UWB,                    only: Resulta, RbtCalc
         use Usub3,                  only: FindMessk
-        use Num1,                   only: Xfit,Quick_sort_r
+        use Num1,                   only: Xfit, Quick_sort_r, median
         use KLF,                    only: fkalib,sd_y0,CalibInter
         use RND,                    only: Rndu,rgamma,random_bipo2,scan_bipoi2,rnorm, &
                                           UR_random_seed,random_t
@@ -79,7 +79,7 @@ contains
 
         use RdSubs,                 only: rmcformF
         use UR_MCSR
-        use MCSr,                   only: MCsingRun,SDQt
+        use MCSr,                   only: MCsingRun, SDQt
         use CHF,                    only: FindlocT, testSymbol
 
         use UR_plotp
@@ -102,10 +102,8 @@ contains
         real(rn)             :: parr(7),xdiff(50)
         character(len=20)    :: cct
         character(len=10)    :: itmeth
-        logical              :: use_brent,first
-        integer, allocatable :: indx(:),indfgr(:)
+        logical              :: first                      ! (local) use_brent: replaced by use_toms748 25.10.2025 GK
         real(rn),allocatable :: fgr(:)
-
         character(len=512)   :: log_str
 
         !-------------------------------------------------------------------
@@ -124,15 +122,13 @@ contains
         mcafull2 = ZERO
         mcafull3 = ZERO
 
-        allocate(indx(1))
-
         xplt = ZERO
         yplt = ZERO
         test_mg = .false.
 
         call plsstrm(gtk_strm)
 
-        use_brent = .true.
+        MC_root_from_line = .false.                ! 24.10.2025 GK
         do i=1,ngrs+ncov+numd
             if(abs(Messwert(i)-MesswertSV(i)) > EPS1MIN) then
                 write(log_str,'(*(g0))') 'Test: i=',int(i,2),' ',Symbole(i)%s, sngl(Messwert(i)), sngl(MesswertSV(i))
@@ -178,11 +174,11 @@ contains
         call logger(63,' ')
 
         ifehl = 0
-! Initialise the random generators by the time:
+        ! Initialise the random generators by the time:
 
         call date_and_time(values=zt1)                       !values=[year, month, day, gmt_min, hr,min,sec,msec]
         idum = zt1(7)*60 + zt1(6)
-! idum = 556842   ! activate this value for reproducible MC
+        ! idum = 556842   ! activate this value for reproducible MC
         call UR_random_seed(idum)
 
         if(kcrun == 0 .or. imcmax == 0) then
@@ -395,7 +391,7 @@ contains
         ! Test gamma- and t-distributed random values (de-activate GOTO 10):
         GOTO 10
 
-        allocate(indfgr(100000),fgr(100000))
+        allocate(fgr(100000))
         s_rt = ZERO  ! for random_t
         c_rt = ZERO
         a_rt = ZERO
@@ -462,7 +458,7 @@ contains
                 end do
                 write(log_str,*) 'mean(t)=',sngl(mean(fgr)),'  sd(t)=',sngl(sd(fgr))
                 call logger(63, log_str)
-                call Quick_Sort_r(fgr(1:imct),indfgr)
+                call Quick_Sort_r(fgr(1:imct))
                 do i=1,7
                     dummy = quantileM(parr(i),fgr(1:imct),imct)
                     write(log_str,'(a,i2,a,f6.4,a,f11.6)') 'DF=',k,' P=',parr(i),'  q=',dummy
@@ -505,8 +501,8 @@ contains
         write(log_str,*) 'CPU-time : ',sngl(finish-start)
         call logger(63, log_str)
         GamDistAdd = gda_SV
-        deallocate(indfgr,fgr)
-! GOTO 9000
+        deallocate(fgr)
+
 
 10      CONTINUE
 
@@ -826,7 +822,7 @@ contains
                     xmit1_anf = xmit1
                     sd_dt = xsdv / sqrt(real(imctrue,rn))
                     help1 = abs(xmit1)/sd_dt
-                    call Quick_Sort_r(arraymc(1:imctrue,kqtyp),indx)
+                    call Quick_Sort_r(arraymc(1:imctrue,kqtyp))
 
                     !--- Prevent from getting extreme "extrem values", by using quantiles instead
                     amin = quantileM(0.00005_rn,arraymc(1:imctrue,kqtyp),imctrue)
@@ -871,31 +867,31 @@ contains
                     x2 = 0.012_rn*DT_anf
 
                     if(xmit1 > ZERO) then
-                        x1 = -xmit1*TWO * 1.5_rn   ! * two * zero
-                        x2 = xmit1*TWO * 1.5_rn    ! * 0.55_rn
+                        x1 = -xmit1*TWO * 2.2_rn   ! 1.5_rn   ! * two * zero
+                        x2 = xmit1*TWO * 2.2_rn    ! 1.5_rn    ! * 0.55_rn
                     else
-                        x1 = xmit1*TWO  * 1.5_rn   ! * 0.75_rn
-                        x2 = -xmit1*TWO * 1.5_rn   ! * 0.5_rn
+                        x1 = xmit1*TWO  * 2.2_rn   ! 1.5_rn   ! * 0.75_rn
+                        x2 = -xmit1*TWO * 2.2_rn    !1.5_rn   ! * 0.5_rn
                     end if
 
-                    if(use_brent) then
-                        xacc = 1.0E-5_rn *abs(xmit1)
-                        itmeth = 'brentx'
-                        write(log_str,'(10(a,es11.4))') ' xacc=',xacc, &
-                            '  help1=',help1,'  bias/DT_anf=',xmit1/DT_anf,' DT_anf=',DT_anf
-                        call logger(63, log_str)
+                    xacc = 1.0E-5_rn *abs(xmit1)
+                    itmeth = 'brentx'
+                    write(log_str,'(10(a,es11.4))') ' xacc=',xacc, &
+                        '  help1=',help1,'  bias/DT_anf=',xmit1/DT_anf,' DT_anf=',DT_anf
+                    call logger(63, log_str)
 
-                        ! brentx performs the iteration using rootfindbs:
-                        rts = brentx(x1,x2,xacc,ZERO,mode)
-                    end if
+                    ! brentx performs the iteration using rootfindbs:
+                    rts = brentx(x1,x2,xacc,ZERO,mode)
+
                     if(ifehl == 1) then
-                        write(log_str,*) 'MCcalc: Error in brentx!  kqtyp=',int(kqtyp,2),' run=',int(kr,2)
+
+                        write(log_str,*) 'MCcalc: Error in brentx (DL)!  kqtyp=',int(kqtyp,2),' run=',int(kr,2)
                         call logger(63, log_str)
                         goto 8900   ! return
                     end if
 
                     ! derive decision threshold value as (1-alpha) quantile:
-                    call Quick_Sort_r(arraymc(1:imctrue,kqtyp),indx)
+                    call Quick_Sort_r(arraymc(1:imctrue,kqtyp))
                     xxDT(kr) = quantileM(ONE-alpha,arraymc(1:imctrue,kqtyp),imctrue)
 
                     if(batf_mc) write(168,*) 'DT('//trim(itmeth)//'): ',sngl(xxDT(kr)),'  DTanf=',sngl(DT_anf), &
@@ -948,20 +944,17 @@ contains
                     x2 = dummy
                     ! xacc = 5.e-7_rn * x1
                     mode = 2
-                    if(use_brent) then
-                        x2 = x2 * TWO
-                        xacc = 1.5e-4_rn * x1
-                        !!  xacc = xacc / 3._rn     ! deactivated 7.7.2023
+                    ! if(use_brent) then
 
-                        !    if(use_bipoi .and. test_mg .and. .not.use_binint) xacc = 0.01_rn  ! Binom_Impulsanzahl für non-integer
-                        !    if(use_bipoi .and. test_mg .and. use_binint) xacc = 0.02_rn  ! Binom_Impulsanzahl für ganzzahlige Werte
+                    x2 = x2 * TWO
+                    xacc = 1.5e-4_rn * x1
 
-                        write(63,*) ' xacc=',sngl(xacc) ! ,'  ftol=',sngl(ftol)
-                        ! brentx performs the iteration using rootfindbs:
-                        rts = brentx(x1,x2,xacc,xxDT(kr),mode)
-                        xzDL(kr) = rts
-                    end if
+                    ! brentx performs the iteration using rootfindbs:
+                    rts = brentx(x1,x2,xacc,xxDT(kr),mode)
+                    xzDL(kr) = rts
+
                     if(ifehl == 1) then
+
                         write(log_str,*) 'MCcalc: Error in brentx (DL)!  kqtyp=',int(kqtyp,2),' run=',int(kr,2)
                         call logger(63, log_str)
                         goto 8900    ! return
@@ -1333,7 +1326,7 @@ contains
 8900        continue
             iteration_on = .FALSE.
 
-            !  Restore arrays "Messwert" and their Std uncertainties:
+!  Restore arrays "Messwert" and their Std uncertainties:
             Messwert(1:ngrs+ncov+numd) = MesswertORG(1:ngrs+ncov+numd)
             StdUnc(1:ngrs+ncov+numd)   = StdUncORG(1:ngrs+ncov+numd)
             MesswertSV(1:ngrs+ncov+numd) = MesswertORG(1:ngrs+ncov+numd)
@@ -1370,21 +1363,21 @@ contains
             end if
 
         end do          ! kqtyp
-        !+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-9000    continue
+!+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+9000    CONTINUE
 
         call gtk_progress_bar_set_fraction(idpt('TRprogressbar'), 0.d0)
         call gtk_widget_set_sensitive(idpt('TRprogressbar'), 0_c_int)
 
         call WrStb_Ready(ifehl)
 
-        !------------------------------------------------------
+!------------------------------------------------------
 
         IF(GamDist_ZR) THEN
             Rbltot = RbltotSV
         end if
 
-        ! Restore arrays "Messwert" and their Std uncertainties:
+! Restore arrays "Messwert" and their Std uncertainties:
         Messwert(1:ngrs+ncov+numd) = MesswertORG(1:ngrs+ncov+numd)
         StdUnc(1:ngrs+ncov+numd)   = StdUncORG(1:ngrs+ncov+numd)
         MesswertSV(1:ngrs+ncov+numd) = MesswertORG(1:ngrs+ncov+numd)
